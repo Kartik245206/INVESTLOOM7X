@@ -70,37 +70,22 @@ const auth = {
     // Handle signup
     async signup(userData) {
         try {
-            // Validate data before sending
-            if (!userData.email || !userData.password || !userData.username || !userData.fullName) {
-                throw new Error('Please fill in all required fields');
-            }
-
-            // Add artificial delay to simulate network request (remove in production)
-            await new Promise(resolve => setTimeout(resolve, 1000));
-
-            // Server request simulation (replace with actual API call)
-            // For demo, we'll store in localStorage
+            // Get existing users
             const users = JSON.parse(localStorage.getItem('users') || '[]');
             
             // Check if email already exists
             if (users.some(user => user.email.toLowerCase() === userData.email.toLowerCase())) {
-                throw new Error('Email already registered');
+                return { success: false, message: 'This email is already registered. Please login instead.' };
             }
 
             // Check if username already exists
             if (users.some(user => user.username.toLowerCase() === userData.username.toLowerCase())) {
-                throw new Error('Username already taken');
+                return { success: false, message: 'This username is already taken. Please choose another.' };
             }
 
-            // Validate password strength
-            if (userData.password.length < 6) {
-                throw new Error('Password must be at least 6 characters long');
-            }
-
-            // Validate email format
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(userData.email)) {
-                throw new Error('Please enter a valid email address');
+            // Check if UPI ID already exists
+            if (users.some(user => user.upiId === userData.upiId)) {
+                return { success: false, message: 'This UPI ID is already registered with another account.' };
             }
 
             // Create new user with default values
@@ -127,7 +112,7 @@ const auth = {
             console.error('Signup error:', error);
             return { 
                 success: false, 
-                message: error.message || 'An unexpected error occurred during signup'
+                message: 'Failed to create account. Please try again.'
             };
         }
     },

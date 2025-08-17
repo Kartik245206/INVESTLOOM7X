@@ -72,103 +72,88 @@
         </form>
     </div>
 
-    <!-- Loading Overlay -->
     <!-- Error Alert -->
     <div id="errorAlert" class="alert alert-danger" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 10000;">
     </div>
 
-    <!-- Loading Overlay -->
-    <div id="loadingOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999;">
-        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
-            <div class="spinner-border text-light mb-3" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-            <div class="text-white">Creating your account...</div>
-        </div>
+    <!-- Success Alert -->
+    <div id="successAlert" class="alert alert-success" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 10000;">
+        Account created successfully! Redirecting...
     </div>
 
     <!-- Scripts -->
     <script src="vendor/jquery/jquery.min.js"></script>
     <script src="assets/js/auth.js"></script>
     <script>
-        const loadingOverlay = document.getElementById('loadingOverlay');
         const errorAlert = document.getElementById('errorAlert');
+        const successAlert = document.getElementById('successAlert');
         const signupForm = document.getElementById('signupForm');
-        let isSubmitting = false;
 
         function showError(message) {
             errorAlert.textContent = message;
             errorAlert.style.display = 'block';
             setTimeout(() => {
                 errorAlert.style.display = 'none';
-            }, 5000);
+            }, 3000);
+        }
+
+        function showSuccess() {
+            successAlert.style.display = 'block';
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1500);
         }
 
         async function handleSignup(event) {
             event.preventDefault();
             
-            if (isSubmitting) return;
-            
-            isSubmitting = true;
-            loadingOverlay.style.display = 'flex';
-            
+            const userData = {
+                fullName: document.getElementById('fullName').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                username: document.getElementById('username').value.trim(),
+                password: document.getElementById('password').value,
+                phone: document.getElementById('phone').value.trim(),
+                upiId: document.getElementById('upiId').value.trim()
+            };
+
+            // Basic validation
+            if (!userData.fullName || !userData.email || !userData.username || 
+                !userData.password || !userData.phone || !userData.upiId) {
+                showError('Please fill in all required fields');
+                return;
+            }
+
+            if (userData.password.length < 6) {
+                showError('Password must be at least 6 characters long');
+                return;
+            }
+
+            if (!userData.email.includes('@')) {
+                showError('Please enter a valid email address');
+                return;
+            }
+
+            // Phone number validation
+            if (!/^\d{10}$/.test(userData.phone)) {
+                showError('Please enter a valid 10-digit phone number');
+                return;
+            }
+
+            // UPI ID validation
+            if (!/^[a-zA-Z0-9.\-_]{2,49}@[a-zA-Z._]{2,49}$/.test(userData.upiId)) {
+                showError('Please enter a valid UPI ID');
+                return;
+            }
+
             try {
-                const formData = new FormData(signupForm);
-                const userData = {
-                    fullName: formData.get('fullName')?.trim(),
-                    email: formData.get('email')?.trim(),
-                    username: formData.get('username')?.trim(),
-                    password: formData.get('password'),
-                    phone: formData.get('phone')?.trim(),
-                    upiId: formData.get('upiId')?.trim()
-                };
-
-                // Basic validation
-                if (!userData.fullName || !userData.email || !userData.username || !userData.password) {
-                    throw new Error('Please fill in all required fields');
-                }
-
-                if (userData.password.length < 6) {
-                    throw new Error('Password must be at least 6 characters long');
-                }
-
-                if (!userData.email.includes('@')) {
-                    throw new Error('Please enter a valid email address');
-                }
-
-                // Attempt signup with timeout
-                const signupPromise = auth.signup(userData);
-                const timeoutPromise = new Promise((_, reject) => {
-                    setTimeout(() => reject(new Error('Signup request timed out')), 15000);
-                });
-
-                const result = await Promise.race([signupPromise, timeoutPromise]);
-                
+                const result = await auth.signup(userData);
                 if (result.success) {
-                    // Clear form data from sessionStorage
-                    sessionStorage.removeItem('signupFormData');
-                    
-                    // Redirect to index
-                    window.location.href = 'index.html';
+                    showSuccess();
                 } else {
-                    throw new Error(result.message || 'Signup failed!');
+                    showError(result.message || 'Signup failed!');
                 }
             } catch (error) {
-                showError(error.message);
-                
-                // Save form data except password
-                const formData = {
-                    fullName: document.getElementById('fullName').value,
-                    email: document.getElementById('email').value,
-                    username: document.getElementById('username').value,
-                    phone: document.getElementById('phone').value,
-                    upiId: document.getElementById('upiId').value
-                };
-                sessionStorage.setItem('signupFormData', JSON.stringify(formData));
-            } finally {
-                // Always hide loading overlay and reset submit state
-                loadingOverlay.style.display = 'none';
-                isSubmitting = false;
+                showError(error.message || 'An error occurred during signup');
             }
         }
 
