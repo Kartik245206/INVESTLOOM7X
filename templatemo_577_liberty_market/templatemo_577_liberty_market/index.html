@@ -22,6 +22,7 @@
     <link rel="stylesheet" href="assets/css/desktop-responsive.css">
     <link rel="stylesheet" href="assets/css/desktop-fixes.css">
     <link rel="stylesheet" href="assets/css/navigation.css">
+    <link rel="stylesheet" href="assets/css/modern-header.css">
     <link rel="stylesheet" href="assets/css/owl.css">
     <link rel="stylesheet" href="assets/css/animate.css">
     <link rel="stylesheet" href="assets/css/user-profile.css">
@@ -54,18 +55,42 @@ https://templatemo.com/tm-577-liberty-market
     </div>
   </div>
 
-  <!-- User Account Info -->
-  <div class="user-account-info">
-    <div class="user-profile-pic">
-        <img src="assets/images/author.jpg" alt="Profile" id="userProfilePic">
+  <!-- Header Area -->
+  <header class="header-area">
+    <nav class="main-nav">
+      <a href="index.html" class="logo">
+        <img src="assets/images/logo.png" alt="INVESTLOOM7X">
+      </a>
+      <div class="nav-links">
+        <a href="index.html" class="active">Home</a>
+        <a href="profile.html">Profile</a>
+        <a href="author.html">Explore</a>
+        <a href="#" onclick="auth.logout()">Logout</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Page Banner -->
+  <div class="page-banner">
+    <div class="banner-content">
+      <h1 class="banner-title">Welcome to INVESTLOOM7X</h1>
+      <p class="banner-subtitle">Explore investment opportunities and grow your wealth</p>
     </div>
-    <div class="user-info">
-        <div class="username" id="username">Loading...</div>
-        <div class="user-balance-info">
-            <div class="balance-amount" id="userBalanceAmount">₹0</div>
-            <div class="balance-label">Available Balance</div>
-        </div>
-        <button class="btn btn-logout" onclick="auth.logout()">Logout</button>
+  </div>
+
+  <!-- User Account Info -->
+  <div class="container mt-4">
+    <div class="user-account-info">
+      <div class="user-profile-pic">
+          <img src="assets/images/author.jpg" alt="Profile" id="userProfilePic">
+      </div>
+      <div class="user-info">
+          <div class="username" id="username">Loading...</div>
+          <div class="user-balance-info">
+              <div class="balance-amount" id="userBalanceAmount">₹0</div>
+              <div class="balance-label">Available Balance</div>
+          </div>
+      </div>
     </div>
   </div>
 

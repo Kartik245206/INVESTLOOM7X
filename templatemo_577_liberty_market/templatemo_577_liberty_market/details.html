@@ -15,7 +15,16 @@
 <link href="assets/css/templatemo-liberty-market.css" rel="stylesheet"/>
 <link href="assets/css/owl.css" rel="stylesheet"/>
 <link href="assets/css/animate.css" rel="stylesheet"/>
+<link href="assets/css/modern-header.css" rel="stylesheet"/>
 <link href="https://unpkg.com/swiper@7/swiper-bundle.min.css" rel="stylesheet">
+
+<!-- Security Check Script -->
+<script>
+    // Immediate authentication check
+    if (!localStorage.getItem('token')) {
+        window.location.href = 'login.html';
+    }
+</script>
 
 
 

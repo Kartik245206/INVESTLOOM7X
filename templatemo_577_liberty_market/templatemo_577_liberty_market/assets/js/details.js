@@ -5,6 +5,18 @@ const API_CONFIG = {
     RAZORPAY_KEY: 'rzp_test_PCS9GocYLB1wd'
 };
 
+// Check authentication on page load
+document.addEventListener('DOMContentLoaded', () => {
+    authGuard.init();
+    if (!authGuard.isAuthenticated()) {
+        window.location.href = 'login.html';
+        return;
+    }
+    
+    loadProductDetails();
+    initializePayment();
+});
+
 // Product Loading Functions
 async function loadProductDetails() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -16,13 +28,21 @@ async function loadProductDetails() {
     }
 
     try {
-        const products = await loadProducts();
-        const product = products.find(p => p.id == productId);
-        if (product) {
-            populateProductDetails(product);
+        const response = await fetch(`${API_CONFIG.BASE_URL}/api/products/${productId}`, {
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to load product details');
         }
+
+        const product = await response.json();
+        populateProductDetails(product);
     } catch (error) {
         console.error('Error loading product:', error);
+        window.location.href = 'index.html';
     }
 }
 
