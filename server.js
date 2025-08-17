@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const db = require('./api/database');  // Make sure this path is correct
+const Database = require('./api/database');  // Using the Database class directly
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const fs = require('fs');
@@ -75,7 +75,7 @@ app.get('/admin', (req, res) => {
 });
 
 // Initialize database
-const database = new db.Database();
+const database = new Database();
 
 // API Routes
 app.get('/api/products', async (req, res) => {
