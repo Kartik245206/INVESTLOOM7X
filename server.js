@@ -1,11 +1,22 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const Database = require('./api/database');  // Using the Database class directly
+const Database = require('./api/database');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const fs = require('fs');
 const multer = require('multer');
+
+// Error handling
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception:', err);
+    // Ensure we're not leaving the process in an undefined state
+    process.exit(1);
+});
+
+process.on('unhandledRejection', (err) => {
+    console.error('Unhandled Rejection:', err);
+});
 
 // Load environment variables
 const PORT = process.env.PORT || 3000;
@@ -14,14 +25,43 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Security Middleware
-app.use(helmet());
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Security Middleware with proper CSP
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https:"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https:"],
+            imgSrc: ["'self'", "data:", "https:"],
+            connectSrc: ["'self'", "https:"],
+            fontSrc: ["'self'", "https:", "data:"],
+            objectSrc: ["'none'"],
+            mediaSrc: ["'self'"],
+            frameSrc: ["'self'"],
+        },
+    },
+}));
 
-// Serve static files
-app.use(express.static(path.join(__dirname, 'templatemo_577_liberty_market/templatemo_577_liberty_market')));
+// CORS configuration
+app.use(cors({
+    origin: process.env.NODE_ENV === 'production' 
+        ? ['https://investloom7x.onrender.com'] 
+        : ['http://localhost:3000'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+}));
+
+// Body parser with limits
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Serve static files with caching
+app.use(express.static(path.join(__dirname, 'templatemo_577_liberty_market/templatemo_577_liberty_market'), {
+    maxAge: '1h',
+    etag: true,
+    lastModified: true
+}));
 
 // Security headers
 app.use((req, res, next) => {
