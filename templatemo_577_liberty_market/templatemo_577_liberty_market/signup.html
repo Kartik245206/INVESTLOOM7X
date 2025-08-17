@@ -65,7 +65,7 @@
     </div>
 
     <script>
-        function handleSignup(event) {
+        async function handleSignup(event) {
             event.preventDefault();
             
             const userData = {
@@ -78,26 +78,17 @@
                 upiId: document.getElementById('upiId').value,
                 balance: 0,
                 transactions: [],
-                emiHistory: []
+                emiHistory: [],
+                profilePic: 'assets/images/author.jpg'
             };
 
-            // Save user data
-            let users = JSON.parse(localStorage.getItem('users') || '[]');
+            const result = await auth.signup(userData);
             
-            // Check if email already exists
-            if(users.find(user => user.email === userData.email)) {
-                alert('Email already registered!');
-                return;
-            }
-
-            users.push(userData);
-            localStorage.setItem('users', JSON.stringify(users));
-            
-            // Save current user session
-            localStorage.setItem('currentUser', JSON.stringify(userData));
-            
-            alert('Account created successfully!');
-            window.location.href = 'index.html';
+            if (result.success) {
+                window.location.href = 'index.html';
+            } else {
+                alert(result.message || 'Signup failed!');
+            };
         }
     </script>
 </body>

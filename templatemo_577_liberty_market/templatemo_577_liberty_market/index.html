@@ -24,6 +24,7 @@
     <link rel="stylesheet" href="assets/css/navigation.css">
     <link rel="stylesheet" href="assets/css/owl.css">
     <link rel="stylesheet" href="assets/css/animate.css">
+    <link rel="stylesheet" href="assets/css/user-profile.css">
     <link rel="stylesheet"href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
 <!--
 
@@ -39,6 +40,8 @@ https://templatemo.com/tm-577-liberty-market
   <body>
   <!-- Common JavaScript Functions -->
   <script src="assets/js/common.js"></script>
+  <script src="assets/js/auth.js"></script>
+  
   <!-- ***** Preloader Start ***** -->
   <div id="js-preloader" class="js-preloader">
     <div class="preloader-inner">
@@ -50,6 +53,28 @@ https://templatemo.com/tm-577-liberty-market
       </div>
     </div>
   </div>
+
+  <!-- User Account Info -->
+  <div class="user-account-info">
+    <div class="user-profile-pic">
+        <img src="assets/images/author.jpg" alt="Profile" id="userProfilePic">
+    </div>
+    <div class="user-info">
+        <div class="username" id="username">Loading...</div>
+        <div class="user-balance-info">
+            <div class="balance-amount" id="userBalanceAmount">₹0</div>
+            <div class="balance-label">Available Balance</div>
+        </div>
+        <button class="btn btn-logout" onclick="auth.logout()">Logout</button>
+    </div>
+  </div>
+
+  <script>
+    // Initialize user session
+    document.addEventListener('DOMContentLoaded', function() {
+        auth.initSession();
+    });
+  </script>
   <!-- ***** Preloader End ***** -->
 
   <!-- ***** Header Area Start ***** -->
@@ -132,6 +157,68 @@ https://templatemo.com/tm-577-liberty-market
     </div>
   </div>
   <!-- ***** Main Banner Area End ***** -->
+
+<style>
+  .header-area {
+    background: rgba(1, 11, 44, 0.9);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+}
+
+/* Main Banner Styles */
+.main-banner {
+    background-image: url(assets/images/banner-bg.jpg);
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    padding: 100px 0px;
+    margin-bottom: 60px;
+    border-radius: 0px;
+    position: relative;
+}
+
+.main-banner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 0px;
+}
+
+.main-banner .container {
+    position: relative;
+    z-index: 1;
+}
+
+.main-banner .header-text {
+    padding: 0;
+    margin: 20px 0;
+    text-align: center;
+}
+
+.main-banner .header-text h1 {
+    font-size: 32px;
+    margin-bottom: 15px;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+.main-banner .header-text h4 {
+    font-size: 18px;
+    color: #b4b2ba;
+    line-height: 1.6;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+</style>
 
   <!-- Deposit Modal -->
   <div class="modal fade" id="depositModal" tabindex="-1" aria-labelledby="depositModalLabel" aria-hidden="true">
