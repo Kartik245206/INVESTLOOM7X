@@ -1,0 +1,68 @@
+577_liberty_market\Host-WEB\admin_dashboard.html
+function getProductsContent() {
+    return `
+        <h2>Products Management</h2>
+        <div class="mt-4">
+            <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                Add New Product
+            </button>
+
+            <!-- Add Product Modal -->
+            <div class="modal fade" id="addProductModal" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Add New Product</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="addProductForm">
+                                <div class="mb-3">
+                                    <label class="form-label">Product Image</label>
+                                    <input type="file" class="form-control" id="productImage" accept="image/*" required>
+                                    <img id="imagePreview" class="mt-2 d-none" style="max-width: 200px;">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Product Name</label>
+                                    <input type="text" class="form-control" id="productName" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Category</label>
+                                    <select class="form-select" id="productCategory" required>
+                                        <option value="">Select Category</option>
+                                        <option value="iPhone">iPhone</option>
+                                        <option value="Smartwatch">Smartwatch</option>
+                                        <option value="Earphone">Earphone</option>
+                                        <option value="Laptops">Laptops</option>
+                                    </select>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Price per day (₹)</label>
+                                            <input type="number" class="form-control" id="productPricePerDay" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Total Amount (₹)</label>
+                                            <input type="number" class="form-control" id="productTotalAmount" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" onclick="saveProduct()">Save Product</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="productsList">
+                <!-- Products will be displayed here -->
+            </div>
+        </div>
+    `;
+}

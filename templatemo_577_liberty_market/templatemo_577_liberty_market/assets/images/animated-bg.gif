@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <defs>
+    <radialGradient id="grad1" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+      <stop offset="0%" style="stop-color:#7453fc;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#000000;stop-opacity:1" />
+    </radialGradient>
+    <filter id="noise" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.01" numOctaves="3" seed="0">
+        <animate attributeName="seed" from="0" to="100" dur="20s" repeatCount="indefinite" />
+      </feTurbulence>
+      <feDisplacementMap in="SourceGraphic" scale="50" />
+    </filter>
+    <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7453fc;stop-opacity:0.5">
+        <animate attributeName="stop-color" values="#7453fc;#3a2a80;#7453fc" dur="10s" repeatCount="indefinite" />
+      </stop>
+      <stop offset="100%" style="stop-color:#000000;stop-opacity:1">
+        <animate attributeName="stop-color" values="#000000;#1a1a1a;#000000" dur="10s" repeatCount="indefinite" />
+      </stop>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="url(#grad2)" />
+  
+  <!-- Animated particles -->
+  <g filter="url(#noise)">
+    <circle cx="300" cy="300" r="50" fill="rgba(116, 83, 252, 0.3)">
+      <animate attributeName="cx" values="300;600;300" dur="20s" repeatCount="indefinite" />
+      <animate attributeName="cy" values="300;500;300" dur="15s" repeatCount="indefinite" />
+    </circle>
+    <circle cx="800" cy="400" r="70" fill="rgba(116, 83, 252, 0.2)">
+      <animate attributeName="cx" values="800;500;800" dur="25s" repeatCount="indefinite" />
+      <animate attributeName="cy" values="400;200;400" dur="20s" repeatCount="indefinite" />
+    </circle>
+    <circle cx="1200" cy="600" r="90" fill="rgba(116, 83, 252, 0.15)">
+      <animate attributeName="cx" values="1200;1500;1200" dur="30s" repeatCount="indefinite" />
+      <animate attributeName="cy" values="600;800;600" dur="25s" repeatCount="indefinite" />
+    </circle>
+    <circle cx="1600" cy="300" r="60" fill="rgba(116, 83, 252, 0.25)">
+      <animate attributeName="cx" values="1600;1300;1600" dur="22s" repeatCount="indefinite" />
+      <animate attributeName="cy" values="300;500;300" dur="18s" repeatCount="indefinite" />
+    </circle>
+  </g>
+  
+  <!-- Grid lines -->
+  <g stroke="rgba(116, 83, 252, 0.1)" stroke-width="1">
+    <line x1="0" y1="0" x2="1920" y2="1080">
+      <animate attributeName="stroke-opacity" values="0.1;0.3;0.1" dur="5s" repeatCount="indefinite" />
+    </line>
+    <line x1="1920" y1="0" x2="0" y2="1080">
+      <animate attributeName="stroke-opacity" values="0.1;0.2;0.1" dur="7s" repeatCount="indefinite" />
+    </line>
+    
+    <!-- Horizontal lines -->
+    <g>
+      <line x1="0" y1="200" x2="1920" y2="200">
+        <animate attributeName="stroke-opacity" values="0.1;0.2;0.1" dur="8s" repeatCount="indefinite" />
+      </line>
+      <line x1="0" y1="400" x2="1920" y2="400">
+        <animate attributeName="stroke-opacity" values="0.1;0.3;0.1" dur="9s" repeatCount="indefinite" />
+      </line>
+      <line x1="0" y1="600" x2="1920" y2="600">
+        <animate attributeName="stroke-opacity" values="0.1;0.2;0.1" dur="7s" repeatCount="indefinite" />
+      </line>
+      <line x1="0" y1="800" x2="1920" y2="800">
+        <animate attributeName="stroke-opacity" values="0.1;0.3;0.1" dur="10s" repeatCount="indefinite" />
+      </line>
+    </g>
+    
+    <!-- Vertical lines -->
+    <g>
+      <line x1="400" y1="0" x2="400" y2="1080">
+        <animate attributeName="stroke-opacity" values="0.1;0.2;0.1" dur="6s" repeatCount="indefinite" />
+      </line>
+      <line x1="800" y1="0" x2="800" y2="1080">
+        <animate attributeName="stroke-opacity" values="0.1;0.3;0.1" dur="8s" repeatCount="indefinite" />
+      </line>
+      <line x1="1200" y1="0" x2="1200" y2="1080">
+        <animate attributeName="stroke-opacity" values="0.1;0.2;0.1" dur="7s" repeatCount="indefinite" />
+      </line>
+      <line x1="1600" y1="0" x2="1600" y2="1080">
+        <animate attributeName="stroke-opacity" values="0.1;0.3;0.1" dur="9s" repeatCount="indefinite" />
+      </line>
+    </g>
+  </g>
+</svg>

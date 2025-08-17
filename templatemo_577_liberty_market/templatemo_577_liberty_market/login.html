@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Liberty Market</title>
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/templatemo-liberty-market.css">
+    <style>
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2 class="text-center mb-4">Welcome Back</h2>
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+            <p class="text-center mt-3">
+                Don't have an account? <a href="signup.html">Sign up here</a>
+            </p>
+        </form>
+    </div>
+
+    <script>
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            if(user) {
+                // Save current user session
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                alert('Login successful!');
+                window.location.href = 'index.html';
+            } else {
+                alert('Invalid email or password!');
+            }
+        }
+    </script>
+</body>
+</html>

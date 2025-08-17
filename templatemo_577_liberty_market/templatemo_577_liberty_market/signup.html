@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Liberty Market</title>
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/templatemo-liberty-market.css">
+    <style>
+        .signup-container {
+            max-width: 500px;
+            margin: 100px auto;
+            padding: 20px;
+            background: #080808;
+            border-radius: 15px;
+            color: rgb(253, 251, 251);
+        }
+        .form-control {
+            background-color: #37393c;
+            border: 1px solid #404245;
+            color: rgb(246, 243, 243);
+        }
+        .btn-primary {
+            background: #7453fc;
+            border: none;
+        }
+        .btn-primary:hover {
+            background: #5b42c7;
+        }
+    </style>
+</head>
+<body>
+    <div class="signup-container">
+        <h2 class="text-center mb-4">Create Account</h2>
+        <form id="signupForm" onsubmit="handleSignup(event)">
+            <div class="mb-3">
+                <label class="form-label">Full Name</label>
+                <input type="text" class="form-control" id="fullName" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" required>
+            </div>
+            <div class="mb-3">
+                <label id= "username" class="form-label">Username</label>
+                <input type="text" class="form-control" id="username" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Phone Number</label>
+                <input type="tel" class="form-control" id="phone" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">UPI ID</label>
+                <input type="text" class="form-control" id="upiId" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+            <p class="text-center mt-3">
+                Already have an account? <a href="login.html">Login here</a>
+            </p>
+        </form>
+    </div>
+
+    <script>
+        function handleSignup(event) {
+            event.preventDefault();
+            
+            const userData = {
+                id: Date.now(),
+                fullName: document.getElementById('fullName').value,
+                email: document.getElementById('email').value,
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value,
+                phone: document.getElementById('phone').value,
+                upiId: document.getElementById('upiId').value,
+                balance: 0,
+                transactions: [],
+                emiHistory: []
+            };
+
+            // Save user data
+            let users = JSON.parse(localStorage.getItem('users') || '[]');
+            
+            // Check if email already exists
+            if(users.find(user => user.email === userData.email)) {
+                alert('Email already registered!');
+                return;
+            }
+
+            users.push(userData);
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            // Save current user session
+            localStorage.setItem('currentUser', JSON.stringify(userData));
+            
+            alert('Account created successfully!');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
