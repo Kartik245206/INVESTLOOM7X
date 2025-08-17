@@ -5,6 +5,8 @@ const productsManager = {
             const response = await fetch('/api/products');
             const products = await response.json();
             this.displayProducts(products);
+            // Update products on homepage
+            window.dispatchEvent(new CustomEvent('productsUpdated', { detail: products }));
         } catch (error) {
             console.error('Error loading products:', error);
             alert('Failed to load products');
