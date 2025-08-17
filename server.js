@@ -21,7 +21,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve static files
-app.use(express.static(path.join(__dirname)));
+app.use(express.static(path.join(__dirname, 'templatemo_577_liberty_market/templatemo_577_liberty_market')));
 
 // Security headers
 app.use((req, res, next) => {
@@ -67,11 +67,11 @@ const upload = multer({
 
 // Routes
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.sendFile(path.join(__dirname, 'templatemo_577_liberty_market/templatemo_577_liberty_market/index.html'));
 });
 
 app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'Host-WEB/admin_dashboard.html'));
+    res.sendFile(path.join(__dirname, 'templatemo_577_liberty_market/templatemo_577_liberty_market/Host-WEB/admin_dashboard.html'));
 });
 
 // Initialize database
