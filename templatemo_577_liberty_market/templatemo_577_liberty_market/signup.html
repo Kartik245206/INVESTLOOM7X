@@ -72,22 +72,28 @@
         </form>
     </div>
 
-    <!-- Error Alert -->
-    <div id="errorAlert" class="alert alert-danger" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 10000;">
-    </div>
-
-    <!-- Success Alert -->
-    <div id="successAlert" class="alert alert-success" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 10000;">
-        Account created successfully! Redirecting...
+    <!-- Alert Message -->
+    <div id="alertMessage" class="alert" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 10000; padding: 15px 30px; border-radius: 5px;">
     </div>
 
     <!-- Scripts -->
     <script src="vendor/jquery/jquery.min.js"></script>
     <script src="assets/js/auth.js"></script>
     <script>
-        const errorAlert = document.getElementById('errorAlert');
-        const successAlert = document.getElementById('successAlert');
+        const alertMessage = document.getElementById('alertMessage');
         const signupForm = document.getElementById('signupForm');
+
+        function showAlert(message, type) {
+            alertMessage.textContent = message;
+            alertMessage.className = `alert alert-${type}`;
+            alertMessage.style.display = 'block';
+            
+            if (type === 'success') {
+                setTimeout(() => window.location.href = 'index.html', 1500);
+            } else {
+                setTimeout(() => alertMessage.style.display = 'none', 3000);
+            }
+        }
 
         function showError(message) {
             errorAlert.textContent = message;
@@ -104,7 +110,7 @@
             }, 1500);
         }
 
-        async function handleSignup(event) {
+        function handleSignup(event) {
             event.preventDefault();
             
             const userData = {
@@ -116,44 +122,39 @@
                 upiId: document.getElementById('upiId').value.trim()
             };
 
-            // Basic validation
+            // Validation
             if (!userData.fullName || !userData.email || !userData.username || 
                 !userData.password || !userData.phone || !userData.upiId) {
-                showError('Please fill in all required fields');
+                showAlert('Please fill in all required fields', 'danger');
                 return;
             }
 
             if (userData.password.length < 6) {
-                showError('Password must be at least 6 characters long');
+                showAlert('Password must be at least 6 characters long', 'danger');
                 return;
             }
 
             if (!userData.email.includes('@')) {
-                showError('Please enter a valid email address');
+                showAlert('Please enter a valid email address', 'danger');
                 return;
             }
 
-            // Phone number validation
             if (!/^\d{10}$/.test(userData.phone)) {
-                showError('Please enter a valid 10-digit phone number');
+                showAlert('Please enter a valid 10-digit phone number', 'danger');
                 return;
             }
 
-            // UPI ID validation
             if (!/^[a-zA-Z0-9.\-_]{2,49}@[a-zA-Z._]{2,49}$/.test(userData.upiId)) {
-                showError('Please enter a valid UPI ID');
+                showAlert('Please enter a valid UPI ID', 'danger');
                 return;
             }
 
-            try {
-                const result = await auth.signup(userData);
-                if (result.success) {
-                    showSuccess();
-                } else {
-                    showError(result.message || 'Signup failed!');
-                }
-            } catch (error) {
-                showError(error.message || 'An error occurred during signup');
+            // Try to create account
+            const result = auth.signup(userData);
+            if (result.success) {
+                showAlert('Account created successfully!', 'success');
+            } else {
+                showAlert(result.message, 'danger');
             }
         }
 

@@ -68,36 +68,35 @@ const auth = {
     },
 
     // Handle signup
-    async signup(userData) {
-        try {
-            // Get existing users
-            const users = JSON.parse(localStorage.getItem('users') || '[]');
-            
-            // Check if email already exists
-            if (users.some(user => user.email.toLowerCase() === userData.email.toLowerCase())) {
-                return { success: false, message: 'This email is already registered. Please login instead.' };
-            }
+    signup(userData) {
+        // Get existing users
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        
+        // Check if email already exists
+        if (users.some(user => user.email.toLowerCase() === userData.email.toLowerCase())) {
+            return { success: false, message: 'This email is already registered' };
+        }
 
-            // Check if username already exists
-            if (users.some(user => user.username.toLowerCase() === userData.username.toLowerCase())) {
-                return { success: false, message: 'This username is already taken. Please choose another.' };
-            }
+        // Check if username already exists
+        if (users.some(user => user.username.toLowerCase() === userData.username.toLowerCase())) {
+            return { success: false, message: 'This username is already taken' };
+        }
 
-            // Check if UPI ID already exists
-            if (users.some(user => user.upiId === userData.upiId)) {
-                return { success: false, message: 'This UPI ID is already registered with another account.' };
-            }
+        // Check if UPI ID already exists
+        if (users.some(user => user.upiId === userData.upiId)) {
+            return { success: false, message: 'This UPI ID is already registered' };
+        }
 
-            // Create new user with default values
-            const newUser = {
-                ...userData,
-                id: Date.now(),
-                balance: 0,
-                transactions: [],
-                emiHistory: [],
-                profilePic: 'assets/images/author.jpg',
-                createdAt: new Date().toISOString()
-            };
+        // Create new user with default values
+        const newUser = {
+            ...userData,
+            id: Date.now(),
+            balance: 0,
+            transactions: [],
+            emiHistory: [],
+            profilePic: 'assets/images/author.jpg',
+            createdAt: new Date().toISOString()
+        };
 
             // Save to users array
             users.push(newUser);
