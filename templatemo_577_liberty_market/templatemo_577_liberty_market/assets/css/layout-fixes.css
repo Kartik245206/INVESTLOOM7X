@@ -1,0 +1,87 @@
+/* Logo Size Fixes */
+.header-area .logo img {
+    width: 220px !important; /* Increased logo size */
+    height: auto !important;
+    margin-top: 5px;
+}
+
+/* User Account Info Position Fixes */
+.user-account-info {
+    position: absolute !important;
+    right: 120px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    background: rgba(116, 83, 252, 0.1) !important;
+    border-radius: 10px !important;
+    padding: 8px 15px !important;
+    margin-right: 15px !important;
+    z-index: 100 !important;
+}
+
+.user-balance-info {
+    text-align: right !important;
+    margin-left: 10px !important;
+}
+
+.balance-amount {
+    font-size: 18px !important;
+    font-weight: bold !important;
+    color: #7453fc !important;
+    margin-bottom: 2px !important;
+}
+
+.balance-label {
+    font-size: 12px !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Logout Button Position */
+.btn-logout {
+    position: absolute !important;
+    right: 20px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    background: transparent !important;
+    border: 1px solid #7453fc !important;
+    color: #7453fc !important;
+    padding: 8px 15px !important;
+    border-radius: 5px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+}
+
+.btn-logout:hover {
+    background: #7453fc !important;
+    color: white !important;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 991px) {
+    .header-area .logo img {
+        width: 180px !important;
+        margin-top: 0px;
+    }
+
+    .user-account-info {
+        top: 80px !important;
+        right: 70px !important;
+        transform: none !important;
+    }
+
+    .btn-logout {
+        top: 80px !important;
+        right: 15px !important;
+        transform: none !important;
+    }
+}
+
+@media (max-width: 767px) {
+    .header-area .logo img {
+        width: 160px !important;
+    }
+    
+    .user-account-info {
+        padding: 5px 10px !important;
+        font-size: 14px !important;
+    }
+}
