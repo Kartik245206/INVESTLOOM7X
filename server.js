@@ -1,9 +1,9 @@
 const express = require('express');
-const path = require('path');
 const cors = require('cors');
+const path = require('path');
+const db = require('./api/database');  // Make sure this path is correct
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const { Database } = require('./api/database');
 const fs = require('fs');
 const multer = require('multer');
 
@@ -75,12 +75,12 @@ app.get('/admin', (req, res) => {
 });
 
 // Initialize database
-const db = new Database();
+const database = new db.Database();
 
 // API Routes
 app.get('/api/products', async (req, res) => {
     try {
-        const products = await db.getAllProducts();
+        const products = await database.getAllProducts();
         res.json(products);
     } catch (error) {
         console.error('Error fetching products:', error);
@@ -90,7 +90,7 @@ app.get('/api/products', async (req, res) => {
 
 app.get('/api/products/:id', async (req, res) => {
     try {
-        const products = await db.getProducts();
+        const products = await database.getProducts();
         const product = products.find(p => p.id === parseInt(req.params.id));
         if (product) {
             res.json(product);
@@ -115,7 +115,7 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
             image_url: `/assets/images/products/${req.file.filename}`
         };
 
-        const productId = await db.addProduct(product);
+        const productId = await database.addProduct(product);
         res.json({ 
             success: true, 
             productId,
@@ -133,7 +133,7 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
 // Delete product endpoint
 app.delete('/api/products/:id', async (req, res) => {
     try {
-        await db.deleteProduct(req.params.id);
+        await database.deleteProduct(req.params.id);
         res.json({ success: true });
     } catch (error) {
         console.error('Error deleting product:', error);
@@ -155,7 +155,7 @@ app.put('/api/products/:id', upload.single('image'), async (req, res) => {
             updates.image_url = `/assets/images/products/${req.file.filename}`;
         }
 
-        await db.updateProduct(productId, updates);
+        await database.updateProduct(productId, updates);
         res.json({ success: true });
     } catch (error) {
         console.error('Error updating product:', error);
@@ -171,7 +171,7 @@ app.post('/api/upload', express.static('public'), (req, res) => {
 // Clear Database Route
 app.post('/api/clear-database', async (req, res) => {
     try {
-        await db.clearDatabase(); // Add this method to your Database class
+        await database.clearDatabase(); // Add this method to your Database class
         res.json({ success: true, message: 'Database cleared successfully' });
     } catch (error) {
         console.error('Failed to clear database:', error);
