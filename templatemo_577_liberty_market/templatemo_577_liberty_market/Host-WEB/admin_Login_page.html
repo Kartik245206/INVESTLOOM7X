@@ -44,8 +44,10 @@
                 const adminSecret = 'liberty_market_admin_' + Date.now();
                 localStorage.setItem('ADMIN_SECRET', adminSecret);
                 
-                // Redirect to dashboard
-                window.location.href = 'admin_dashboard.html';
+                // Redirect to dashboard with absolute path
+                const currentPath = window.location.pathname;
+                const basePath = currentPath.substring(0, currentPath.lastIndexOf('/'));
+                window.location.href = basePath + '/admin_dashboard.html';
             } else {
                 alert('Invalid credentials!');
             }
