@@ -72,21 +72,35 @@ const auth = {
         try {
             // Validate data before sending
             if (!userData.email || !userData.password || !userData.username || !userData.fullName) {
-                return { success: false, message: 'Please fill in all required fields' };
+                throw new Error('Please fill in all required fields');
             }
+
+            // Add artificial delay to simulate network request (remove in production)
+            await new Promise(resolve => setTimeout(resolve, 1000));
 
             // Server request simulation (replace with actual API call)
             // For demo, we'll store in localStorage
             const users = JSON.parse(localStorage.getItem('users') || '[]');
             
             // Check if email already exists
-            if (users.some(user => user.email === userData.email)) {
-                return { success: false, message: 'Email already registered' };
+            if (users.some(user => user.email.toLowerCase() === userData.email.toLowerCase())) {
+                throw new Error('Email already registered');
             }
 
             // Check if username already exists
-            if (users.some(user => user.username === userData.username)) {
-                return { success: false, message: 'Username already taken' };
+            if (users.some(user => user.username.toLowerCase() === userData.username.toLowerCase())) {
+                throw new Error('Username already taken');
+            }
+
+            // Validate password strength
+            if (userData.password.length < 6) {
+                throw new Error('Password must be at least 6 characters long');
+            }
+
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(userData.email)) {
+                throw new Error('Please enter a valid email address');
             }
 
             // Create new user with default values
@@ -111,7 +125,10 @@ const auth = {
             return { success: true, user: newUser };
         } catch (error) {
             console.error('Signup error:', error);
-            return { success: false, message: 'An error occurred during signup' };
+            return { 
+                success: false, 
+                message: error.message || 'An unexpected error occurred during signup'
+            };
         }
     },
 
