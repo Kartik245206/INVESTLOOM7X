@@ -59,7 +59,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Serve static files with caching
-app.use(express.static(path.join(__dirname, 'templatemo_577_liberty_market/templatemo_577_liberty_market'), {
+app.use(express.static(path.join(__dirname, 'templatemo_577_liberty_market'), {
     maxAge: '1h',
     etag: true,
     lastModified: true
@@ -79,6 +79,11 @@ const limiter = rateLimit({
     max: 100 // limit each IP to 100 requests per windowMs
 });
 app.use(limiter);
+
+// Health check route
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'ok', message: 'Server is running' });
+});
 
 // Configure multer for image upload
 const storage = multer.diskStorage({
