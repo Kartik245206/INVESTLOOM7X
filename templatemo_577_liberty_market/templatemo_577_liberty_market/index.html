@@ -39,9 +39,7 @@ https://templatemo.com/tm-577-liberty-market
   </head>
 
   <body>
-  <!-- Common JavaScript Functions -->
-  <script src="assets/js/common.js"></script>
-  <script src="assets/js/auth.js"></script>
+  <!-- Common JavaScript Functions will be loaded after jQuery -->
   
   <!-- ***** Preloader Start ***** -->
   <div id="js-preloader" class="js-preloader">
@@ -757,14 +755,16 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
   <!-- Add before closing body tag -->
-<script src="vendor/jquery/jquery.min.js"></script>
-<script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="assets/js/common.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
 
-  <!-- Additional Scripts -->
-  <script src="assets/js/owl-carousel.js"></script>
-  <script src="assets/js/tabs.js"></script>
-  <script src="assets/js/popup.js"></script>
-  <script src="assets/js/custom.js"></script>
+    <!-- Additional Scripts -->
+    <script src="assets/js/owl-carousel.js"></script>
+    <script src="assets/js/tabs.js"></script>
+    <script src="assets/js/popup.js"></script>
+    <script src="assets/js/custom.js"></script>
   
   <!-- User Account Info Script -->
   <script>
