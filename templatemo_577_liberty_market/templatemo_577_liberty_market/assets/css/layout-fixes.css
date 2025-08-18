@@ -1,6 +1,6 @@
 /* Logo Size Fixes */
 .header-area .logo img {
-    width: 220px !important; /* Increased logo size */
+    width: 420px !important; /* Increased logo size */
     height: auto !important;
     margin-top: 5px;
 }
@@ -58,12 +58,12 @@
 /* Responsive Adjustments */
 @media (max-width: 991px) {
     .header-area .logo img {
-        width: 180px !important;
+        width: 280px !important;
         margin-top: 0px;
     }
 
     .user-account-info {
-        top: 80px !important;
+        top: 40px !important;
         right: 70px !important;
         transform: none !important;
     }
@@ -77,7 +77,7 @@
 
 @media (max-width: 767px) {
     .header-area .logo img {
-        width: 160px !important;
+        width: 260px !important;
     }
     
     .user-account-info {
