@@ -27,6 +27,15 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({
+        error: 'Something went wrong!',
+        message: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+});
+
 // Security Middleware with proper CSP
 app.use(helmet({
     contentSecurityPolicy: {
@@ -76,9 +85,10 @@ app.use((req, res, next) => {
 // Add rate limiting for security
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100 // limit each IP to 100 requests per windowMs
+    max: 1000, // increased limit to 1000 requests per windowMs
+    message: 'Too many requests from this IP, please try again after 15 minutes'
 });
-app.use(limiter);
+app.use('/api', limiter); // Only apply to /api routes, not static files
 
 // Health check route
 app.get('/health', (req, res) => {
