@@ -65,7 +65,7 @@
                 <label class="form-label">Password</label>
                 <input type="password" class="form-control" id="password" required>
             </div>
-            <button type="button" class="btn btn-primary w-100" onclick="handleAdminLogin()">Login</button>
+            <button type="button" id="adminLoginBtn" class="btn btn-primary w-100">Login</button>
         </form>
     </div>
 
@@ -123,11 +123,17 @@
             window.location.href = 'admin_dashboard.html';
         }
 
-        // Also allow Enter key to submit
+        // Also allow Enter key to submit and attach click handler without inline attributes
         document.getElementById('password').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 handleAdminLogin();
             }
+        });
+
+        // Attach click handler to the login button (avoids inline onclick which CSP blocks)
+        document.getElementById('adminLoginBtn').addEventListener('click', function (e) {
+            e.preventDefault();
+            handleAdminLogin();
         });
     </script>
 </body>
