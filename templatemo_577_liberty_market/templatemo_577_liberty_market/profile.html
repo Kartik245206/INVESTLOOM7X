@@ -201,6 +201,13 @@
                     <h2 id="currentBalance">₹0.00</h2>
                     <button class="btn btn-primary" onclick="initiateWithdrawal()">Withdraw Funds</button>
                 </div>
+
+                <!-- Add this in your profile actions section -->
+                <div class="profile-action-buttons">
+                    <button class="btn btn-primary" onclick="showWithdrawModal()">
+                        <i class="fas fa-money-bill-transfer"></i> Withdraw
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -442,6 +449,17 @@
             withdrawalModal.show();
         }
 
+        // Show withdrawal modal
+        function showWithdrawModal() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser || currentUser.balance < 500) {
+                alert('Minimum balance of ₹500 required for withdrawal');
+                return;
+            }
+            const modal = new bootstrap.Modal(document.getElementById('withdrawModal'));
+            modal.show();
+        }
+
         // Apply theme function
         function applyTheme(theme) {
             if (theme === 'dark') {
@@ -650,8 +668,6 @@
         
         // Process withdrawal
         async function processWithdrawal(event) {
-            event.preventDefault();
-            
             const currentUser = JSON.parse(localStorage.getItem('currentUser'));
             if (!currentUser?.id) {
                 alert('Please login first');
@@ -660,10 +676,31 @@
 
             const amount = Number(document.getElementById('withdrawalAmount').value);
             const method = document.querySelector('input[name="withdrawalMethod"]:checked').value;
+            let paymentDetails = {};
+
+            // Get payment details based on method
+            if (method === 'upi') {
+                const upiId = document.getElementById('upiId').value;
+                if (!upiId || !upiId.includes('@')) {
+                    alert('Please enter a valid UPI ID');
+                    return;
+                }
+                paymentDetails = { upiId };
+            } else {
+                const accountName = document.getElementById('accountName').value;
+                const accountNumber = document.getElementById('accountNumber').value;
+                const ifscCode = document.getElementById('ifscCode').value;
+                
+                if (!accountName || !accountNumber || !ifscCode) {
+                    alert('Please fill all bank details');
+                    return;
+                }
+                paymentDetails = { accountName, accountNumber, ifscCode };
+            }
 
             // Validation
-            if (amount < WITHDRAWAL_LIMIT) {
-                alert(`Minimum withdrawal amount is ₹${WITHDRAWAL_LIMIT}`);
+            if (!amount || amount < 500) {
+                alert('Minimum withdrawal amount is ₹500');
                 return;
             }
 
@@ -672,309 +709,98 @@
                 return;
             }
 
-            // Get payment details
-            const paymentDetails = method === 'upi' 
-                ? { upiId: document.getElementById('upiId').value }
-                : {
-                    accountName: document.getElementById('accountName').value,
-                    accountNumber: document.getElementById('accountNumber').value,
-                    ifscCode: document.getElementById('ifscCode').value
+            try {
+                // Create withdrawal record
+                const withdrawal = {
+                    id: Date.now(),
+                    userId: currentUser.id,
+                    amount: amount,
+                    method: method,
+                    paymentDetails: paymentDetails,
+                    status: 'pending',
+                    timestamp: new Date().toISOString()
                 };
 
-            // Create withdrawal record
-            const withdrawal = {
-                id: Date.now(),
-                userId: currentUser.id,
-                amount: amount,
-                method: method,
-                details: paymentDetails,
-                status: 'pending',
-                requestDate: new Date().toISOString()
-            };
-
-            // Update user balance
-            currentUser.balance -= amount;
-            currentUser.withdrawals = currentUser.withdrawals || [];
-            currentUser.withdrawals.push(withdrawal);
-
-            // Save updated data
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-
-            // Close modal and show success
-            const modal = bootstrap.Modal.getInstance(document.getElementById('withdrawalModal'));
-            modal.hide();
-
-            alert('Withdrawal request submitted successfully! Will be processed within 24-48 hours.');
-            location.reload(); // Refresh to update UI
-        }
-
-        // Update profile settings
-        function updateProfile(event) {
-            event.preventDefault();
-            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-            if (!currentUser) return;
-
-            // Get form values
-            const fullName = document.getElementById('fullName').value;
-            const phone = document.getElementById('phone').value;
-            const upiId = document.getElementById('upiId').value;
-            const emailNotifications = document.getElementById('emailNotifications').checked;
-            const smsNotifications = document.getElementById('smsNotifications').checked;
-            const themePreference = document.getElementById('themePreference').value;
-
-            try {
-                // First try API call
-                updateProfileAPI(currentUser.id, {
-                    fullName,
-                    phone,
-                    upiId,
-                    settings: {
-                        emailNotifications,
-                        smsNotifications,
-                        themePreference
-                    }
-                });
-            } catch (error) {
-                // Fallback to local storage
-                updateProfileLocal(currentUser.id, {
-                    fullName,
-                    phone,
-                    upiId,
-                    settings: {
-                        emailNotifications,
-                        smsNotifications,
-                        themePreference
-                    }
-                });
-            }
-        }
-
-        // Update profile via API
-        async function updateProfileAPI(userId, profileData) {
-            try {
-                const response = await fetch(`http://localhost:3000/api/update-profile/${userId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(profileData)
-                });
-
-                const result = await response.json();
-                if (result.success) {
-                    alert('Profile updated successfully!');
-                    // Update local user data
-                    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-                    const updatedUser = { ...currentUser, ...profileData };
-                    localStorage.setItem('currentUser', JSON.stringify(updatedUser));
-
-                    // Apply theme if changed
-                    applyTheme(profileData.settings.themePreference);
-                } else {
-                    alert(result.error || 'Failed to update profile');
-                }
-            } catch (error) {
-                console.error('Error updating profile:', error);
-                // Fallback to local storage
-                updateProfileLocal(userId, profileData);
-            }
-        }
-
-        // Update profile via local storage
-        function updateProfileLocal(userId, profileData) {
-            const users = JSON.parse(localStorage.getItem('users') || '[]');
-            const userIndex = users.findIndex(u => u.id === userId);
-            
-            if (userIndex !== -1) {
                 // Update user data
-                users[userIndex] = { ...users[userIndex], ...profileData };
+                currentUser.withdrawals = currentUser.withdrawals || [];
+                currentUser.withdrawals.push(withdrawal);
+                currentUser.balance -= amount;
                 
-                // Update storage
-                localStorage.setItem('users', JSON.stringify(users));
-                localStorage.setItem('currentUser', JSON.stringify(users[userIndex]));
-                
-                alert('Profile updated successfully!');
-                
-                // Apply theme if changed
-                applyTheme(profileData.settings.themePreference);
-            }
-        }
-
-        // Apply theme preference
-        function applyTheme(theme) {
-            const body = document.body;
-            
-            // Remove existing theme classes
-            body.classList.remove('theme-light', 'theme-dark');
-            
-            // Apply selected theme
-            if (theme === 'dark') {
-                body.classList.add('theme-dark');
-            } else if (theme === 'light') {
-                body.classList.add('theme-light');
-            } else if (theme === 'system') {
-                // Check system preference
-                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                    body.classList.add('theme-dark');
-                } else {
-                    body.classList.add('theme-light');
-                }
-            }
-        }
-
-        // Load bank details
-        function loadBankDetails() {
-            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-            if (!currentUser) return;
-
-            // Fill bank details form if available
-            if (currentUser.bankDetails) {
-                document.getElementById('accountNumber').value = currentUser.bankDetails.accountNumber || '';
-                document.getElementById('ifscCode').value = currentUser.bankDetails.ifscCode || '';
-                document.getElementById('bankName').value = currentUser.bankDetails.bankName || '';
-            }
-
-            // Fill settings form
-            document.getElementById('fullName').value = currentUser.fullName || '';
-            document.getElementById('phone').value = currentUser.phone || '';
-            document.getElementById('upiId').value = currentUser.upiId || '';
-
-            // Set settings values if available
-            if (currentUser.settings) {
-                document.getElementById('emailNotifications').checked = currentUser.settings.emailNotifications !== false;
-                document.getElementById('smsNotifications').checked = currentUser.settings.smsNotifications === true;
-                
-                const themeSelect = document.getElementById('themePreference');
-                if (currentUser.settings.themePreference) {
-                    themeSelect.value = currentUser.settings.themePreference;
-                }
-
-                // Apply current theme
-                applyTheme(currentUser.settings.themePreference || 'light');
-            }
-        }
-
-        // Update bank info
-        function updateBankInfo(event) {
-            event.preventDefault();
-            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-            if (!currentUser) return;
-
-            // Get form values
-            const accountNumber = document.getElementById('accountNumber').value;
-            const ifscCode = document.getElementById('ifscCode').value;
-            const bankName = document.getElementById('bankName').value;
-
-            const bankDetails = {
-                accountNumber,
-                ifscCode,
-                bankName
-            };
-
-            try {
-                // First try API call
-                updateBankInfoAPI(currentUser.id, bankDetails);
-            } catch (error) {
-                // Fallback to local storage
-                updateBankInfoLocal(currentUser.id, bankDetails);
-            }
-        }
-
-        // Update bank info via API
-        async function updateBankInfoAPI(userId, bankDetails) {
-            try {
-                const response = await fetch(`http://localhost:3000/api/update-bank-details/${userId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(bankDetails)
-                });
-
-                const result = await response.json();
-                if (result.success) {
-                    alert('Bank details updated successfully!');
-                    // Update local user data
-                    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-                    currentUser.bankDetails = bankDetails;
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                } else {
-                    alert(result.error || 'Failed to update bank details');
-                }
-            } catch (error) {
-                console.error('Error updating bank details:', error);
-                // Fallback to local storage
-                updateBankInfoLocal(userId, bankDetails);
-            }
-        }
-
-        // Update bank info via local storage
-        function updateBankInfoLocal(userId, bankDetails) {
-            const users = JSON.parse(localStorage.getItem('users') || '[]');
-            const userIndex = users.findIndex(u => u.id === userId);
-            
-            if (userIndex !== -1) {
-                // Update bank details
-                users[userIndex].bankDetails = bankDetails;
-                
-                // Update storage
-                localStorage.setItem('users', JSON.stringify(users));
-                localStorage.setItem('currentUser', JSON.stringify(users[userIndex]));
-                
-                alert('Bank details updated successfully!');
-            }
-        }
-    
-        const WITHDRAWAL_LIMIT = 500;
-        const DAILY_UPDATE_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours
-
-        async function updateDailyEarnings() {
-            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-            if (!currentUser?.id) return;
-
-            try {
-                // Get user's active investments
-                const investments = JSON.parse(localStorage.getItem('transactions') || '[]')
-                    .filter(t => t.userId === currentUser.id && t.status === 'active');
-
-                // Calculate total daily earnings
-                let dailyTotal = 0;
-                investments.forEach(inv => {
-                    dailyTotal += Number(inv.dailyEarning || 0);
-                });
-
-                // Update user balance
-                currentUser.balance = (currentUser.balance || 0) + dailyTotal;
-                currentUser.lastEarningUpdate = new Date().toISOString();
-                
-                // Save updated user data
+                // Save to localStorage
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                
+
                 // Update UI
-                document.getElementById('currentBalance').textContent = `₹${currentUser.balance.toFixed(2)}`;
-                document.getElementById('dailyEarnings').textContent = `₹${dailyTotal.toFixed(2)}/day`;
+                document.getElementById('currentBalance').textContent = `₹${currentUser.balance}`;
+                document.getElementById('totalWithdrawn').textContent = 
+                    `₹${currentUser.withdrawals.reduce((sum, w) => sum + w.amount, 0)}`;
+
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('withdrawalModal'));
+                modal.hide();
+
+                alert('Withdrawal request submitted successfully! Will be processed within 24-48 hours.');
                 
-                return true;
+                // Refresh page to update all balances
+                window.location.reload();
+
             } catch (err) {
-                console.error('Error updating daily earnings:', err);
-                return false;
+                console.error('Withdrawal error:', err);
+                alert('Failed to process withdrawal. Please try again.');
             }
         }
 
-        // Auto-update daily earnings
-        setInterval(updateDailyEarnings, DAILY_UPDATE_INTERVAL);
+        // Helper functions for withdrawal status
+        function showWithdrawStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('withdrawalStatus');
+            statusDiv.className = `alert alert-${type}`;
+            statusDiv.textContent = message;
+            statusDiv.classList.remove('d-none');
+        }
 
-        // Check for missed updates on page load
-        document.addEventListener('DOMContentLoaded', () => {
+        function showWithdrawError(message) {
+            showWithdrawStatus(message, 'danger');
+        }
+
+        function updateBalance() {
             const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-            const lastUpdate = new Date(currentUser?.lastEarningUpdate || 0);
-            const daysSinceUpdate = (Date.now() - lastUpdate.getTime()) / (1000 * 60 * 60 * 24);
-            
-            if (daysSinceUpdate >= 1) {
-                // Add missed earnings
-                updateDailyEarnings();
+            if (!currentUser) return;
+
+            const balanceDisplay = document.getElementById('userBalanceAmount');
+            if (balanceDisplay) {
+                balanceDisplay.textContent = `₹${currentUser.balance.toFixed(2)}`;
             }
+        }
+
+        // Add event listener for withdrawal form
+        document.getElementById('withdrawModal').addEventListener('show.bs.modal', function() {
+            // Reset form and status when modal opens
+            document.getElementById('withdrawAmount').value = '';
+            document.getElementById('upiId').value = '';
+            const statusDiv = document.getElementById('withdrawalStatus');
+            statusDiv.className = 'alert d-none';
         });
+
+        // Add scroll handling for direct navigation to withdraw section
+        window.addEventListener('hashchange', handleHashChange);
+        window.addEventListener('load', handleHashChange);
+
+        function handleHashChange() {
+            if (window.location.hash === '#withdraw') {
+                const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                if (!currentUser || currentUser.balance < 500) {
+                    alert('Minimum balance of ₹500 required for withdrawal');
+                    return;
+                }
+
+                // Show withdrawal modal with current balance
+                const modal = new bootstrap.Modal(document.getElementById('withdrawalModal'));
+                document.getElementById('withdrawalAmount').value = '';
+                document.getElementById('withdrawalAmount').max = currentUser.balance;
+                document.getElementById('withdrawalBalance').textContent = `₹${currentUser.balance}`;
+                modal.show();
+            }
+        }
+    });
     </script>
 
     <!-- Withdrawal Modal -->

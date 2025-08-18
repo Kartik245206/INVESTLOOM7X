@@ -1,128 +1,160 @@
 // Product Management Functions
-const productsManager = {
-    async loadProducts() {
-        try {
-            const response = await fetch('/api/products');
-            const products = await response.json();
-            this.displayProducts(products);
-            // Update products on homepage
-            window.dispatchEvent(new CustomEvent('productsUpdated', { detail: products }));
-        } catch (error) {
-            console.error('Error loading products:', error);
-            alert('Failed to load products');
-        }
-    },
+let products = JSON.parse(localStorage.getItem('products') || '[]');
 
-    displayProducts(products) {
-        const tbody = document.getElementById('productsTableBody');
-        tbody.innerHTML = '';
+function loadProducts() {
+    const tbody = document.getElementById('productsTableBody');
+    tbody.innerHTML = '';
 
-        products.forEach(product => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${product.id}</td>
-                <td><img src="${product.image_url}" alt="${product.name}" style="width: 50px; height: 50px;"></td>
-                <td>${product.name}</td>
-                <td>${product.category}</td>
-                <td>₹${product.price}</td>
-                <td>₹${product.total_amount || product.price}</td>
-                <td>
-                    <button class="btn btn-sm btn-primary" onclick="productsManager.editProduct(${product.id})">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-sm btn-danger" onclick="productsManager.deleteProduct(${product.id})">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
-    },
+    products.forEach(product => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>
+                <img src="${product.image}" alt="${product.name}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">
+            </td>
+            <td>${product.name}</td>
+            <td>₹${product.price}</td>
+            <td>₹${product.dailyEarning}</td>
+            <td>${product.category}</td>
+            <td>
+                <span class="badge bg-${product.status === 'active' ? 'success' : 'danger'}">
+                    ${product.status}
+                </span>
+            </td>
+            <td>
+                <button class="btn btn-sm btn-primary" onclick="editProduct('${product.id}')">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-danger" onclick="deleteProduct('${product.id}')">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
 
-    async addProduct(formData) {
-        try {
-            const response = await fetch('/api/products', {
-                method: 'POST',
-                body: formData
-            });
+    // Update products in localStorage and publish to website
+    localStorage.setItem('products', JSON.stringify(products));
+    publishProducts();
+}
 
-            const result = await response.json();
-            if (result.success) {
-                $('#addProductModal').modal('hide');
-                this.loadProducts(); // Reload products after adding
-                alert('Product added successfully!');
-            } else {
-                alert('Failed to add product: ' + result.error);
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Failed to add product');
-        }
-    },
+function showAddProductModal() {
+    document.getElementById('productModalTitle').textContent = 'Add New Product';
+    document.getElementById('productForm').reset();
+    document.getElementById('productId').value = '';
+    document.getElementById('imagePreview').innerHTML = '';
+    const modal = new bootstrap.Modal(document.getElementById('productModal'));
+    modal.show();
+}
 
-    async deleteProduct(id) {
-        if (!confirm('Are you sure you want to delete this product?')) return;
+function editProduct(productId) {
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
 
-        try {
-            const response = await fetch(`/api/products/${id}`, {
-                method: 'DELETE'
-            });
+    document.getElementById('productModalTitle').textContent = 'Edit Product';
+    document.getElementById('productId').value = product.id;
+    document.getElementById('productName').value = product.name;
+    document.getElementById('productPrice').value = product.price;
+    document.getElementById('productEarning').value = product.dailyEarning;
+    document.getElementById('productCategory').value = product.category;
+    document.getElementById('productDescription').value = product.description;
+    document.getElementById('productStatus').value = product.status;
 
-            const result = await response.json();
-            if (result.success) {
-                this.loadProducts(); // Reload products after deletion
-                alert('Product deleted successfully!');
-            } else {
-                alert('Failed to delete product: ' + result.error);
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Failed to delete product');
-        }
-    },
+    // Show existing image
+    document.getElementById('imagePreview').innerHTML = `
+        <img src="${product.image}" alt="Preview" style="max-width: 200px; margin-top: 10px;">
+    `;
 
-    async editProduct(id) {
-        // Implement edit functionality
-        // This will open a modal with product details for editing
+    const modal = new bootstrap.Modal(document.getElementById('productModal'));
+    modal.show();
+}
+
+async function saveProduct() {
+    const form = document.getElementById('productForm');
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
     }
-};
 
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', () => {
-    productsManager.loadProducts();
+    const productId = document.getElementById('productId').value;
+    const imageFile = document.getElementById('productImage').files[0];
+    
+    // Convert image to base64
+    let imageBase64 = '';
+    if (imageFile) {
+        imageBase64 = await convertImageToBase64(imageFile);
+    }
 
-    // Handle Add Product Form Submit
-    document.getElementById('addProductForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        await productsManager.addProduct(formData);
+    const productData = {
+        id: productId || Date.now().toString(),
+        name: document.getElementById('productName').value,
+        price: Number(document.getElementById('productPrice').value),
+        dailyEarning: Number(document.getElementById('productEarning').value),
+        category: document.getElementById('productCategory').value,
+        description: document.getElementById('productDescription').value,
+        status: document.getElementById('productStatus').value,
+        image: imageBase64 || (productId ? products.find(p => p.id === productId)?.image : '')
+    };
+
+    if (productId) {
+        // Update existing product
+        const index = products.findIndex(p => p.id === productId);
+        if (index !== -1) {
+            products[index] = { ...products[index], ...productData };
+        }
+    } else {
+        // Add new product
+        products.push(productData);
+    }
+
+    // Save and refresh
+    localStorage.setItem('products', JSON.stringify(products));
+    const modal = bootstrap.Modal.getInstance(document.getElementById('productModal'));
+    modal.hide();
+    loadProducts();
+    alert('Product saved successfully!');
+}
+
+function deleteProduct(productId) {
+    if (!confirm('Are you sure you want to delete this product?')) return;
+
+    products = products.filter(p => p.id !== productId);
+    localStorage.setItem('products', JSON.stringify(products));
+    loadProducts();
+    alert('Product deleted successfully!');
+}
+
+// Helper function to convert image to base64
+function convertImageToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
     });
+}
 
-    // Render admin product controls and wire up actions
-    const addBtn = document.getElementById('addProductBtn');
-    const manageBtn = document.getElementById('manageProductsBtn');
+// Function to publish products to website
+function publishProducts() {
+    // Filter only active products
+    const activeProducts = products.filter(p => p.status === 'active');
+    
+    // Save to a separate key for the main website
+    localStorage.setItem('publishedProducts', JSON.stringify(activeProducts));
+}
 
-    if (addBtn) addBtn.addEventListener('click', e => {
-        e.preventDefault();
-        // open add-product modal or navigate to product editor
-        openAddProductModal();
-    });
-
-    if (manageBtn) manageBtn.addEventListener('click', e => {
-        e.preventDefault();
-        // show products table (load from localStorage or API)
-        showManageProducts();
-    });
+// Image preview
+document.getElementById('productImage').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('imagePreview').innerHTML = `
+                <img src="${e.target.result}" alt="Preview" style="max-width: 200px; margin-top: 10px;">
+            `;
+        }
+        reader.readAsDataURL(file);
+    }
 });
 
-function openAddProductModal() {
-    // create modal UI or navigate to admin product page
-    window.location.href = 'admin_add_product.html'; // or show modal
-}
-
-function showManageProducts() {
-    // load and display existing products (localStorage or API)
-    const products = JSON.parse(localStorage.getItem('products') || '[]');
-    // render table with edit/delete buttons for each product
-    console.log('Admin products:', products);
-}
+// Load products on page load
+document.addEventListener('DOMContentLoaded', loadProducts);

@@ -176,9 +176,9 @@ https://templatemo.com/tm-577-liberty-market
 <style>
   .header-area {
     background: rgba(1, 11, 44, 0.9);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
     position: fixed;
     top: 0;
     left: 0;
@@ -201,7 +201,7 @@ https://templatemo.com/tm-577-liberty-market
 .main-banner::before {
     content: '';
     position: absolute;
-    top: 0;
+    top: 20px;
     left: 0;
     right: 0;
     bottom: 0;
@@ -341,7 +341,9 @@ https://templatemo.com/tm-577-liberty-market
                   </div>
                   <h4>Withdraw</h4>
                   <div class="icon-button">
-                    <a href="#" onclick="handleWithdrawal()"><i class="fa fa-angle-right"></i></a>
+                    <a href="javascript:void(0)" onclick="handleWithdrawal()">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
                   </div>
                 </div>
               </div>
@@ -865,7 +867,12 @@ function handleWithdrawal() {
     window.location.href = 'login.html';
     return;
   }
-  $('#withdrawModal').modal('show');
+
+  // Store current balance in session for withdrawal page
+  sessionStorage.setItem('withdrawAmount', currentUser.balance);
+  
+  // Redirect to profile page withdrawal section
+  window.location.href = 'profile.html#withdraw';
 }
 
 async function initiateWithdrawal() {
@@ -954,5 +961,99 @@ async function initiateWithdrawal() {
 }
 </script>
 
-   
+<!-- Add this in your navigation section -->
+<div class="quick-actions">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="action-card" onclick="window.location.href='profile.html#balance'">
+                <i class="fas fa-wallet"></i>
+                <h4>Balance</h4>
+                <h3 id="userBalance">₹0</h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="action-card" onclick="showDepositModal()">
+                <i class="fas fa-money-bill-wave"></i>
+                <h4>Deposit</h4>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="action-card" onclick="window.location.href='profile.html#withdraw'">
+                <i class="fas fa-money-bill-transfer"></i>
+                <h4>Withdraw</h4>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="action-card">
+                <i class="fas fa-credit-card"></i>
+                <h4>EMI</h4>
+                <small>Coming Soon</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Deposit Modal -->
+<div class="modal fade" id="depositModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Deposit Funds</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="depositForm">
+                    <div class="mb-3">
+                        <label class="form-label">Amount to Deposit (₹)</label>
+                        <input type="number" class="form-control" id="depositAmount" min="100" required>
+                        <small class="text-muted">Minimum deposit: ₹100</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Payment Method</label>
+                        <div class="payment-methods">
+                            <div class="form-check">
+                                <input type="radio" class="form-check-input" name="payMethod" value="upi" checked>
+                                <label class="form-check-label">
+                                    <img src="assets/images/gpay.png" height="30"> UPI
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" class="form-check-input" name="payMethod" value="bank">
+                                <label class="form-check-label">
+                                    <i class="fas fa-university"></i> Bank Transfer
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Company Payment Details -->
+                    <div id="companyUpiDetails">
+                        <div class="text-center mb-3">
+                            <img src="assets/images/Gpay-QR.jpg" alt="UPI QR" style="max-width: 200px">
+                            <p class="mt-2">UPI ID: your@upi</p>
+                        </div>
+                    </div>
+                    <div id="companyBankDetails" style="display:none">
+                        <div class="bank-details">
+                            <p><strong>Bank:</strong> Your Bank Name</p>
+                            <p><strong>A/C:</strong> Your Account Number</p>
+                            <p><strong>IFSC:</strong> Your IFSC Code</p>
+                        </div>
+                    </div>
+                    <!-- Transaction Reference -->
+                    <div class="mb-3">
+                        <label class="form-label">Transaction Reference/UTR</label>
+                        <input type="text" class="form-control" id="transactionRef" required>
+                        <small class="text-muted">Enter UPI reference number or bank transaction ID</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="processDeposit()">Confirm Deposit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 

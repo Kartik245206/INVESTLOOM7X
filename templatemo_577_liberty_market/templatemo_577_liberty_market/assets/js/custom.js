@@ -304,3 +304,38 @@ $(document).on('click', function(e) {
         $('.nav').removeClass('active');
     }
 });
+
+// Add this function to load published products
+function loadPublishedProducts() {
+    const products = JSON.parse(localStorage.getItem('publishedProducts') || '[]');
+    const container = document.querySelector('.currently-market-items');
+    if (!container) return;
+
+    container.innerHTML = products.map(product => `
+        <div class="currently-market-item">
+            <div class="item">
+                <div class="left-image">
+                    <img src="${product.image}" alt="${product.name}">
+                </div>
+                <div class="right-content">
+                    <h4>${product.name}</h4>
+                    <div class="author">
+                        <h2>Category: ${product.category}</h2>
+                    </div>
+                    <div class="bid">
+                        Price: <strong>₹${product.price}</strong>
+                    </div>
+                    <div class="ends">
+                        Daily Earning: <strong>₹${product.dailyEarning}</strong>
+                    </div>
+                    <div class="text-button">
+                        <a href="details.html?id=${product.id}">View Investment</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Call this function when page loads
+document.addEventListener('DOMContentLoaded', loadPublishedProducts);
