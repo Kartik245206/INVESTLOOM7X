@@ -64,7 +64,7 @@ router.post('/login', async (req, res) => {
     }
 });
 
-// Google auth (email + googleId) — create user if not exists, or attach googleId
+// Google auth (create if not exists or attach googleId)
 router.post('/google', async (req, res) => {
     try {
         const { email, name, googleId } = req.body;
@@ -87,7 +87,7 @@ router.post('/google', async (req, res) => {
     }
 });
 
-// Save payment details (UPI / bank / card) — user must be authenticated
+// Save payment details (UPI / bank / card)
 router.put('/payments', authMiddleware, async (req, res) => {
     try {
         const { upi, bank, card } = req.body;
