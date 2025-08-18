@@ -1548,6 +1548,41 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 });
 
+// Add this function where needed
+async function buyProduct(productId) {
+    try {
+        // First check if user is logged in by trying to get payment details
+        const response = await fetch('/api/auth/payments', {
+            method: 'GET',
+            credentials: 'include'
+        });
+
+        if (response.status === 401) {
+            // Not logged in - redirect to login
+            window.location.href = '/login.html';
+            return;
+        }
+
+        const data = await response.json();
+        
+        if (data.payments?.upi) {
+            // Has UPI - proceed with UPI payment
+            initiateUPIPayment(productId);
+        } else {
+            // No payment methods - show payment setup
+            window.location.href = '/profile.html#payments';
+        }
+    } catch (err) {
+        console.error('Purchase error:', err);
+        alert('Purchase failed. Please try again.');
+    }
+}
+
+// Add payment button click handler
+document.getElementById('buyButton').onclick = () => {
+    const productId = document.getElementById('productId').value;
+    buyProduct(productId);
+};
 </script>
 
   
@@ -2081,7 +2116,6 @@ function showUPIModal() {
             });
         }
     }
-
 
 // Function to check UPI payment status
 function checkUPIPaymentStatus(amount) {
