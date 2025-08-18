@@ -69,15 +69,15 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Serve static files with caching
-app.use(express.static(path.join(__dirname, 'templatemo_577_liberty_market/templatemo_577_liberty_market'), {
+app.use(express.static(path.join(__dirname, 'templatemo_577_liberty_market'), {
     maxAge: '1h',
     etag: true,
     lastModified: true
 }));
 
 // Serve additional static files
-app.use('/assets', express.static(path.join(__dirname, 'templatemo_577_liberty_market/templatemo_577_liberty_market/assets')));
-app.use('/vendor', express.static(path.join(__dirname, 'templatemo_577_liberty_market/templatemo_577_liberty_market/vendor')));
+app.use('/assets', express.static(path.join(__dirname, 'templatemo_577_liberty_market/assets')));
+app.use('/vendor', express.static(path.join(__dirname, 'templatemo_577_liberty_market/vendor')));
 
 // Security headers
 app.use((req, res, next) => {
@@ -129,33 +129,33 @@ const upload = multer({
 
 // Routes
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'templatemo_577_liberty_market/templatemo_577_liberty_market/index.html'));
+    res.sendFile(path.join(__dirname, 'templatemo_577_liberty_market/index.html'));
 });
 
 // Add routes for other HTML pages
 app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, 'templatemo_577_liberty_market/templatemo_577_liberty_market/login.html'));
+    res.sendFile(path.join(__dirname, 'templatemo_577_liberty_market/login.html'));
 });
 
 app.get('/signup', (req, res) => {
-    res.sendFile(path.join(__dirname, 'templatemo_577_liberty_market/templatemo_577_liberty_market/signup.html'));
+    res.sendFile(path.join(__dirname, 'templatemo_577_liberty_market/signup.html'));
 });
 
 app.get('/profile', (req, res) => {
-    res.sendFile(path.join(__dirname, 'templatemo_577_liberty_market/templatemo_577_liberty_market/profile.html'));
+    res.sendFile(path.join(__dirname, 'templatemo_577_liberty_market/profile.html'));
 });
 
 app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'templatemo_577_liberty_market/templatemo_577_liberty_market/Host-WEB/admin_dashboard.html'));
+    res.sendFile(path.join(__dirname, 'templatemo_577_liberty_market/Host-WEB/admin_dashboard.html'));
 });
 
 // Add admin related routes
 app.get('/admin-login', (req, res) => {
-    res.sendFile(path.join(__dirname, 'templatemo_577_liberty_market/templatemo_577_liberty_market/Host-WEB/admin_Login_page.html'));
+    res.sendFile(path.join(__dirname, 'templatemo_577_liberty_market/Host-WEB/admin_Login_page.html'));
 });
 
 app.get('/admin-settings', (req, res) => {
-    res.sendFile(path.join(__dirname, 'templatemo_577_liberty_market/templatemo_577_liberty_market/Host-WEB/admin_store_seeting.html'));
+    res.sendFile(path.join(__dirname, 'templatemo_577_liberty_market/Host-WEB/admin_store_seeting.html'));
 });
 
 // Initialize database
