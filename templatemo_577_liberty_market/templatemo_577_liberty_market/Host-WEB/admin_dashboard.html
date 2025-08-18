@@ -34,9 +34,16 @@
     <script src="../assets/js/navigation.js"></script>
     <script src="auth.js"></script>
     <script>
-        // Check authentication immediately when page loads
+        // Immediate authentication check
+        if (!localStorage.getItem('adminLoggedIn') || 
+            localStorage.getItem('adminPhone') !== '7417915397') {
+            window.location.replace('admin_Login_page.html');
+        }
+
+        // Check authentication when page loads
         document.addEventListener('DOMContentLoaded', function() {
             if (!auth.checkAdminAuth()) {
+                window.location.replace('admin_Login_page.html');
                 return;
             }
             // Load navigation

@@ -31,25 +31,41 @@
         </form>
     </div>
 
+    <div id="errorMessage" class="alert alert-danger mt-3" style="display: none;"></div>
+
     <script>
+        // Check if already logged in
+        if (localStorage.getItem('adminLoggedIn') === 'true' && 
+            localStorage.getItem('adminPhone') === '7417915397') {
+            window.location.href = 'admin_dashboard.html';
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 3000);
+        }
+
         function validateLogin(event) {
             event.preventDefault();
-            const phone = document.getElementById('phone').value;
+            const phone = document.getElementById('phone').value.trim();
             const password = document.getElementById('password').value;
 
             if(phone === '7417915397' && password === 'Kartik904541') {
+                // Set admin data
                 localStorage.setItem('adminLoggedIn', 'true');
                 localStorage.setItem('adminPhone', phone);
+                localStorage.setItem('ADMIN_SECRET', 'liberty_market_admin_' + Date.now());
                 
-                // Set admin secret for API authentication
-                const adminSecret = 'liberty_market_admin_' + Date.now();
-                localStorage.setItem('ADMIN_SECRET', adminSecret);
-                
-                // Redirect to dashboard
-                window.location.href = './admin_dashboard.html';
+                // Force reload and redirect
+                window.location.replace('admin_dashboard.html');
             } else {
-                alert('Invalid credentials!');
+                showError('Invalid phone number or password');
             }
+            return false;
         }
     </script>
 </body>
