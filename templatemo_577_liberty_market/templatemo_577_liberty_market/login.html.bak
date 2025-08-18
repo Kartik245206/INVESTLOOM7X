@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - INVESTLOOM7X</title>
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/templatemo-liberty-market.css">
+    <link rel="stylesheet" href="assets/css/dashboard-common.css">
+    <style>
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 30px;
+            background: rgba(40, 43, 47, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .login-container h2 {
+            color: #fff;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .form-label {
+            color: #fff;
+        }
+        .btn-primary {
+            background: #7453fc;
+            border: none;
+            padding: 12px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background: #5b42c7;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(116, 83, 252, 0.3);
+        }
+        .login-logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .login-logo img {
+            width: 150px;
+            height: auto;
+        }
+    </style>
+<body>
+    <div class="login-container">
+        <div class="login-logo">
+            <img src="assets/images/logo.png" alt="INVESTLOOM7X">
+        </div>
+        <h2>Welcome Back</h2>
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="mb-3">
+                <label class="form-label">Email Address</label>
+                <input type="email" class="form-control" id="username" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+            <p class="text-center mt-3" style="color: #fff;">
+                Don't have an account? <a href="signup.html" style="color: #7453fc;">Sign up here</a>
+            </p>
+        </form>
+    </div>
+
+    <!-- Scripts -->
+    <script src="assets/js/auth.js"></script>
+    <script>
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            const result = await auth.login(email, password);
+            
+            if(result.success) {
+                window.location.href = 'index.html';
+            } else {
+                alert(result.message || 'Invalid email or password!');
+            }
+        }
+
+        // Check if user is already logged in
+        const currentUser = auth.getCurrentUser();
+        if (currentUser) {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

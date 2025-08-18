@@ -1,0 +1,130 @@
+.header-area {
+    background: linear-gradient(135deg, #0b1120 0%, #141f35 100%);
+    padding: 15px 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.2);
+}
+
+.header-area .logo {
+    width: 180px;
+    height: auto;
+    transition: all 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    .header-area .logo {
+        width: 150px;
+    }
+}
+
+.main-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px;
+}
+
+.nav-links {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+}
+
+.nav-links a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    padding: 8px 15px;
+    border-radius: 20px;
+}
+
+.nav-links a:hover {
+    background: rgba(116, 83, 252, 0.1);
+    color: #7453fc;
+}
+
+.nav-links a.active {
+    background: #7453fc;
+    color: #fff;
+}
+
+.content-section {
+    background: linear-gradient(135deg, rgba(11, 17, 32, 0.95) 0%, rgba(20, 31, 53, 0.95) 100%);
+    padding: 40px;
+    border-radius: 15px;
+    margin-top: 30px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.section-header {
+    color: #fff;
+    margin-bottom: 30px;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.section-subtext {
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 20px;
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 30px;
+    padding: 20px 0;
+}
+
+.product-card {
+    background: rgba(255,255,255,0.05);
+    border-radius: 15px;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(116, 83, 252, 0.2);
+}
+
+.page-banner {
+    background: url('../images/banner-bg.jpg') no-repeat center center;
+    background-size: cover;
+    padding: 100px 0;
+    position: relative;
+    margin-top: 70px;
+}
+
+.page-banner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(11, 17, 32, 0.9) 0%, rgba(20, 31, 53, 0.9) 100%);
+}
+
+.banner-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    color: #fff;
+}
+
+.banner-title {
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.banner-subtitle {
+    font-size: 18px;
+    opacity: 0.8;
+}

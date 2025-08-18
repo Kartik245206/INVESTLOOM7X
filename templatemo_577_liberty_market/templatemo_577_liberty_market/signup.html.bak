@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - INVESTLOOM7X</title>
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/templatemo-liberty-market.css">
+    <link rel="stylesheet" href="assets/css/modern-header.css">
+    
+    <!-- Check if already logged in -->
+    <script>
+        if (localStorage.getItem('token')) {
+            window.location.href = 'index.html';
+        }
+    </script>
+    <style>
+        .signup-container {
+            max-width: 500px;
+            margin: 100px auto;
+            padding: 20px;
+            background: #080808;
+            border-radius: 15px;
+            color: rgb(253, 251, 251);
+        }
+        .form-control {
+            background-color: #37393c;
+            border: 1px solid #404245;
+            color: rgb(246, 243, 243);
+        }
+        .btn-primary {
+            background: #7453fc;
+            border: none;
+        }
+        .btn-primary:hover {
+            background: #5b42c7;
+        }
+    </style>
+</head>
+<body>
+    <div class="signup-container">
+        <h2 class="text-center mb-4">Create Account</h2>
+        <form id="signupForm" onsubmit="handleSignup(event)">
+            <div class="mb-3">
+                <label class="form-label">Full Name</label>
+                <input type="text" class="form-control" id="fullName" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" required>
+            </div>
+            <div class="mb-3">
+                <label id= "username" class="form-label">Username</label>
+                <input type="text" class="form-control" id="username" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Phone Number</label>
+                <input type="tel" class="form-control" id="phone" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">UPI ID</label>
+                <input type="text" class="form-control" id="upiId" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+            <p class="text-center mt-3">
+                Already have an account? <a href="login.html">Login here</a>
+            </p>
+        </form>
+    </div>
+
+    <!-- Alert Message -->
+    <div id="alertMessage" class="alert" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 10000; padding: 15px 30px; border-radius: 5px;">
+    </div>
+
+    <!-- Scripts -->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="assets/js/auth.js"></script>
+    <script>
+        const alertMessage = document.getElementById('alertMessage');
+        const signupForm = document.getElementById('signupForm');
+
+        function showAlert(message, type) {
+            alertMessage.textContent = message;
+            alertMessage.className = `alert alert-${type}`;
+            alertMessage.style.display = 'block';
+            
+            if (type === 'success') {
+                setTimeout(() => window.location.href = 'index.html', 1500);
+            } else {
+                setTimeout(() => alertMessage.style.display = 'none', 3000);
+            }
+        }
+
+        function showError(message) {
+            errorAlert.textContent = message;
+            errorAlert.style.display = 'block';
+            setTimeout(() => {
+                errorAlert.style.display = 'none';
+            }, 3000);
+        }
+
+        function showSuccess() {
+            successAlert.style.display = 'block';
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1500);
+        }
+
+        function handleSignup(event) {
+            event.preventDefault();
+            
+            const userData = {
+                fullName: document.getElementById('fullName').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                username: document.getElementById('username').value.trim(),
+                password: document.getElementById('password').value,
+                phone: document.getElementById('phone').value.trim(),
+                upiId: document.getElementById('upiId').value.trim()
+            };
+
+            // Validation
+            if (!userData.fullName || !userData.email || !userData.username || 
+                !userData.password || !userData.phone || !userData.upiId) {
+                showAlert('Please fill in all required fields', 'danger');
+                return;
+            }
+
+            if (userData.password.length < 6) {
+                showAlert('Password must be at least 6 characters long', 'danger');
+                return;
+            }
+
+            if (!userData.email.includes('@')) {
+                showAlert('Please enter a valid email address', 'danger');
+                return;
+            }
+
+            if (!/^\d{10}$/.test(userData.phone)) {
+                showAlert('Please enter a valid 10-digit phone number', 'danger');
+                return;
+            }
+
+            if (!/^[a-zA-Z0-9.\-_]{2,49}@[a-zA-Z._]{2,49}$/.test(userData.upiId)) {
+                showAlert('Please enter a valid UPI ID', 'danger');
+                return;
+            }
+
+            // Try to create account
+            const result = auth.signup(userData);
+            if (result.success) {
+                showAlert('Account created successfully!', 'success');
+            } else {
+                showAlert(result.message, 'danger');
+            }
+        }
+
+        // Restore form data if exists
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedData = sessionStorage.getItem('signupFormData');
+            if (savedData) {
+                const formData = JSON.parse(savedData);
+                document.getElementById('fullName').value = formData.fullName || '';
+                document.getElementById('email').value = formData.email || '';
+                document.getElementById('username').value = formData.username || '';
+                document.getElementById('phone').value = formData.phone || '';
+                document.getElementById('upiId').value = formData.upiId || '';
+            }
+        });
+
+        // Clear form data when successfully navigating away
+        window.addEventListener('beforeunload', () => {
+            if (window.location.href.includes('index.html')) {
+                sessionStorage.removeItem('signupFormData');
+            }
+        });
+    </script>
+</body>
+</html>

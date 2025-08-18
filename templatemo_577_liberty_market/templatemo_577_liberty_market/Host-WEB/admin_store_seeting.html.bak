@@ -1,0 +1,30 @@
+const siteConfig = {
+    appearance: {
+        siteTitle: "Liberty NFT Marketplace",
+        primaryColor: "#7453fc",
+        fontFamily: "Roboto",
+        logo: "assets/images/logo.png"
+    },
+    settings: {
+        siteDescription: "TRADING NFT Market is a really cool and professional design for your NFT websites.",
+        contactEmail: "contact@example.com",
+        socialMedia: {
+            facebook: "https://facebook.com/liberty",
+            twitter: "https://twitter.com/liberty",
+            instagram: "https://instagram.com/liberty"
+        }
+    }
+};
+
+function updateConfig(section, data) {
+    siteConfig[section] = {...siteConfig[section], ...data};
+    // Here you would typically save to a database
+    applyChanges();
+}
+
+function applyChanges() {
+    // Apply changes to the main website
+    document.documentElement.style.setProperty('--primary-color', siteConfig.appearance.primaryColor);
+    document.documentElement.style.setProperty('--font-family', siteConfig.appearance.fontFamily);
+    // Add more style updates as needed
+}

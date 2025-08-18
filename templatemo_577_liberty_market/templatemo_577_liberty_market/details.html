@@ -1155,10 +1155,10 @@ let currentProduct = {};
 // Define category class mapping function
 function getCategoryClass(category) {
     const classMap = {
-        'iPhone': 'msc',
-        'Smartwatch': 'dig',
+        'basic': 'msc',
+        'standard': 'dig',
         'Earphone': 'blc',
-        'Laptops': 'vtr'
+        'premium': 'vtr'
     };
     return classMap[category] || '';
 }
@@ -2306,7 +2306,7 @@ function openUpiApp(app) {
     }
     
     // For mobile detection
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const isMobile = /basic|iPad|iPod|Android/i.test(navigator.userAgent);
     
     if (isMobile) {
         // On mobile, directly open the URL
@@ -2755,3 +2755,4 @@ function hideLoadingState() {
 
 </body>
 </html>
+

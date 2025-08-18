@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>User Profile - Liberty Market</title>
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/fontawesome.css">
+    <link rel="stylesheet" href="assets/css/templatemo-liberty-market.css">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+</head>
+<body>
+    
+
+    <!-- Add Header Area -->
+    <header class="header-area header-sticky">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <nav class="main-nav">
+                        <div class="logo-container text-center">
+                            <a href="index.html" class="logo">
+                                <img src="assets/images/logo.png" alt="">
+                            </a>
+                        </div>
+                        <ul class="nav">
+                            <li><a href="index.html">Home</a></li>
+                            <li><a class="active" href="profile.html">Profile</a></li>
+                            <li><a href="signup.html">Logout</a></li>
+                            <li><a href="Host-WEB/admin_dashboard.html">Admin Pannel</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="profile-container">
+        <div class="container">
+            <div class="row">
+                <!-- Profile Header -->
+                <div class="col-12">
+                    <div class="profile-card">
+                        <div class="profile-header">
+                            <div class="profile-pic">
+                                <img id="userProfilePic" src="assets/images/default-avatar.png" alt="Profile Picture">
+                                <div class="edit-pic" onclick="document.getElementById('profilePicInput').click()">
+                                    <i class="fa fa-camera"></i>
+                                </div>
+                                <input type="file" id="profilePicInput" hidden accept="image/*" onchange="updateProfilePic(this)">
+                            </div>
+                            <div class="profile-info">
+                                <h2 href="signup.html">{username}</h2>
+
+                                <p id="userEmail" class="text-muted">Loading...</p>
+                                
+                                <div class="profile-balance">
+                                    <div class="balance-title">Total Balance</div>
+                                    <div class="balance-amount" id="totalBalanceDisplay">₹0</div>
+                                    <div class="withdrawal-available" id="withdrawalAvailable">Available for withdrawal: ₹0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="col-md-4">
+                    <div class="stats-card">
+                        <h4>Current Balance</h4>
+                        <h2 id="currentBalance">₹{userBalance}</h2>
+
+                        
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stats-card">
+                        <h4>Daily Earnings</h4>
+                        <h2 id="dailyEarnings">₹0/day</h2>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stats-card">
+                        <h4>Total Withdrawn</h4>
+                        <h2 id="totalWithdrawn">₹0</h2>
+                    </div>
+                </div>
+
+                <!-- Main Content -->
+                <div class="col-12 mt-4">
+                    <div class="profile-card">
+                        <ul class="nav nav-pills mb-4" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" data-bs-toggle="pill" href="#transactions">Transactions</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-bs-toggle="pill" href="#banking">Banking Details</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-bs-toggle="pill" href="#purchased"><i class="fas fa-shopping-bag"></i> My Products</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-bs-toggle="pill" href="#settings"><i class="fas fa-cog"></i> Settings</a>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content">
+                            <div id="transactions" class="tab-pane fade show active">
+                                <div id="transactionList">
+                                    <!-- Transactions will be loaded here -->
+                                </div>
+                                <button class="btn btn-primary mt-3" id="withdrawBtn" onclick="handleWithdrawal()">
+                                    Withdraw Balance
+                                </button>
+                            </div>
+
+                            <div id="banking" class="tab-pane fade">
+                                <form id="bankDetailsForm" onsubmit="updateBankInfo(event)">
+                                    <div class="mb-3">
+                                        <label class="form-label">Account Number</label>
+                                        <input type="text" class="form-control" id="accountNumber" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">IFSC Code</label>
+                                        <input type="text" class="form-control" id="ifscCode" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Bank Name</label>
+                                        <input type="text" class="form-control" id="bankName" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Update Bank Details</button>
+                                </form>
+                            </div>
+
+                            <div id="purchased" class="tab-pane fade">
+                                <h4 class="mb-4"><i class="fa fa-shopping-bag"></i> My Purchased Products</h4>
+                                <div class="row" id="purchasedProductsList">
+                                    <!-- Purchased products will be loaded here -->
+                                    <div class="col-12 text-center" id="noPurchasesMessage">
+                                        <p>You haven't purchased any products yet.</p>
+                                        <a href="index.html" class="btn btn-primary">Browse Products</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="settings" class="tab-pane fade">
+                                <h4 class="mb-4"><i class="fa fa-cog"></i> Account Settings</h4>
+                                <form id="settingsForm" onsubmit="updateProfile(event)">
+                                    <div class="mb-3">
+                                        <label class="form-label">Full Name</label>
+                                        <input type="text" class="form-control" id="fullName" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Phone Number</label>
+                                        <input type="tel" class="form-control" id="phone" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">UPI ID</label>
+                                        <input type="text" class="form-control" id="upiId" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Notification Preferences</label>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+                                            <label class="form-check-label" for="emailNotifications">Email Notifications</label>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="smsNotifications">
+                                            <label class="form-check-label" for="smsNotifications">SMS Notifications</label>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Theme Preference</label>
+                                        <select class="form-select" id="themePreference">
+                                            <option value="light">Light</option>
+                                            <option value="dark">Dark</option>
+                                            <option value="system">System Default</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Update Profile</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+    // Add this script at the end of the file
+    <script>
+
+    // Menu Trigger Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+        const header = document.querySelector('.header-area .main-nav');
+        if (header) {
+            // Check if menu trigger already exists
+            let menuTrigger = header.querySelector('.menu-trigger');
+            
+            // If menu trigger doesn't exist, create it
+            if (!menuTrigger) {
+            menuTrigger = document.createElement('a');
+            menuTrigger.className = 'menu-trigger';
+            menuTrigger.href = '#';
+            
+            // Create hamburger icon
+            const span1 = document.createElement('span');
+            const span2 = document.createElement('span');
+            const span3 = document.createElement('span');
+            
+            menuTrigger.appendChild(span1);
+            menuTrigger.appendChild(span2);
+            menuTrigger.appendChild(span3);
+            
+            // Add menu trigger to header
+            header.appendChild(menuTrigger);
+            
+            // Add click event to menu trigger
+            menuTrigger.addEventListener('click', function(e) {
+                e.preventDefault();
+                this.classList.toggle('active');
+                const nav = header.querySelector('.nav');
+                if (nav) {
+                nav.classList.toggle('active');
+                }
+            });
+
+            // Close menu when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.nav') && !e.target.closest('.menu-trigger')) {
+                menuTrigger.classList.remove('active');
+                const nav = header.querySelector('.nav');
+                if (nav) {
+                    nav.classList.remove('active');
+                }
+                }
+            });
+            }
+        }
+        });
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Apply theme from localStorage or default to light
+        const savedTheme = localStorage.getItem('themePreference') || 'light';
+        applyTheme(savedTheme);
+        
+        // Set theme preference in settings form
+        if (document.getElementById('themePreference')) {
+            document.getElementById('themePreference').value = savedTheme;
+        }
+        
+        // Load user stats
+        async function loadUserStats() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) return;
+    
+            try {
+                const response = await fetch(`http://localhost:3000/api/user-stats/${currentUser.id}`);
+                const stats = await response.json();
+    
+                // Update UI
+                document.getElementById('currentBalance').textContent = `₹${stats.balance}`;
+                document.getElementById('dailyEarnings').textContent = `₹${stats.dailyEarnings}/day`;
+                document.getElementById('totalWithdrawn').textContent = `₹${stats.totalWithdrawn}`;
+                
+                // Update balance displays
+                const totalBalance = stats.balance || 0;
+                document.getElementById('totalBalanceDisplay').textContent = '₹' + totalBalance;
+                document.getElementById('withdrawalAvailable').textContent = 'Available for withdrawal: ₹' + (totalBalance >= 500 ? totalBalance : '0 (Min ₹500 required)');
+    
+                // Update transaction list
+                const transactionList = document.getElementById('transactionList');
+                transactionList.innerHTML = stats.transactions.map(t => `
+                    <div class="transaction-item">
+                        <h5>${t.type.toUpperCase()}</h5>
+                        <p>Amount: ₹${t.amount}</p>
+                        <p>Date: ${new Date(t.date).toLocaleDateString()}</p>
+                        <p>Status: ${t.status}</p>
+                        ${t.dailyEarning ? `<p>Daily Earning: ₹${t.dailyEarning}/day</p>` : ''}
+                    </div>
+                `).join('');
+    
+                // Enable/disable withdraw button based on balance
+                const withdrawBtn = document.getElementById('withdrawBtn');
+                withdrawBtn.disabled = stats.balance < 500;
+                if (stats.balance < 500) {
+                    withdrawBtn.title = 'Minimum withdrawal amount is ₹500';
+                }
+
+                // Load purchased products
+                loadPurchasedProducts();
+                
+                // Load bank details
+                loadBankDetails();
+            } catch (error) {
+                console.error('Error loading user stats:', error);
+                // Fallback to local storage
+                loadUserStatsFromLocalStorage();
+            }
+        }
+
+        // Fallback to load user stats from localStorage
+        function loadUserStatsFromLocalStorage() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) return;
+
+            // Update UI with data from localStorage
+            document.getElementById('currentBalance').textContent = `₹${currentUser.balance || 0}`;
+            document.getElementById('dailyEarnings').textContent = `₹${currentUser.dailyEarnings || 0}/day`;
+            document.getElementById('totalWithdrawn').textContent = `₹${currentUser.totalWithdrawn || 0}`;
+            
+            // Update balance displays
+            const totalBalance = currentUser.balance || 0;
+            document.getElementById('totalBalanceDisplay').textContent = '₹' + totalBalance;
+            document.getElementById('withdrawalAvailable').textContent = 'Available for withdrawal: ₹' + (totalBalance >= 500 ? totalBalance : '0 (Min ₹500 required)');
+
+            // Update transaction list if available
+            if (currentUser.transactions && currentUser.transactions.length > 0) {
+                const transactionList = document.getElementById('transactionList');
+                transactionList.innerHTML = currentUser.transactions.map(t => `
+                    <div class="transaction-item">
+                        <h5>${t.type.toUpperCase()}</h5>
+                        <p>Amount: ₹${t.amount}</p>
+                        <p>Date: ${new Date(t.date).toLocaleDateString()}</p>
+                        <p>Status: ${t.status}</p>
+                        ${t.dailyEarning ? `<p>Daily Earning: ₹${t.dailyEarning}/day</p>` : ''}
+                    </div>
+                `).join('');
+            }
+
+            // Enable/disable withdraw button based on balance
+            const withdrawBtn = document.getElementById('withdrawBtn');
+            withdrawBtn.disabled = totalBalance < 500;
+            if (totalBalance < 500) {
+                withdrawBtn.title = 'Minimum withdrawal amount is ₹500';
+            }
+
+            // Load purchased products
+            loadPurchasedProducts();
+        }
+
+        // Load purchased products
+        async function loadPurchasedProducts() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) return;
+
+            try {
+                // First try to get from API
+                const response = await fetch(`http://localhost:3000/api/user-purchases/${currentUser.id}`);
+                const purchases = await response.json();
+                displayPurchasedProducts(purchases);
+            } catch (error) {
+                console.error('Error loading purchased products from API:', error);
+                // Fallback to localStorage
+                loadPurchasedProductsFromLocalStorage();
+            }
+        }
+
+        // Fallback to load purchased products from localStorage
+        function loadPurchasedProductsFromLocalStorage() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) return;
+
+            // Get purchased products from localStorage
+            const purchases = currentUser.purchases || [];
+            displayPurchasedProducts(purchases);
+        }
+
+        // Display purchased products
+        function displayPurchasedProducts(purchases) {
+            const purchasedProductsList = document.getElementById('purchasedProductsList');
+            const noPurchasesMessage = document.getElementById('noPurchasesMessage');
+
+            if (purchases && purchases.length > 0) {
+                // Hide no purchases message
+                noPurchasesMessage.style.display = 'none';
+
+                // Display purchased products
+                purchasedProductsList.innerHTML = purchases.map(product => `
+                    <div class="col-md-4 mb-4">
+                        <div class="card product-card">
+                            <div class="card-img-top" style="background-image: url('${product.image || 'assets/images/market-01.jpg'}'); height: 200px; background-size: cover; background-position: center;"></div>
+                            <div class="card-body">
+                                <h5 class="card-title">${product.name || 'Product'}</h5>
+                                <p class="card-text">${product.description || 'No description available'}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-primary">₹${product.price || 0}</span>
+                                    <span class="badge bg-success">Purchased</span>
+                                </div>
+                                <div class="mt-3">
+                                    <p class="mb-1"><small>Purchase Date: ${new Date(product.purchaseDate || Date.now()).toLocaleDateString()}</small></p>
+                                    <p class="mb-1"><small>Daily Earning: ₹${product.dailyEarning || 0}/day</small></p>
+                                    <p class="mb-0"><small>Status: ${product.status || 'Active'}</small></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                // Show no purchases message
+                noPurchasesMessage.style.display = 'block';
+                purchasedProductsList.innerHTML = '';
+            }
+        }
+    
+        // Handle withdrawal
+        function handleWithdrawal() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) return;
+
+            if (currentUser.balance < 500) {
+                alert('Minimum withdrawal amount is ₹500. Your current balance is ₹' + currentUser.balance);
+                return;
+            }
+
+            // Show withdrawal modal
+            const withdrawalModal = new bootstrap.Modal(document.getElementById('withdrawalModal'));
+            document.getElementById('withdrawalAmount').value = currentUser.balance;
+            document.getElementById('withdrawalAmount').max = currentUser.balance;
+            document.getElementById('withdrawalBalance').textContent = '₹' + currentUser.balance;
+            withdrawalModal.show();
+        }
+
+        // Apply theme function
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                document.body.classList.add('theme-dark');
+            } else {
+                document.body.classList.remove('theme-dark');
+            }
+            localStorage.setItem('themePreference', theme);
+        }
+        
+        // Load bank details
+        async function loadBankDetails() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) return;
+            
+            try {
+                const response = await fetch(`http://localhost:3000/api/user-bank-details/${currentUser.id}`);
+                const bankDetails = await response.json();
+                
+                // Update form fields
+                if (document.getElementById('accountNumber')) {
+                    document.getElementById('accountNumber').value = bankDetails.accountNumber || '';
+                }
+                if (document.getElementById('ifscCode')) {
+                    document.getElementById('ifscCode').value = bankDetails.ifscCode || '';
+                }
+                if (document.getElementById('bankName')) {
+                    document.getElementById('bankName').value = bankDetails.bankName || '';
+                }
+                if (document.getElementById('upiId')) {
+                    document.getElementById('upiId').value = bankDetails.upiId || '';
+                }
+            } catch (error) {
+                console.error('Error loading bank details:', error);
+                // Fallback to localStorage
+                loadBankDetailsFromLocalStorage();
+            }
+        }
+        
+        // Fallback to load bank details from localStorage
+        function loadBankDetailsFromLocalStorage() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser || !currentUser.bankDetails) return;
+            
+            // Update form fields
+            if (document.getElementById('accountNumber')) {
+                document.getElementById('accountNumber').value = currentUser.bankDetails.accountNumber || '';
+            }
+            if (document.getElementById('ifscCode')) {
+                document.getElementById('ifscCode').value = currentUser.bankDetails.ifscCode || '';
+            }
+            if (document.getElementById('bankName')) {
+                document.getElementById('bankName').value = currentUser.bankDetails.bankName || '';
+            }
+            if (document.getElementById('upiId')) {
+                document.getElementById('upiId').value = currentUser.bankDetails.upiId || '';
+            }
+        }
+        
+        // Update profile settings
+        async function updateProfile(event) {
+            event.preventDefault();
+            
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) return;
+            
+            const fullName = document.getElementById('fullName').value;
+            const phone = document.getElementById('phone').value;
+            const upiId = document.getElementById('upiId').value;
+            const emailNotifications = document.getElementById('emailNotifications').checked;
+            const smsNotifications = document.getElementById('smsNotifications').checked;
+            const themePreference = document.getElementById('themePreference').value;
+            
+            // Apply theme immediately
+            applyTheme(themePreference);
+            
+            try {
+                await updateProfileAPI(currentUser.id, {
+                    fullName,
+                    phone,
+                    upiId,
+                    emailNotifications,
+                    smsNotifications,
+                    themePreference
+                });
+                
+                alert('Profile updated successfully!');
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                // Fallback to localStorage
+                updateProfileLocal({
+                    fullName,
+                    phone,
+                    upiId,
+                    emailNotifications,
+                    smsNotifications,
+                    themePreference
+                });
+                
+                alert('Profile updated successfully! (Local storage)');
+            }
+        }
+        
+        // Update profile via API
+        async function updateProfileAPI(userId, profileData) {
+            const response = await fetch(`http://localhost:3000/api/user-profile/${userId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(profileData)
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to update profile');
+            }
+            
+            return await response.json();
+        }
+        
+        // Update profile in localStorage
+        function updateProfileLocal(profileData) {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) return;
+            
+            // Update user data
+            currentUser.fullName = profileData.fullName;
+            currentUser.phone = profileData.phone;
+            currentUser.upiId = profileData.upiId;
+            currentUser.emailNotifications = profileData.emailNotifications;
+            currentUser.smsNotifications = profileData.smsNotifications;
+            currentUser.themePreference = profileData.themePreference;
+            
+            // Save to localStorage
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            localStorage.setItem('themePreference', profileData.themePreference);
+        }
+        
+        // Update bank info
+        async function updateBankInfo(event) {
+            event.preventDefault();
+            
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) return;
+            
+            const accountNumber = document.getElementById('accountNumber').value;
+            const ifscCode = document.getElementById('ifscCode').value;
+            const bankName = document.getElementById('bankName').value;
+            
+            try {
+                await updateBankInfoAPI(currentUser.id, {
+                    accountNumber,
+                    ifscCode,
+                    bankName
+                });
+                
+                alert('Bank details updated successfully!');
+            } catch (error) {
+                console.error('Error updating bank details:', error);
+                // Fallback to localStorage
+                updateBankInfoLocal({
+                    accountNumber,
+                    ifscCode,
+                    bankName
+                });
+                
+                alert('Bank details updated successfully! (Local storage)');
+            }
+        }
+        
+        // Update bank info via API
+        async function updateBankInfoAPI(userId, bankData) {
+            const response = await fetch(`http://localhost:3000/api/user-bank-details/${userId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(bankData)
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to update bank details');
+            }
+            
+            return await response.json();
+        }
+        
+        // Update bank info in localStorage
+        function updateBankInfoLocal(bankData) {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) return;
+            
+            // Initialize bank details if not exists
+            if (!currentUser.bankDetails) {
+                currentUser.bankDetails = {};
+            }
+            
+            // Update bank details
+            currentUser.bankDetails.accountNumber = bankData.accountNumber;
+            currentUser.bankDetails.ifscCode = bankData.ifscCode;
+            currentUser.bankDetails.bankName = bankData.bankName;
+            
+            // Save to localStorage
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        }
+        
+        // Process withdrawal
+        function processWithdrawal() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const withdrawalAmount = parseFloat(document.getElementById('withdrawalAmount').value);
+            const withdrawalMethod = document.querySelector('input[name="withdrawalMethod"]:checked').value;
+            
+            if (isNaN(withdrawalAmount) || withdrawalAmount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+            
+            if (withdrawalAmount > currentUser.balance) {
+                alert('Withdrawal amount cannot exceed your balance');
+                return;
+            }
+            
+            if (withdrawalAmount < 500) {
+                alert('Minimum withdrawal amount is ₹500');
+                return;
+            }
+            
+            let withdrawalDetails = '';
+            
+            if (withdrawalMethod === 'upi') {
+                const upiId = document.getElementById('upiId').value;
+                if (!upiId) {
+                    alert('Please enter your UPI ID');
+                    return;
+                }
+                withdrawalDetails = `UPI: ${upiId}`;
+            } else {
+                const accountNumber = document.getElementById('accountNumber').value;
+                const ifscCode = document.getElementById('ifscCode').value;
+                const accountName = document.getElementById('accountName').value;
+                
+                if (!accountNumber || !ifscCode || !accountName) {
+                    alert('Please fill all bank details');
+                    return;
+                }
+                withdrawalDetails = `Bank: ${accountName}, Acc: ${accountNumber}, IFSC: ${ifscCode}`;
+            }
+            
+            try {
+                // First try API call if available
+                processWithdrawalAPI(currentUser.id, withdrawalAmount, withdrawalMethod, withdrawalDetails);
+            } catch (error) {
+                // Fallback to local storage if API fails
+                processWithdrawalLocal(currentUser.id, withdrawalAmount, withdrawalMethod, withdrawalDetails);
+            }
+        }
+
+        // Process withdrawal via API
+        async function processWithdrawalAPI(userId, amount, method, details) {
+            try {
+                const response = await fetch('http://localhost:3000/api/withdraw', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userId: userId,
+                        amount: amount,
+                        method: method,
+                        details: details
+                    })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    // Hide modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('withdrawalModal'));
+                    modal.hide();
+                    
+                    alert(`Withdrawal of ₹${amount} initiated successfully! Amount will be credited to your ${method === 'upi' ? 'UPI ID' : 'Bank Account'} within 24 hours.`);
+                    loadUserStats(); // Reload stats
+                } else {
+                    alert(result.error || 'Withdrawal failed');
+                }
+            } catch (error) {
+                console.error('Error processing withdrawal:', error);
+                // Fallback to local storage
+                processWithdrawalLocal(userId, amount, method, details);
+            }
+        }
+
+        // Process withdrawal via local storage
+        function processWithdrawalLocal(userId, amount, method, details) {
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const userIndex = users.findIndex(u => u.id === userId);
+            
+            if (userIndex !== -1) {
+                // Add withdrawal to transaction history
+                const withdrawal = {
+                    id: Date.now(),
+                    type: 'withdrawal',
+                    amount: amount,
+                    method: method,
+                    details: details,
+                    date: new Date().toISOString(),
+                    status: 'processing'
+                };
+
+                if (!users[userIndex].transactions) {
+                    users[userIndex].transactions = [];
+                }
+                users[userIndex].transactions.push(withdrawal);
+                
+                // Update balance
+                users[userIndex].balance -= amount;
+                
+                // Update storage
+                localStorage.setItem('users', JSON.stringify(users));
+                localStorage.setItem('currentUser', JSON.stringify(users[userIndex]));
+                
+                // Hide modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('withdrawalModal'));
+                modal.hide();
+                
+                alert(`Withdrawal of ₹${amount} initiated successfully! Amount will be credited to your ${method === 'upi' ? 'UPI ID' : 'Bank Account'} within 24 hours.`);
+                loadUserStats(); // Reload stats
+            }
+        }
+
+        // Update profile settings
+        function updateProfile(event) {
+            event.preventDefault();
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) return;
+
+            // Get form values
+            const fullName = document.getElementById('fullName').value;
+            const phone = document.getElementById('phone').value;
+            const upiId = document.getElementById('upiId').value;
+            const emailNotifications = document.getElementById('emailNotifications').checked;
+            const smsNotifications = document.getElementById('smsNotifications').checked;
+            const themePreference = document.getElementById('themePreference').value;
+
+            try {
+                // First try API call
+                updateProfileAPI(currentUser.id, {
+                    fullName,
+                    phone,
+                    upiId,
+                    settings: {
+                        emailNotifications,
+                        smsNotifications,
+                        themePreference
+                    }
+                });
+            } catch (error) {
+                // Fallback to local storage
+                updateProfileLocal(currentUser.id, {
+                    fullName,
+                    phone,
+                    upiId,
+                    settings: {
+                        emailNotifications,
+                        smsNotifications,
+                        themePreference
+                    }
+                });
+            }
+        }
+
+        // Update profile via API
+        async function updateProfileAPI(userId, profileData) {
+            try {
+                const response = await fetch(`http://localhost:3000/api/update-profile/${userId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(profileData)
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert('Profile updated successfully!');
+                    // Update local user data
+                    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                    const updatedUser = { ...currentUser, ...profileData };
+                    localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+
+                    // Apply theme if changed
+                    applyTheme(profileData.settings.themePreference);
+                } else {
+                    alert(result.error || 'Failed to update profile');
+                }
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                // Fallback to local storage
+                updateProfileLocal(userId, profileData);
+            }
+        }
+
+        // Update profile via local storage
+        function updateProfileLocal(userId, profileData) {
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const userIndex = users.findIndex(u => u.id === userId);
+            
+            if (userIndex !== -1) {
+                // Update user data
+                users[userIndex] = { ...users[userIndex], ...profileData };
+                
+                // Update storage
+                localStorage.setItem('users', JSON.stringify(users));
+                localStorage.setItem('currentUser', JSON.stringify(users[userIndex]));
+                
+                alert('Profile updated successfully!');
+                
+                // Apply theme if changed
+                applyTheme(profileData.settings.themePreference);
+            }
+        }
+
+        // Apply theme preference
+        function applyTheme(theme) {
+            const body = document.body;
+            
+            // Remove existing theme classes
+            body.classList.remove('theme-light', 'theme-dark');
+            
+            // Apply selected theme
+            if (theme === 'dark') {
+                body.classList.add('theme-dark');
+            } else if (theme === 'light') {
+                body.classList.add('theme-light');
+            } else if (theme === 'system') {
+                // Check system preference
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    body.classList.add('theme-dark');
+                } else {
+                    body.classList.add('theme-light');
+                }
+            }
+        }
+
+        // Load bank details
+        function loadBankDetails() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) return;
+
+            // Fill bank details form if available
+            if (currentUser.bankDetails) {
+                document.getElementById('accountNumber').value = currentUser.bankDetails.accountNumber || '';
+                document.getElementById('ifscCode').value = currentUser.bankDetails.ifscCode || '';
+                document.getElementById('bankName').value = currentUser.bankDetails.bankName || '';
+            }
+
+            // Fill settings form
+            document.getElementById('fullName').value = currentUser.fullName || '';
+            document.getElementById('phone').value = currentUser.phone || '';
+            document.getElementById('upiId').value = currentUser.upiId || '';
+
+            // Set settings values if available
+            if (currentUser.settings) {
+                document.getElementById('emailNotifications').checked = currentUser.settings.emailNotifications !== false;
+                document.getElementById('smsNotifications').checked = currentUser.settings.smsNotifications === true;
+                
+                const themeSelect = document.getElementById('themePreference');
+                if (currentUser.settings.themePreference) {
+                    themeSelect.value = currentUser.settings.themePreference;
+                }
+
+                // Apply current theme
+                applyTheme(currentUser.settings.themePreference || 'light');
+            }
+        }
+
+        // Update bank info
+        function updateBankInfo(event) {
+            event.preventDefault();
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) return;
+
+            // Get form values
+            const accountNumber = document.getElementById('accountNumber').value;
+            const ifscCode = document.getElementById('ifscCode').value;
+            const bankName = document.getElementById('bankName').value;
+
+            const bankDetails = {
+                accountNumber,
+                ifscCode,
+                bankName
+            };
+
+            try {
+                // First try API call
+                updateBankInfoAPI(currentUser.id, bankDetails);
+            } catch (error) {
+                // Fallback to local storage
+                updateBankInfoLocal(currentUser.id, bankDetails);
+            }
+        }
+
+        // Update bank info via API
+        async function updateBankInfoAPI(userId, bankDetails) {
+            try {
+                const response = await fetch(`http://localhost:3000/api/update-bank-details/${userId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(bankDetails)
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert('Bank details updated successfully!');
+                    // Update local user data
+                    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                    currentUser.bankDetails = bankDetails;
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                } else {
+                    alert(result.error || 'Failed to update bank details');
+                }
+            } catch (error) {
+                console.error('Error updating bank details:', error);
+                // Fallback to local storage
+                updateBankInfoLocal(userId, bankDetails);
+            }
+        }
+
+        // Update bank info via local storage
+        function updateBankInfoLocal(userId, bankDetails) {
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const userIndex = users.findIndex(u => u.id === userId);
+            
+            if (userIndex !== -1) {
+                // Update bank details
+                users[userIndex].bankDetails = bankDetails;
+                
+                // Update storage
+                localStorage.setItem('users', JSON.stringify(users));
+                localStorage.setItem('currentUser', JSON.stringify(users[userIndex]));
+                
+                alert('Bank details updated successfully!');
+            }
+        }
+    
+        // Load stats every minute to keep UI updated
+        loadUserStats();
+        loadBankDetails();
+        setInterval(loadUserStats, 60000);
+    
+        // Attach event handlers
+        document.getElementById('withdrawBtn').onclick = handleWithdrawal;
+        document.getElementById('bankDetailsForm').onsubmit = updateBankInfo;
+        document.getElementById('settingsForm').onsubmit = updateProfile;
+
+        // Make processWithdrawal function globally available
+        window.processWithdrawal = processWithdrawal;
+    });
+    </script>
+
+    <!-- Withdrawal Modal -->
+    <div class="modal fade" id="withdrawalModal" tabindex="-1" aria-labelledby="withdrawalModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="withdrawalModalLabel">Withdraw Funds</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="withdrawalForm">
+              <div class="mb-3">
+                <label for="withdrawalAmount" class="form-label">Withdrawal Amount (₹)</label>
+                <input type="number" class="form-control" id="withdrawalAmount" min="500" required>
+                <small class="text-muted">Available Balance: <span id="withdrawalBalance">₹0</span></small>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label">Withdrawal Method</label>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="withdrawalMethod" id="methodBank" value="bank" checked>
+                  <label class="form-check-label" for="methodBank">
+                    Bank Transfer
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="withdrawalMethod" id="methodUPI" value="upi">
+                  <label class="form-check-label" for="methodUPI">
+                    UPI Transfer
+                  </label>
+                </div>
+              </div>
+              
+              <div id="bankDetails">
+                <div class="mb-3">
+                  <label for="accountName" class="form-label">Account Holder Name</label>
+                  <input type="text" class="form-control" id="accountName">
+                </div>
+                <div class="mb-3">
+                  <label for="accountNumber" class="form-label">Account Number</label>
+                  <input type="text" class="form-control" id="accountNumber">
+                </div>
+                <div class="mb-3">
+                  <label for="ifscCode" class="form-label">IFSC Code</label>
+                  <input type="text" class="form-control" id="ifscCode">
+                </div>
+              </div>
+              
+              <div id="upiDetails" style="display: none;">
+                <div class="mb-3">
+                  <label for="upiId" class="form-label">UPI ID</label>
+                  <input type="text" class="form-control" id="upiId" placeholder="example@upi">
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary" onclick="processWithdrawal()">Withdraw</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Toggle withdrawal method details
+      document.querySelectorAll('input[name="withdrawalMethod"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+          if (this.value === 'bank') {
+            document.getElementById('bankDetails').style.display = 'block';
+            document.getElementById('upiDetails').style.display = 'none';
+          } else {
+            document.getElementById('bankDetails').style.display = 'none';
+            document.getElementById('upiDetails').style.display = 'block';
+          }
+        });
+      });
+    </script>
+</body>
+</html>

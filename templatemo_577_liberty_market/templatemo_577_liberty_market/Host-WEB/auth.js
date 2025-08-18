@@ -31,3 +31,4 @@ if (window.location.pathname.includes('admin_dashboard.html')) {
         console.log('Unauthorized access attempt');
     }
 }
+
