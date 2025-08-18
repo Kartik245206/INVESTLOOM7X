@@ -97,4 +97,32 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData(e.target);
         await productsManager.addProduct(formData);
     });
+
+    // Render admin product controls and wire up actions
+    const addBtn = document.getElementById('addProductBtn');
+    const manageBtn = document.getElementById('manageProductsBtn');
+
+    if (addBtn) addBtn.addEventListener('click', e => {
+        e.preventDefault();
+        // open add-product modal or navigate to product editor
+        openAddProductModal();
+    });
+
+    if (manageBtn) manageBtn.addEventListener('click', e => {
+        e.preventDefault();
+        // show products table (load from localStorage or API)
+        showManageProducts();
+    });
 });
+
+function openAddProductModal() {
+    // create modal UI or navigate to admin product page
+    window.location.href = 'admin_add_product.html'; // or show modal
+}
+
+function showManageProducts() {
+    // load and display existing products (localStorage or API)
+    const products = JSON.parse(localStorage.getItem('products') || '[]');
+    // render table with edit/delete buttons for each product
+    console.log('Admin products:', products);
+}
