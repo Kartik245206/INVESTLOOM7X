@@ -4,7 +4,6 @@ const path = require('path');
 const Database = require('./api/database');
 const connectDB = require('./config/db');
 const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
 const fs = require('fs');
 const multer = require('multer');
