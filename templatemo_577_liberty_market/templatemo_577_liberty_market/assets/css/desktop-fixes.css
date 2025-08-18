@@ -121,8 +121,8 @@
     }
 
     .product-image {
-        width: 100px;
-        height: 100px;
+        width: 50px;
+        height: 50px;
         margin: 0 auto 20px;
     }
 
@@ -134,7 +134,7 @@
 
     .total-amount {
         font-size: 18px;
-        color: #888;
+        color: #f8f5f5;
     }
 
     .days-remaining {

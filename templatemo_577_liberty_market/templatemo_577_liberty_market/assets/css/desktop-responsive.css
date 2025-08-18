@@ -118,12 +118,17 @@
         margin: 0;
         padding: 10px 20px;
         transform: none;
+        position: fixed;
+        top: 80px; /* adjust if header height differs */
+        right: 10px;
+        left: auto;
     }
 
     /* Logo */
     .logo img {
         width: auto;
-        height: 50px;
+        height: 80px;
+
     }
 }
 
@@ -149,10 +154,10 @@
     top: 60px; /* adjust if header height differs */
     right: 0;
     left: auto;
-    width: 320px;
+    width: 120px;
     max-width: 85%;
     height: calc(100% - 60px);
-    background: #fff;
+    background: #4dd2fbd4;
     box-shadow: -4px 0 16px rgba(0,0,0,0.15);
     transform: translateX(0); /* visible by default, toggle via a class if you prefer */
     z-index: 1200;
