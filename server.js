@@ -27,6 +27,12 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Connect to database
+connectDB(); // <-- added: ensure DB connection at startup
+
+// Use cookie parser
+app.use(cookieParser()); // <-- added: parse cookies for auth tokens
+
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
@@ -287,6 +293,9 @@ process.on('uncaughtException', (err) => {
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
+
+// Mount auth routes
+app.use('/api/auth', require('./api/auth')); // <-- added
 
 // Start server
 app.listen(PORT, () => {
