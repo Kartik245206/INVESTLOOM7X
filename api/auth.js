@@ -8,61 +8,82 @@ const JWT_SECRET = process.env.JWT_SECRET || 'change_this_secret';
 const TOKEN_EXPIRES = '7d';
 
 function makeToken(user) {
-  return jwt.sign({ id: user._id, email: user.email }, JWT_SECRET, { expiresIn: TOKEN_EXPIRES });
+  return jwt.sign({ id: user._id, email: user.email, isAdmin: !!user.isAdmin }, JWT_SECRET, { expiresIn: TOKEN_EXPIRES });
 }
 
-// check-email: returns { exists: true } if email present
-router.post('/check-email', async (req, res) => {
-  try {
-    const { email } = req.body;
-    if (!email) return res.status(400).json({ error: 'Email required' });
-    const exists = await User.findOne({ email }).lean();
-    return res.json({ exists: !!exists });
-  } catch (err) {
-    console.error('check-email error', err);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
+// Health/check route
+router.get('/ping', (req, res) => res.json({ ok: true }));
 
-// signup
+// Signup
 router.post('/signup', async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name = '', email = '', password = '' } = req.body || {};
     if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
 
-    const existing = await User.findOne({ email });
+    // Normalize email
+    const normalizedEmail = String(email).trim().toLowerCase();
+
+    // Check existing
+    const existing = await User.findOne({ email: normalizedEmail }).lean();
     if (existing) return res.status(409).json({ error: 'Email already registered' });
 
+    // Hash password
     const hash = await bcrypt.hash(password, 12);
-    const user = await User.create({ name, email, passwordHash: hash, balance: 0 });
+
+    const user = new User({
+      name: String(name).trim(),
+      email: normalizedEmail,
+      passwordHash: hash,
+      balance: 0,
+      createdAt: new Date()
+    });
+
+    await user.save();
 
     const token = makeToken(user);
-    res.cookie('token', token, { httpOnly: true, sameSite: 'lax' });
-    res.json({ success: true, user: { id: user._id, email: user.email, name: user.name } });
+    res.cookie('token', token, {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 1000 * 60 * 60 * 24 * 7
+    });
+
+    return res.json({
+      success: true,
+      user: { id: user._id, name: user.name, email: user.email, balance: user.balance }
+    });
   } catch (err) {
-    console.error('signup error', err);
-    res.status(500).json({ error: 'Signup failed' });
+    console.error('[auth.signup] error:', err && err.stack ? err.stack : err);
+    // safe error message for client; full stack is in server logs
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
-// login
+// Login
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email = '', password = '' } = req.body || {};
     if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
 
-    const user = await User.findOne({ email });
+    const normalizedEmail = String(email).trim().toLowerCase();
+    const user = await User.findOne({ email: normalizedEmail });
     if (!user) return res.status(401).json({ error: 'Invalid credentials' });
 
     const ok = await bcrypt.compare(password, user.passwordHash || '');
     if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
 
     const token = makeToken(user);
-    res.cookie('token', token, { httpOnly: true, sameSite: 'lax' });
-    res.json({ success: true, user: { id: user._id, email: user.email, name: user.name } });
+    res.cookie('token', token, {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 1000 * 60 * 60 * 24 * 7
+    });
+
+    return res.json({ success: true, user: { id: user._id, name: user.name, email: user.email, balance: user.balance } });
   } catch (err) {
-    console.error('login error', err);
-    res.status(500).json({ error: 'Login failed' });
+    console.error('[auth.login] error:', err && err.stack ? err.stack : err);
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
