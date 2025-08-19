@@ -64,7 +64,7 @@
 
     .user-account-info {
         top: 40px !important;
-        right: 70px !important;
+        right: 20px !important;
         transform: none !important;
     }
 
@@ -83,6 +83,8 @@
     .user-account-info {
         padding: 5px 10px !important;
         font-size: 14px !important;
+        right: 20px !important;
+
     }
 }
 

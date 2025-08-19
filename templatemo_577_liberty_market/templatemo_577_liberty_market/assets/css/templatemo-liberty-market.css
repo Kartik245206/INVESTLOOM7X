@@ -1759,3 +1759,16 @@ body {
     gap: 15px;
     margin: 20px 0;
 }
+
+/* Ensure product grid is visible */
+#productContainer, .currently-market-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Ensure product card defaults */
+.currently-market-item { display: block !important; }
+.currently-market-item .left-image img { max-width:100%; height:auto; display:block; }
