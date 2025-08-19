@@ -178,36 +178,54 @@
             }
         });
 
-        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+        document.addEventListener('DOMContentLoaded', function () {
+          const form = document.getElementById('signupForm');
+          if (!form) return;
+
+          form.addEventListener('submit', async function (e) {
             e.preventDefault();
-            
-            const formData = {
-                name: document.getElementById('name').value,
-                email: document.getElementById('email').value,
-                password: document.getElementById('password').value
-            };
+            const name = document.getElementById('name')?.value || '';
+            const email = document.getElementById('email')?.value?.trim();
+            const password = document.getElementById('password')?.value;
+
+            if (!email || !password) {
+              alert('Email and password are required');
+              return;
+            }
 
             try {
-                const response = await fetch('/api/auth/signup', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
+              // check email first
+              const check = await fetch('/api/auth/check-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+              });
+              const chk = await check.json();
+              if (chk.exists) {
+                alert('Email already exists. Please login instead.');
+                window.location.href = 'login.html';
+                return;
+              }
 
-                const data = await response.json();
-                
-                if (data.success) {
-                    // Redirect to homepage/dashboard on success
-                    window.location.href = '/index.html';
-                } else {
-                    alert(data.error || 'Signup failed');
-                }
+              // create account
+              const res = await fetch('/api/auth/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, password }),
+                credentials: 'include'
+              });
+              const data = await res.json();
+              if (res.ok && data.success) {
+                // redirect to homepage
+                window.location.href = 'index.html';
+              } else {
+                alert(data.error || 'Signup failed');
+              }
             } catch (err) {
-                console.error('Signup error:', err);
-                alert('Signup failed. Please try again.');
+              console.error(err);
+              alert('Signup failed, try again');
             }
+          });
         });
     </script>
 </body>

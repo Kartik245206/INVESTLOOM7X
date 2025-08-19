@@ -73,7 +73,10 @@ app.use(cors({
 
 // Body parser with limits
 app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.urlencoded({ extended: true }));
+
+// mount auth API
+app.use('/api/auth', require('./api/auth'));
 
 // Serve static files with caching
 app.use(express.static(path.join(__dirname, 'templatemo_577_liberty_market/templatemo_577_liberty_market'), {
@@ -293,9 +296,6 @@ process.on('uncaughtException', (err) => {
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
-
-// Mount auth routes
-app.use('/api/auth', require('./api/auth')); // <-- added
 
 // Start server
 app.listen(PORT, () => {

@@ -52,7 +52,7 @@
             <img src="assets/images/logo.png" alt="INVESTLOOM7X">
         </div>
         <h2>Welcome Back</h2>
-        <form id="loginForm" onsubmit="handleLogin(event)">
+        <form id="loginForm">
             <div class="mb-3">
                 <label class="form-label">Email Address</label>
                 <input type="email" class="form-control" id="username" required>
@@ -71,26 +71,39 @@
     <!-- Scripts -->
     <script src="assets/js/auth.js"></script>
     <script>
-        async function handleLogin(event) {
-            event.preventDefault();
-            
-            const email = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            
-            const result = await auth.login(email, password);
-            
-            if(result.success) {
-                window.location.href = 'index.html';
-            } else {
-                alert(result.message || 'Invalid email or password!');
-            }
-        }
+        document.addEventListener('DOMContentLoaded', function () {
+          const form = document.getElementById('loginForm');
+          if (!form) return;
 
-        // Check if user is already logged in
-        const currentUser = auth.getCurrentUser();
-        if (currentUser) {
-            window.location.href = 'index.html';
-        }
+          form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const email = document.getElementById('username')?.value?.trim();
+            const password = document.getElementById('password')?.value;
+
+            if (!email || !password) {
+              alert('Email and password required');
+              return;
+            }
+
+            try {
+              const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
+                credentials: 'include'
+              });
+              const data = await res.json();
+              if (res.ok && data.success) {
+                window.location.href = 'index.html';
+              } else {
+                alert(data.error || 'Login failed');
+              }
+            } catch (err) {
+              console.error(err);
+              alert('Login failed, try again');
+            }
+          });
+        });
     </script>
 </body>
 </html>

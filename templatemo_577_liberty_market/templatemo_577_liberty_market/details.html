@@ -2084,24 +2084,21 @@ function showUPIModal() {
     }
     
     // Show the UPI modal
-    const upiModalInstance = new bootstrap.Modal(upiModal);
-    upiModalInstance.show();
-    
-    // Enable the verify payment button after a UPI app is clicked
-    const verifyUPIPaymentBtn = document.getElementById('verifyUPIPaymentBtn');
-    if (verifyUPIPaymentBtn) {
-        // Initially enable the verify payment button to allow manual verification
-        verifyUPIPaymentBtn.disabled = false;
-        verifyUPIPaymentBtn.classList.add('btn-primary');
-        verifyUPIPaymentBtn.classList.remove('btn-secondary');
-    }
+        const upiModalInstance = new bootstrap.Modal(upiModal);
+        upiModalInstance.show();
         
-        // This section is now handled in the showUPIModal function
+        // Enable the verify payment button after a UPI app is clicked
+        const verifyUPIPaymentBtn = document.getElementById('verifyUPIPaymentBtn');
+        if (verifyUPIPaymentBtn) {
+            // Initially enable the verify payment button to allow manual verification
+            verifyUPIPaymentBtn.disabled = false;
+            verifyUPIPaymentBtn.classList.add('btn-primary');
+            verifyUPIPaymentBtn.classList.remove('btn-secondary');
+        }
         
         // Add event listener to verify payment button
-        const paymentVerifyBtn = document.getElementById('verifyUPIPaymentBtn');
-        if (paymentVerifyBtn) {
-            paymentVerifyBtn.addEventListener('click', function() {
+        if (verifyUPIPaymentBtn) {
+            verifyUPIPaymentBtn.addEventListener('click', function() {
                 verifyUPIPayment();
             });
             
