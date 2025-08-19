@@ -1266,6 +1266,58 @@ body {
   box-shadow: 0 4px 8px rgba(116, 83, 252, 0.3);
 }
 
+/* Product Display Styles */
+.currently-market-item {
+    background-color: #282b2f;
+    border: 1px solid #404245;
+    padding: 30px;
+    border-radius: 20px;
+    margin-bottom: 30px;
+}
+
+.currently-market-item .item {
+    display: flex;
+}
+
+.currently-market-item .left-image {
+    flex-basis: 45%;
+    margin-right: 30px;
+}
+
+.currently-market-item .left-image img {
+    width: 100%;
+    border-radius: 20px;
+}
+
+.currently-market-item .right-content {
+    flex-basis: 55%;
+}
+
+.currently-market-item h4 {
+    font-size: 20px;
+    margin-bottom: 15px;
+}
+
+.currently-market-item .price,
+.currently-market-item .earning {
+    margin: 15px 0;
+}
+
+.currently-market-item .price span,
+.currently-market-item .earning span {
+    color: #7453fc;
+    font-size: 15px;
+    font-weight: 400;
+    display: block;
+}
+
+.currently-market-item .price h6,
+.currently-market-item .earning h6 {
+    font-size: 20px;
+    color: #fff;
+    margin-top: 5px;
+}
+
 /* Desktop Filter Styling */
 .filters ul {
   display: flex;
