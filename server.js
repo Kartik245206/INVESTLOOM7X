@@ -107,8 +107,15 @@ const limiter = rateLimit({
 app.use('/api', limiter); // Only apply to /api routes, not static files
 
 // Health check route
-app.get('/health', (req, res) => {
-    res.status(200).json({ status: 'ok', message: 'Server is running' });
+app.get('/health', async (req, res) => {
+  try {
+    // quick DB check
+    const mongoose = require('mongoose');
+    const state = mongoose.connection.readyState;
+    res.json({ ok: true, dbState: state }); // 1 = connected
+  } catch (err) {
+    res.status(500).json({ ok: false, error: String(err) });
+  }
 });
 
 // Configure multer for image upload

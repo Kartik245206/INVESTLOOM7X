@@ -17,17 +17,23 @@ router.get('/ping', (req, res) => res.json({ ok: true }));
 // Signup
 router.post('/signup', async (req, res) => {
   try {
+    const mongoose = require('mongoose');
+    console.log('[auth.signup] mongoose.readyState=', mongoose.connection.readyState);
+    console.log('[auth.signup] req.body keys:', Object.keys(req.body || {}));
+    console.log('[auth.signup] passwordProvided:', !!req.body?.password);
+
     const { name = '', email = '', password = '' } = req.body || {};
     if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
 
-    // Normalize email
     const normalizedEmail = String(email).trim().toLowerCase();
 
-    // Check existing
+    console.log('[auth.signup] checking existing user for', normalizedEmail);
     const existing = await User.findOne({ email: normalizedEmail }).lean();
-    if (existing) return res.status(409).json({ error: 'Email already registered' });
+    if (existing) {
+      console.log('[auth.signup] email already exists');
+      return res.status(409).json({ error: 'Email already registered' });
+    }
 
-    // Hash password
     const hash = await bcrypt.hash(password, 12);
 
     const user = new User({
@@ -38,7 +44,9 @@ router.post('/signup', async (req, res) => {
       createdAt: new Date()
     });
 
+    console.log('[auth.signup] saving user to DB...');
     await user.save();
+    console.log('[auth.signup] user saved:', user._id);
 
     const token = makeToken(user);
     res.cookie('token', token, {
@@ -54,8 +62,11 @@ router.post('/signup', async (req, res) => {
     });
   } catch (err) {
     console.error('[auth.signup] error:', err && err.stack ? err.stack : err);
-    // safe error message for client; full stack is in server logs
-    return res.status(500).json({ error: 'Internal Server Error' });
+    if (err && err.code === 11000) {
+      return res.status(409).json({ error: 'Email already registered (duplicate key)' });
+    }
+    // temporarily return the error message to help debugging (remove in production)
+    return res.status(500).json({ error: err && err.message ? err.message : 'Internal Server Error' });
   }
 });
 
