@@ -158,3 +158,22 @@ document.getElementById('productImage').addEventListener('change', function(e) {
 
 // Load products on page load
 document.addEventListener('DOMContentLoaded', loadProducts);
+
+async function saveProductToServer(product) {
+  // product contains name, price, dailyEarning, category, image (base64 or url), description, status
+  const url = product.id ? '/api/products/' + product.id : '/api/products';
+  const method = product.id ? 'PUT' : 'POST';
+  const res = await fetch(url, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(product)
+  });
+  if (!res.ok) throw new Error('Product save failed');
+  return res.json();
+}
+async function deleteProductFromServer(id) {
+  const res = await fetch('/api/products/' + id, { method: 'DELETE', credentials: 'include' });
+  if (!res.ok) throw new Error('Delete failed');
+  return res.json();
+}

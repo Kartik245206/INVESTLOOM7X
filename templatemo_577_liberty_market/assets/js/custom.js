@@ -179,21 +179,17 @@
       // Load published products from backend, fallback to localStorage/defaults
       async function loadPublishedProducts() {
         try {
-          const res = await fetch('/api/products', { method: 'GET' });
+          const res = await fetch('/api/products');
           if (res.ok) {
             const products = await res.json();
-            if (Array.isArray(products) && products.length) {
-              renderProducts(products);
-              // keep publishedProducts cached
-              localStorage.setItem('publishedProducts', JSON.stringify(products));
-              return;
-            }
+            // render products (your existing render logic)
+            renderProducts(products); // ensure renderProducts is defined in this file
+            return;
           }
-        } catch (err) {
-          console.warn('API /api/products failed, using local fallback', err);
+        } catch (e) {
+          console.warn('Failed to fetch /api/products', e);
         }
-
-        // fallback
+        // fallback to localStorage / defaults...
         let products = safeParse(localStorage.getItem('publishedProducts'), []);
         if (!products || products.length === 0) {
           products = safeParse(localStorage.getItem('products'), []);

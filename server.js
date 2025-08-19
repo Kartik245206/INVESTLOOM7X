@@ -77,6 +77,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // mount auth API
 app.use('/api/auth', require('./api/auth'));
+app.use('/api/purchase', require('./api/purchase'));
 
 // Serve static files with caching
 app.use(express.static(path.join(__dirname, 'templatemo_577_liberty_market/templatemo_577_liberty_market'), {
