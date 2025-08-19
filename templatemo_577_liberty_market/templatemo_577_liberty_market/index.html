@@ -259,15 +259,15 @@ https://templatemo.com/tm-577-liberty-market
           <div class="payment-options mb-3">
             <h6>Select Payment Method</h6>
             <div class="payment-grid">
-              <div class="payment-option" onclick="selectPayment('gpay')">
+              <div class="payment-option" data-app="gpay">
                 <img src="assets/images/gpay.svg" alt="Google Pay">
                 <span>Google Pay</span>
               </div>
-              <div class="payment-option" onclick="selectPayment('phonepe')">
+              <div class="payment-option" data-app="phonepe">
                 <img src="assets/images/phonepe.svg" alt="PhonePe">
                 <span>PhonePe</span>
               </div>
-              <div class="payment-option" onclick="selectPayment('paytm')">
+              <div class="payment-option" data-app="paytm">
                 <img src="assets/images/paytm.svg" alt="Paytm">
                 <span>Paytm</span>
               </div>
@@ -330,7 +330,7 @@ https://templatemo.com/tm-577-liberty-market
                   </div>
                   <h4>Deposit</h4>
                   <div class="icon-button">
-                    <a href="#" data-bs-toggle="modal" data-bs-target="#depositModal"><i class="fa fa-angle-right"></i></a>
+                    <a href="#" onclick="showDepositModal()"><i class="fa fa-angle-right"></i></a>
                   </div>
                 </div>
               </div>
@@ -354,7 +354,7 @@ https://templatemo.com/tm-577-liberty-market
                   </div>
                   <h4>Balance</h4>
                   <div class="icon-button" onclick="window.location.href='profile.html'">
-                    <a href="#" onclick="showProfile()"><i class="fa fa-angle-right"></i></a>
+                    <a href="#" onclick="showBalance()"><i class="fa fa-angle-right"></i></a>
                   </div>
                 </div>
               </div>
@@ -755,10 +755,10 @@ document.addEventListener('DOMContentLoaded', function() {
   <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
 
     <!-- Additional Scripts -->
-    <script src="assets/js/owl-carousel.js"></script>
-    <script src="assets/js/tabs.js"></script>
-    <script src="assets/js/popup.js"></script>
-    <script src="assets/js/custom.js"></script>
+  <script src="assets/js/owl-carousel.js"></script>
+  <script src="assets/js/tabs.js"></script>
+  <script src="assets/js/popup.js"></script>
+  <script src="assets/js/custom.js"></script>
   
   <!-- User Account Info Script -->
   <script>
@@ -961,37 +961,7 @@ async function initiateWithdrawal() {
 }
 </script>
 
-<!-- Add this in your navigation section -->
-<div class="quick-actions">
-    <div class="row">
-        <div class="col-md-3">
-            <div class="action-card" onclick="window.location.href='profile.html#balance'">
-                <i class="fas fa-wallet"></i>
-                <h4>Balance</h4>
-                <h3 id="userBalance">₹0</h3>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="action-card" onclick="showDepositModal()">
-                <i class="fas fa-money-bill-wave"></i>
-                <h4>Deposit</h4>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="action-card" onclick="window.location.href='profile.html#withdraw'">
-                <i class="fas fa-money-bill-transfer"></i>
-                <h4>Withdraw</h4>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="action-card">
-                <i class="fas fa-credit-card"></i>
-                <h4>EMI</h4>
-                <small>Coming Soon</small>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 <!-- Add Deposit Modal -->
 <div class="modal fade" id="depositModal" tabindex="-1">

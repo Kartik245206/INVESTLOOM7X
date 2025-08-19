@@ -47,23 +47,22 @@ Pre-loader Style
 }
 
 .payment-option {
-  background: #37393c;
-  border: 1px solid #404245;
-  border-radius: 10px;
-  padding: 15px;
-  text-align: center;
   cursor: pointer;
-  transition: all 0.3s ease;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  text-align: center;
+  transition: all 0.3s;
 }
 
 .payment-option:hover {
-  border-color: #7453fc;
   transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
 .payment-option.active {
-  background: rgba(116, 83, 252, 0.1);
   border-color: #7453fc;
+  background: rgba(116, 83, 252, 0.1);
 }
 
 .payment-option img {
@@ -265,8 +264,10 @@ body {
 
 /* Profile Styles */
 .profile-container {
-    padding: 50px 0;
+    padding: 30px 0;
     background: var(--bg-color);
+    position: left;
+    transform: translateX(-50%);
 }
 
 .profile-card {
@@ -1673,4 +1674,36 @@ body {
   .user-balance-info {
     text-align: center;
   }
+}
+
+/* Payment Options */
+.payment-option {
+    cursor: pointer;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    text-align: center;
+    transition: all 0.3s;
+}
+
+.payment-option:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.payment-option.active {
+    border-color: #7453fc;
+    background: rgba(116, 83, 252, 0.1);
+}
+
+.quick-amounts button {
+    margin: 5px;
+    min-width: 80px;
+}
+
+.payment-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin: 20px 0;
 }

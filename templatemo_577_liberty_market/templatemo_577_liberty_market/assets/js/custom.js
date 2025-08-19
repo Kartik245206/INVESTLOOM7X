@@ -339,3 +339,150 @@ function loadPublishedProducts() {
 
 // Call this function when page loads
 document.addEventListener('DOMContentLoaded', loadPublishedProducts);
+
+// EMI Calculator
+function showEMICalculator() {
+    const html = `
+        <div class="modal fade" id="emiModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">EMI Calculator</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group mb-3">
+                            <label>Principal Amount (₹)</label>
+                            <input type="number" class="form-control" id="principal">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label>Interest Rate (%)</label>
+                            <input type="number" class="form-control" id="interest">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label>Tenure (Months)</label>
+                            <input type="number" class="form-control" id="tenure">
+                        </div>
+                        <div class="result mt-3" id="emiResult"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" onclick="calculateEMI()">Calculate</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', html);
+    const modal = new bootstrap.Modal(document.getElementById('emiModal'));
+    modal.show();
+}
+
+function calculateEMI() {
+    const p = document.getElementById('principal').value;
+    const r = document.getElementById('interest').value / 12 / 100;
+    const n = document.getElementById('tenure').value;
+    const emi = p * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1);
+    document.getElementById('emiResult').innerHTML = `
+        <div class="alert alert-info">
+            Monthly EMI: ₹${emi.toFixed(2)}<br>
+            Total Amount: ₹${(emi * n).toFixed(2)}<br>
+            Interest Amount: ₹${(emi * n - p).toFixed(2)}
+        </div>
+    `;
+}
+
+// Deposit functionality
+function showDepositModal() {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    if (!currentUser) {
+        alert('Please login first');
+        window.location.href = 'login.html';
+        return;
+    }
+    const modal = new bootstrap.Modal(document.getElementById('depositModal'));
+    modal.show();
+}
+
+// Quick amount selection
+function setAmount(amount) {
+    document.getElementById('depositAmount').value = amount;
+    document.getElementById('confirmAmount').textContent = amount;
+}
+
+// UPI Payment
+function processUPIPayment(amount, upiApp) {
+    const merchantUPI = 'your-upi@bank'; // Replace with your UPI ID
+    const merchantName = 'INVESTLOOM7X';
+    const txnId = 'TXN' + Date.now();
+    const upiURL = `upi://pay?pa=${merchantUPI}&pn=${merchantName}&am=${amount}&tr=${txnId}&cu=INR`;
+    
+    // Open UPI app
+    window.location.href = upiURL;
+    
+    // Start payment check
+    checkPaymentStatus(txnId, amount);
+}
+
+// Payment status check
+function checkPaymentStatus(txnId, amount) {
+    let attempts = 0;
+    const checkInterval = setInterval(() => {
+        attempts++;
+        // Mock check (replace with actual API call)
+        if (attempts === 3) { // Simulating successful payment
+            clearInterval(checkInterval);
+            handleSuccessfulPayment(amount);
+        }
+        if (attempts > 10) { // Timeout after 10 attempts
+            clearInterval(checkInterval);
+            alert('Payment timeout. Please try again.');
+        }
+    }, 2000);
+}
+
+// Handle successful payment
+function handleSuccessfulPayment(amount) {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    currentUser.balance = (currentUser.balance || 0) + Number(amount);
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    
+    // Update UI
+    document.getElementById('userBalanceAmount').textContent = `₹${currentUser.balance}`;
+    
+    // Close modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('depositModal'));
+    modal.hide();
+    
+    alert(`Successfully deposited ₹${amount}. Your new balance is ₹${currentUser.balance}`);
+}
+
+// Balance and Withdrawal
+function showBalance() {
+    window.location.href = 'profile.html#balance';
+}
+
+function handleWithdrawal() {
+    window.location.href = 'profile.html#withdraw';
+}
+
+// Initialize event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Quick amount buttons
+    const quickAmounts = document.querySelectorAll('.quick-amounts button');
+    quickAmounts.forEach(btn => {
+        btn.onclick = () => setAmount(btn.textContent.replace('₹', ''));
+    });
+
+    // Payment method selection
+    const paymentMethods = document.querySelectorAll('.payment-option');
+    paymentMethods.forEach(method => {
+        method.onclick = () => {
+            const amount = document.getElementById('depositAmount').value;
+            if (!amount || amount < 100) {
+                alert('Please enter valid amount (minimum ₹100)');
+                return;
+            }
+            processUPIPayment(amount, method.dataset.app);
+        }
+    });
+});
