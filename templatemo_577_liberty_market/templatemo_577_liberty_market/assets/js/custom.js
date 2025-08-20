@@ -523,3 +523,54 @@ document.head.insertAdjacentHTML('beforeend', `
     }
 </style>
 `);
+
+// Menu functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const menuTrigger = document.getElementById('menuTrigger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    
+    // Toggle menu
+    menuTrigger?.addEventListener('click', function() {
+        this.classList.toggle('active');
+        mobileMenu.classList.toggle('active');
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!menuTrigger.contains(e.target) && !mobileMenu.contains(e.target)) {
+            menuTrigger.classList.remove('active');
+            mobileMenu.classList.remove('active');
+        }
+    });
+});
+
+// Menu functions
+function showWithdrawModal() {
+    const withdrawModal = new bootstrap.Modal(document.getElementById('withdrawModal'));
+    withdrawModal.show();
+}
+
+function shareWebsite() {
+    if (navigator.share) {
+        navigator.share({
+            title: 'INVESTLOOM7X',
+            text: 'Check out this investment platform!',
+            url: window.location.origin
+        });
+    } else {
+        // Fallback
+        const dummy = document.createElement('input');
+        document.body.appendChild(dummy);
+        dummy.value = window.location.href;
+        dummy.select();
+        document.execCommand('copy');
+        document.body.removeChild(dummy);
+        alert('URL copied to clipboard!');
+    }
+}
+
+function logout() {
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('token');
+    window.location.href = 'login.html';
+}

@@ -35,25 +35,31 @@
   <!-- Header Area -->
   <header class="header-area">
     <div class="container">
-      <nav class="main-nav">
-        <a href="index.html" class="logo">
-          <img src="assets/images/logo.png" alt="INVESTLOOM7X">
-        </a>
-        <div class="menu-trigger" onclick="toggleMobileMenu(this)">
-          <span></span>
-          <span></span>
-          <span></span>
-      </div>
+        <nav class="main-nav">
+            <!-- Logo -->
+            <a href="index.html" class="logo">
+                <img src="assets/images/logo.png" alt="INVESTLOOM7X">
+            </a>
+            
+            <!-- Menu Button -->
+            <div class="menu-trigger" id="menuTrigger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
 
-          <div class="nav-links" id="navLinks">
-            <!-- This will be dynamically updated by auth.js based on login status -->
-            <a href="index.html" class="active">Home</a>
-            <a href="profile.html">Profile</a>
-            <a href="Host-WEB/admin_Login_page.html">Admin</a>
-            <a href="javascript:void(0)" onclick="auth.logout()">Logout</a>
-          </div>
-        </div>
-      </nav>
+            <!-- Mobile Menu Overlay -->
+            <div class="mobile-menu-overlay" id="mobileMenu">
+                <div class="menu-items">
+                    <a href="index.html"><i class="fas fa-home"></i> Dashboard</a>
+                    <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
+                    <a href="javascript:void(0)" onclick="showWithdrawModal()"><i class="fas fa-money-bill-wave"></i> Withdrawal</a>
+                    <a href="Host-WEB/admin_Login_page.html"><i class="fas fa-cog"></i> Admin Panel</a>
+                    <a href="javascript:void(0)" onclick="shareWebsite()"><i class="fas fa-share-alt"></i> Share</a>
+                    <a href="javascript:void(0)" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </div>
+        </nav>
     </div>
   </header>
 

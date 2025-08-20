@@ -9,6 +9,7 @@ const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
 const fs = require('fs');
 const multer = require('multer');
+const mongoose = require('mongoose');
 
 // Error handling
 process.on('uncaughtException', (err) => {
@@ -287,6 +288,37 @@ app.post('/api/clear-database', async (req, res) => {
         console.error('Failed to clear database:', error);
         res.status(500).json({ success: false, error: 'Failed to clear database' });
     }
+});
+
+// Add detailed error logging
+app.use((err, req, res, next) => {
+    console.error('Error:', err.stack);
+    res.status(500).json({
+        error: process.env.NODE_ENV === 'development' ? err.message : 'Internal Server Error',
+        stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    });
+});
+
+// Improve database connection
+const connectDB = async () => {
+    try {
+        await mongoose.connect(process.env.MONGODB_URI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        });
+        console.log('MongoDB Connected');
+    } catch (err) {
+        console.error('MongoDB connection error:', err);
+        process.exit(1);
+    }
+};
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+    res.json({
+        status: 'ok',
+        mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+    });
 });
 
 // Error handling
