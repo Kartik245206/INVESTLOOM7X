@@ -1,18 +1,24 @@
 const mongoose = require('mongoose');
 
-module.exports = async function connectDB() {
-  const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/investloom';
-  console.log('[db] connecting to', uri && (uri.length>40 ? uri.slice(0,40)+'...' : uri));
+const connectDB = async () => {
+  const uri = process.env.MONGODB_URI;
+  if (!uri) {
+    console.error('MONGODB_URI not set in environment');
+    throw new Error('MONGODB_URI not set');
+  }
+
   try {
     await mongoose.connect(uri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true
+      // options for mongoose v6+ are not required but can be added
+      // useNewUrlParser, useUnifiedTopology are defaults in modern mongoose
     });
-    console.log('[db] MongoDB connected');
+    console.log('MongoDB connected:', mongoose.connection.host);
   } catch (err) {
-    console.error('[db] MongoDB connection error:', err && err.stack ? err.stack : err);
-    // allow process to exit so Render will mark deploy failed
-    process.exit(1);
+    console.error('MongoDB connection error:', err.message);
+    // optional: retry logic
+    setTimeout(() => connectDB(), 5000);
+    throw err;
   }
 };
 
+module.exports = connectDB;
