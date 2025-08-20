@@ -24,61 +24,95 @@
     <!-- ***** Preloader End ***** -->
 
     <!-- ***** Header Area Start ***** -->
-    <!-- Copy your header from index.html -->
-    <!-- ***** Header Area End ***** -->
-
-    <div class="page-heading normal-space">
+    <header class="header-area">
         <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <h6>InvestLoom7x Market</h6>
-                    <h2>View Investment Details</h2>
-                    <span>Home > <a href="#">Product Details</a></span>
+            <nav class="main-nav">
+                <a href="index.html" class="logo">
+                    <img src="assets/images/logo.png" alt="INVESTLOOM7X">
+                </a>
+                <div class="menu-trigger" id="menuTrigger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
                 </div>
-            </div>
+                <div class="mobile-menu-overlay" id="mobileMenu">
+                    <div class="menu-items">
+                        <a href="index.html"><i class="fas fa-home"></i> Dashboard</a>
+                        <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
+                        <a href="javascript:void(0)" onclick="showWithdrawModal()">
+                            <i class="fas fa-money-bill-wave"></i> Withdrawal
+                        </a>
+                    </div>
+                </div>
+            </nav>
         </div>
-    </div>
+    </header>
+    <!-- ***** Header Area End ***** -->
 
     <div class="item-details-page">
         <div class="container">
             <div class="row">
-                <div class="col-lg-12">
-                    <div class="section-heading">
-                        <div class="line-dec"></div>
-                        <h2>View <em>Product Details</em> Here.</h2>
-                    </div>
-                </div>
                 <div class="col-lg-7">
                     <div class="left-image">
                         <img src="" alt="" id="productImage">
                     </div>
                 </div>
-                <div class="col-lg-5 align-self-center">
-                    <h4 id="productName"></h4>
-                    <span class="author">
-                        <h6>Investment Plan: <em id="productPlan"></em></h6>
-                    </span>
-                    <div class="line-dec"></div>
-                    <div class="row">
-                        <div class="col-6">
-                            <span class="bid">
-                                Daily Returns<br><strong id="productPrice">₹0/day</strong>
-                            </span>
+                <div class="col-lg-5">
+                    <div class="product-details">
+                        <h2 id="productName"></h2>
+                        <div class="plan-type">
+                            <span id="productPlan"></span>
                         </div>
-                        <div class="col-6">
-                            <span class="bid">
-                                Total Returns<br><strong id="productTotal">₹0</strong>
-                            </span>
+                        <div class="price-info">
+                            <div class="daily-return">
+                                <span>Daily Return</span>
+                                <h3 id="productPrice"></h3>
+                            </div>
+                            <div class="total-return">
+                                <span>Total Return</span>
+                                <h3 id="productTotal"></h3>
+                            </div>
                         </div>
-                    </div>
-                    <p id="productDescription" class="mt-4"></p>
-                    
-                    <!-- Purchase Button -->
-                    <div class="buttons">
-                        <div class="main-button">
-                            <a href="#" onclick="purchaseProduct(); return false;">Purchase Now</a>
+                        <div class="duration">
+                            <span>Duration</span>
+                            <h4>100 Days</h4>
+                        </div>
+                        <div class="purchase-button">
+                            <button onclick="purchaseProduct()" class="main-button">Purchase Now</button>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deposit Modal -->
+    <div class="modal fade" id="depositModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Funds to Wallet</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Amount</label>
+                        <input type="number" class="form-control" id="depositAmount" min="100">
+                        <small class="text-muted">Minimum deposit: ₹100</small>
+                    </div>
+                    <div class="payment-qr text-center">
+                        <img src="assets/images/Gpay-QR.jpg" alt="Payment QR" style="max-width: 200px">
+                        <p class="mt-2">Scan QR code to pay</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Transaction ID</label>
+                        <input type="text" class="form-control" id="transactionId" required>
+                        <small class="text-muted">Enter UPI transaction ID after payment</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="confirmDeposit()">Confirm Deposit</button>
                 </div>
             </div>
         </div>
@@ -91,71 +125,302 @@
     <script src="assets/js/custom.js"></script>
     
     <script>
-        document.addEventListener('DOMContentLoaded', async function() {
-            // Get product ID from URL
-            const productId = window.location.pathname.split('/').pop();
-            
-            try {
-                // Fetch product details from API
-                const response = await fetch(`/api/products/${productId}`);
-                const product = await response.json();
-                
-                if (!product) {
-                    alert('Product not found');
-                    window.location.href = '/';
-                    return;
-                }
-
-                // Update UI with product details
-                document.getElementById('productImage').src = product.image;
-                document.getElementById('productName').textContent = product.name;
-                document.getElementById('productPlan').textContent = product.Plans;
-                document.getElementById('productPrice').textContent = `₹${product.price}/day`;
-                document.getElementById('productTotal').textContent = `₹${product.total}`;
-                document.getElementById('productDescription').textContent = product.description;
-                
-            } catch (error) {
-                console.error('Error loading product:', error);
-                alert('Failed to load product details');
-            }
-        });
-
-        async function purchaseProduct() {
-            const productId = window.location.pathname.split('/').pop();
-            
-            try {
-                // Check if user is logged in
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    alert('Please login to purchase');
-                    window.location.href = '/login';
-                    return;
-                }
-
-                // Make purchase API call
-                const response = await fetch('/api/purchase', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ productId })
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    alert('Purchase successful!');
-                    window.location.href = '/profile';
-                } else {
-                    alert(result.error || 'Purchase failed');
-                }
-            } catch (error) {
-                console.error('Purchase error:', error);
-                alert('Purchase failed. Please try again.');
-            }
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get product ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id');
+        
+        if (!productId) {
+            alert('Product not found');
+            window.location.href = 'index.html';
+            return;
         }
+
+        // Get products from localStorage
+        const products = JSON.parse(localStorage.getItem('products') || '[]');
+        const product = products.find(p => p.id == productId);
+
+        if (!product) {
+            alert('Product not found');
+            window.location.href = 'index.html';
+            return;
+        }
+
+        // Update UI with product details
+        document.getElementById('productImage').src = product.image;
+        document.getElementById('productName').textContent = product.name;
+        document.getElementById('productPlan').textContent = product.Plans;
+        document.getElementById('productPrice').textContent = `₹${product.price}/day`;
+        document.getElementById('productTotal').textContent = `₹${product.total}`;
+    });
+
+    async function purchaseProduct() {
+        try {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) {
+                alert('Please login to purchase');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+            const products = JSON.parse(localStorage.getItem('products') || '[]');
+            const product = products.find(p => p.id == productId);
+
+            if (!product) {
+                alert('Product not found');
+                return;
+            }
+
+            // Show confirmation dialog with product details
+            const confirmPurchase = confirm(
+                `Confirm Purchase:\n\n` +
+                `Plan: ${product.name}\n` +
+                `Daily Return: ₹${product.price}/day\n` +
+                `Total Return: ₹${product.total}\n` +
+                `Duration: 100 Days\n\n` +
+                `Your Balance: ₹${currentUser.balance}\n` +
+                `Amount to be deducted: ₹${product.price}`
+            );
+
+            if (!confirmPurchase) return;
+
+            if (currentUser.balance < product.price) {
+                alert('Insufficient balance. Please add funds to your wallet.');
+                // Show deposit modal
+                const depositModal = new bootstrap.Modal(document.getElementById('depositModal'));
+                depositModal.show();
+                return;
+            }
+
+            // Show loading state
+            const purchaseButton = document.querySelector('.purchase-button button');
+            purchaseButton.disabled = true;
+            purchaseButton.textContent = 'Processing...';
+
+            // Process purchase
+            currentUser.balance -= product.price;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+            // Add to purchases
+            const purchases = JSON.parse(localStorage.getItem('purchases') || '[]');
+            const purchase = {
+                id: 'PUR_' + Date.now(),
+                productId: product.id,
+                productName: product.name,
+                purchaseDate: new Date().toISOString(),
+                price: product.price,
+                totalReturn: product.total,
+                daysRemaining: 100,
+                status: 'active',
+                dailyReturns: []
+            };
+            purchases.push(purchase);
+            localStorage.setItem('purchases', JSON.stringify(purchases));
+
+            // Show success message
+            alert(`
+                Purchase Successful!\n
+                Your investment plan is now active.\n
+                Daily returns will be credited to your wallet.\n
+                View your investments in the Profile section.
+            `);
+
+            // Redirect to profile
+            window.location.href = 'profile.html#investments';
+
+        } catch (error) {
+            console.error('Purchase error:', error);
+            alert('Purchase failed. Please try again.');
+            // Reset button state
+            const purchaseButton = document.querySelector('.purchase-button button');
+            purchaseButton.disabled = false;
+            purchaseButton.textContent = 'Purchase Now';
+        }
+    }
+
+    async function confirmDeposit() {
+        const amount = document.getElementById('depositAmount').value;
+        const transactionId = document.getElementById('transactionId').value;
+
+        if (!amount || amount < 100) {
+            alert('Please enter a valid amount (minimum ₹100)');
+            return;
+        }
+
+        if (!transactionId) {
+            alert('Please enter transaction ID');
+            return;
+        }
+
+        try {
+            // In real app, verify payment with backend
+            // For demo, directly update balance
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            currentUser.balance = (parseFloat(currentUser.balance) || 0) + parseFloat(amount);
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+            // Close modal
+            const depositModal = bootstrap.Modal.getInstance(document.getElementById('depositModal'));
+            depositModal.hide();
+
+            // Show success message
+            alert(`₹${amount} added to your wallet successfully!`);
+            
+            // Refresh page to update balance display
+            window.location.reload();
+
+        } catch (error) {
+            alert('Deposit failed. Please try again.');
+        }
+    }
     </script>
+
+    <style>
+    .item-details-page {
+        padding: 120px 0 60px;
+        background: #1d1d1d;
+    }
+
+    .product-details {
+        padding: 30px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .left-image img {
+        width: 100%;
+        border-radius: 20px;
+        margin-bottom: 30px;
+    }
+
+    .product-details h2 {
+        color: #fff;
+        margin-bottom: 20px;
+    }
+
+    .plan-type span {
+        background: #7453fc;
+        color: #fff;
+        padding: 8px 20px;
+        border-radius: 25px;
+        display: inline-block;
+        margin-bottom: 25px;
+    }
+
+    .price-info {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 25px;
+    }
+
+    .price-info > div {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 15px;
+        border-radius: 15px;
+    }
+
+    .price-info span {
+        color: #b4b2ba;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .price-info h3 {
+        color: #7453fc;
+        font-size: 24px;
+        margin: 0;
+    }
+
+    .duration {
+        margin-bottom: 30px;
+    }
+
+    .duration span {
+        color: #b4b2ba;
+    }
+
+    .duration h4 {
+        color: #fff;
+        margin: 5px 0 0;
+    }
+
+    .main-button {
+        background: #7453fc;
+        color: #fff;
+        border: none;
+        padding: 15px 40px;
+        border-radius: 25px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .main-button:hover {
+        background: #fff;
+        color: #7453fc;
+    }
+
+    .modal-content {
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .modal-header {
+        background: #7453fc;
+        color: #fff;
+        border-bottom: none;
+    }
+
+    .modal-title {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 500;
+    }
+
+    .btn-close {
+        background: transparent;
+        border: none;
+        color: #fff;
+        font-size: 24px;
+        opacity: 0.7;
+    }
+
+    .btn-close:hover {
+        opacity: 1;
+    }
+
+    .form-label {
+        color: #fff;
+        font-weight: 500;
+    }
+
+    .form-control {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+        color: #fff;
+    }
+
+    .form-control:focus {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: #7453fc;
+        box-shadow: 0 0 5px rgba(116, 83, 252, 0.5);
+    }
+
+    .text-muted {
+        color: rgba(255, 255, 255, 0.7) !important;
+    }
+
+    .payment-qr img {
+        border-radius: 10px;
+        margin-bottom: 10px;
+    }
+    </style>
 </body>
 </html>
 

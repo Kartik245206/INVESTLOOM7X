@@ -627,6 +627,91 @@
     color: #7453fc;
 }
 
+/* Currently Market Items Styles */
+.currently-market-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+    padding: 20px 0;
+}
+
+.currently-market-item .item {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    height: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.currently-market-item .item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border-color: #7453fc;
+}
+
+.currently-market-item .left-image {
+    width: 100%;
+    border-radius: 15px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.currently-market-item .left-image img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.currently-market-item .item:hover .left-image img {
+    transform: scale(1.05);
+}
+
+.currently-market-item .right-content {
+    padding: 15px;
+}
+
+.currently-market-item .right-content h4 {
+    font-size: 20px;
+    margin-bottom: 10px;
+    color: #fff;
+}
+
+.currently-market-item .right-content .author h6 {
+    font-size: 15px;
+    color: #7453fc;
+    margin-bottom: 15px;
+}
+
+.currently-market-item .bid {
+    margin: 15px 0;
+    font-size: 14px;
+}
+
+.currently-market-item .bid strong {
+    color: #7453fc;
+    font-size: 18px;
+}
+
+.currently-market-item .text-button {
+    margin-top: 20px;
+}
+
+.currently-market-item .text-button a {
+    background: #7453fc;
+    color: #fff;
+    padding: 12px 30px;
+    border-radius: 25px;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.currently-market-item .text-button a:hover {
+    background: #fff;
+    color: #7453fc;
+}
+
 /* Responsive Styles */
 @media (max-width: 991px) {
     .header-area .nav-links {
@@ -1097,20 +1182,25 @@ function loadProducts() {
     products.sort((a, b) => a.id - b.id);
 
     products.forEach(product => {
-        const categoryClass = product.categoryClass || '';
         const html = `
-            <div class="col-lg-3 col-md-6 col-sm-12 currently-market-item all ${categoryClass}">
+            <div class="col-lg-3 col-md-6 col-sm-12 currently-market-item">
                 <div class="item">
                     <div class="left-image">
                         <img src="${product.image}" alt="${product.name}">
                     </div>
                     <div class="right-content">
                         <h4>${product.name}</h4>
-                        <span class="author"><h2>${product.Plans || ''}</h2></span>
+                        <span class="author"><h6>${product.Plans || ''}</h6></span>
                         <div class="line-dec"></div>
-                        <span class="bid">Amount/Day<br><strong>₹${product.price}/day</strong><br><em>(₹${product.total})</em></span>
+                        <span class="bid">
+                            Amount/Day<br>
+                            <strong>₹${product.price}/day</strong><br>
+                            <em>(₹${product.total})</em>
+                        </span>
                         <span class="ends">Ends In<br><strong>100 Days</strong></span>
-                        <div class="text-button"><a href="details.html?id=${product.id}">View</a></div>
+                        <div class="text-button">
+                            <a href="details.html?id=${product.id}">View Details</a>
+                        </div>
                     </div>
                 </div>
             </div>
