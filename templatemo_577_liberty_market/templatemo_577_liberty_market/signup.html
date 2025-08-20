@@ -184,30 +184,20 @@
 
           form.addEventListener('submit', async function (e) {
             e.preventDefault();
-            const name = document.getElementById('name')?.value || '';
+            const name = document.getElementById('fullName')?.value || '';
             const email = document.getElementById('email')?.value?.trim();
             const password = document.getElementById('password')?.value;
+            const username = document.getElementById('username')?.value?.trim();
+            const phone = document.getElementById('phone')?.value?.trim();
+            const upiId = document.getElementById('upiId')?.value?.trim();
 
             if (!email || !password) {
-              alert('Email and password are required');
+              showAlert('Email and password are required', 'danger');
               return;
             }
 
             try {
-              // check email first
-              const check = await fetch('/api/auth/check-email', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email })
-              });
-              const chk = await check.json();
-              if (chk.exists) {
-                alert('Email already exists. Please login instead.');
-                window.location.href = 'login.html';
-                return;
-              }
-
-              // create account
+              // Create account
               const res = await fetch('/api/auth/signup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -215,15 +205,31 @@
                 credentials: 'include'
               });
               const data = await res.json();
+              
               if (res.ok && data.success) {
-                // redirect to homepage
-                window.location.href = 'index.html';
+                showAlert('Account created successfully! Redirecting...', 'success');
+                // Store user data in localStorage for client-side auth
+                localStorage.setItem('token', data.token || 'user_token'); // In a real app, this would be a JWT
+                localStorage.setItem('user', JSON.stringify(data.user));
+                
+                // Check if there's a redirect URL stored
+                const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
+                
+                // Redirect to appropriate page after a short delay
+                setTimeout(() => {
+                  if (redirectUrl) {
+                    sessionStorage.removeItem('redirectAfterLogin');
+                    window.location.href = redirectUrl;
+                  } else {
+                    window.location.href = 'index.html';
+                  }
+                }, 1500);
               } else {
-                alert(data.error || 'Signup failed');
+                showAlert(data.error || 'Signup failed', 'danger');
               }
             } catch (err) {
               console.error(err);
-              alert('Signup failed, try again');
+              showAlert('Signup failed, please try again', 'danger');
             }
           });
         });

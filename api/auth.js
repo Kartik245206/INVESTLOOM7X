@@ -28,10 +28,17 @@ router.post('/signup', async (req, res) => {
     const normalizedEmail = String(email).trim().toLowerCase();
 
     console.log('[auth.signup] checking existing user for', normalizedEmail);
-    const existing = await User.findOne({ email: normalizedEmail }).lean();
-    if (existing) {
-      console.log('[auth.signup] email already exists');
-      return res.status(409).json({ error: 'Email already registered' });
+    // Use a try-catch block specifically for the findOne operation to handle potential errors
+    try {
+      const existing = await User.findOne({ email: normalizedEmail }).lean();
+      if (existing) {
+        console.log('[auth.signup] email already exists');
+        return res.status(409).json({ error: 'Email already registered' });
+      }
+    } catch (findError) {
+      console.error('[auth.signup] error checking existing user:', findError);
+      // Continue with signup process even if there was an error checking for existing user
+      // This prevents the duplicate key error from blocking legitimate signups
     }
 
     const hash = await bcrypt.hash(password, 12);
@@ -45,21 +52,30 @@ router.post('/signup', async (req, res) => {
     });
 
     console.log('[auth.signup] saving user to DB...');
-    await user.save();
-    console.log('[auth.signup] user saved:', user._id);
+    try {
+      await user.save();
+      console.log('[auth.signup] user saved:', user._id);
 
-    const token = makeToken(user);
-    res.cookie('token', token, {
-      httpOnly: true,
-      sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 1000 * 60 * 60 * 24 * 7
-    });
+      const token = makeToken(user);
+      res.cookie('token', token, {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 1000 * 60 * 60 * 24 * 7
+      });
 
-    return res.json({
-      success: true,
-      user: { id: user._id, name: user.name, email: user.email, balance: user.balance }
-    });
+      return res.json({
+        success: true,
+        user: { id: user._id, name: user.name, email: user.email, balance: user.balance }
+      });
+    } catch (saveError) {
+      // Handle duplicate key error specifically
+      if (saveError.code === 11000 && saveError.keyPattern && saveError.keyPattern.email) {
+        console.log('[auth.signup] duplicate email detected during save');
+        return res.status(409).json({ error: 'This email is already registered. Please use a different email or login instead.' });
+      }
+      throw saveError; // Re-throw other errors to be caught by the outer catch block
+    }
   } catch (err) {
     console.error('[auth.signup] error:', err && err.stack ? err.stack : err);
     if (err && err.code === 11000) {

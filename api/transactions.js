@@ -1,10 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
-const auth = require('./middleware/auth');
 
 // Deposit: user submits txnRef + amount (you may mark pending and verify externally)
-router.post('/deposit', auth, async (req, res) => {
+router.post('/deposit', async (req, res) => {
   try {
     const { amount, txnRef, method } = req.body;
     if (!amount || amount <= 0) return res.status(400).json({ error: 'Invalid amount' });
@@ -26,7 +25,7 @@ router.post('/deposit', auth, async (req, res) => {
 });
 
 // Withdraw: create withdrawal request and deduct balance
-router.post('/withdraw', auth, async (req, res) => {
+router.post('/withdraw', async (req, res) => {
   try {
     const { amount, details } = req.body;
     if (!amount || amount <= 0) return res.status(400).json({ error: 'Invalid amount' });

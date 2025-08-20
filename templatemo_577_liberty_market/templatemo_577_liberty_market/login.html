@@ -94,7 +94,19 @@
               });
               const data = await res.json();
               if (res.ok && data.success) {
-                window.location.href = 'index.html';
+                // Store token and user data
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                
+                // Check if there's a redirect URL stored
+                const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
+                if (redirectUrl) {
+                    sessionStorage.removeItem('redirectAfterLogin');
+                    window.location.href = redirectUrl;
+                } else {
+                    // Redirect to homepage
+                    window.location.href = 'index.html';
+                }
               } else {
                 alert(data.error || 'Login failed');
               }

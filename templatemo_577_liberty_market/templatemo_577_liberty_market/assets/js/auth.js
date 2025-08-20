@@ -5,6 +5,27 @@ const auth = {
     // Initialize user session
     async initSession() {
         try {
+            // Check if we have a token in localStorage first
+            const token = localStorage.getItem('token');
+            const currentPage = window.location.pathname.split('/').pop();
+            
+            // Pages that don't require authentication
+            const publicPages = ['index.html', 'author.html', 'login.html', 'signup.html', ''];
+            
+            if (!token) {
+                // If on a protected page, redirect to login
+                if (!publicPages.includes(currentPage)) {
+                    sessionStorage.setItem('redirectAfterLogin', window.location.href);
+                    window.location.href = 'login.html';
+                    return false;
+                }
+                
+                // No token, user is not logged in
+                this.updateUIForLoggedOutUser();
+                return false;
+            }
+            
+            // Try to get user profile with the token
             const response = await fetch(`${this.API_URL}/users/profile`, {
                 credentials: 'include'  // This is important for cookies
             });
@@ -12,15 +33,42 @@ const auth = {
             if (response.ok) {
                 const user = await response.json();
                 this.updateUserProfile(user);
+                return true;
             } else {
-                const currentPage = window.location.pathname;
-                if (!currentPage.includes('login.html') && !currentPage.includes('signup.html')) {
-                    window.location.href = 'login.html';
-                }
+                // Token is invalid or expired
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                this.updateUIForLoggedOutUser();
+                return false;
             }
         } catch (error) {
             console.error('Session init error:', error);
-            window.location.href = 'login.html';
+            this.updateUIForLoggedOutUser();
+            return false;
+        }
+    },
+    
+    // Update UI for logged out users
+    updateUIForLoggedOutUser() {
+        const userInfoContainer = document.querySelector('.user-account-info');
+        if (userInfoContainer) {
+            userInfoContainer.innerHTML = `
+                <div class="login-signup-buttons">
+                    <a href="login.html" class="btn btn-primary">Login</a>
+                    <a href="signup.html" class="btn btn-outline-primary">Sign Up</a>
+                </div>
+            `;
+        }
+        
+        // Update navigation links
+        const navLinks = document.querySelector('.nav-links');
+        if (navLinks) {
+            navLinks.innerHTML = `
+                <a href="index.html" class="active">Home</a>
+                <a href="author.html">Explore</a>
+                <a href="login.html">Login</a>
+                <a href="signup.html">Sign Up</a>
+            `;
         }
     },
 
@@ -127,8 +175,30 @@ const auth = {
         } catch (error) {
             console.error('Logout error:', error);
         } finally {
-            window.location.href = 'login.html';
+            // Clear local storage
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            // Update UI for logged out state
+            this.updateUIForLoggedOutUser();
+            // Redirect to home page
+            window.location.href = 'index.html';
         }
+    },
+    
+    // Check if user is logged in
+    isLoggedIn() {
+        return !!localStorage.getItem('token');
+    },
+    
+    // Redirect to login if not authenticated
+    requireAuth() {
+        if (!this.isLoggedIn()) {
+            // Store the current URL to redirect back after login
+            sessionStorage.setItem('redirectAfterLogin', window.location.href);
+            window.location.href = 'login.html';
+            return false;
+        }
+        return true;
     },
 
     // Update user balance

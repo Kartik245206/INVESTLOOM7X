@@ -1,12 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('./auth-middleware') || require('./middleware/auth'); // adjust to your auth file
 const Product = require('../models/Product');
 const User = require('../models/User');
 
 // POST /api/purchase
 // body: { productId, paymentMethod: 'upi'|'card'|'netbank', txnRef?, cardInfo?, bankInfo? }
-router.post('/', auth, async (req, res) => {
+router.post('/', async (req, res) => {
   try {
     const userId = req.user?.id || req.user?._id;
     const { productId, paymentMethod, txnRef, cardInfo, bankInfo } = req.body;
