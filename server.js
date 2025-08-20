@@ -88,7 +88,7 @@ app.use('/api/transactions', requireAuth, require('./api/transactions'));
 app.use('/api/withdraw', requireAuth, require('./api/withdraw'));
 
 // Serve static files with caching
-app.use(express.static(path.join(__dirname, 'templatemo_577_liberty_market/templatemo_577_liberty_market'), {
+app.use(express.static(path.join(__dirname, 'templatemo_577_liberty_market'), {
     maxAge: '1h',
     etag: true,
     lastModified: true
