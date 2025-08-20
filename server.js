@@ -355,3 +355,8 @@ app.listen(PORT, () => {
         fs.mkdirSync(dataDir, { recursive: true });
     }
 });
+
+// Add this after your other routes
+app.get('/details/:id', (req, res) => {
+    res.sendFile(path.join(__dirname, 'templatemo_577_liberty_market/templatemo_577_liberty_market/details.html'));
+});

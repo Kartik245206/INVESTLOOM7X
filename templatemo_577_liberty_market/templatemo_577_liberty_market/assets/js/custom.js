@@ -574,3 +574,41 @@ function logout() {
     localStorage.removeItem('token');
     window.location.href = 'login.html';
 }
+
+// Load Products function
+function loadProducts() {
+    const products = JSON.parse(localStorage.getItem('products') || '[]');
+    const container = document.querySelector('.row.grid');
+    if (!container) return;
+
+    container.innerHTML = ''; // Clear existing content
+
+    products.forEach(product => {
+        const html = `
+            <div class="col-lg-3 col-md-6 col-sm-12">
+                <div class="item">
+                    <div class="left-image">
+                        <img src="${product.image}" alt="${product.name}">
+                    </div>
+                    <div class="right-content">
+                        <h4>${product.name}</h4>
+                        <span class="author">
+                            <h6>${product.Plans || ''}</h6>
+                        </span>
+                        <div class="line-dec"></div>
+                        <span class="bid">
+                            Amount/Day<br><strong>₹${product.price}/day</strong>
+                        </span>
+                        <div class="text-button">
+                            <a href="/details/${product.id}" class="view-product">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', html);
+    });
+}
+
+// Call loadProducts on DOMContentLoaded
+document.addEventListener('DOMContentLoaded', loadProducts);

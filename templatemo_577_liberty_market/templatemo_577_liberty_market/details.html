@@ -91,59 +91,67 @@
     <script src="assets/js/custom.js"></script>
     
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Load product details from localStorage
-            const product = JSON.parse(localStorage.getItem('selectedProduct'));
-            if (!product) {
-                alert('Product not found');
-                window.location.href = 'index.html';
-                return;
-            }
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Get product ID from URL
+            const productId = window.location.pathname.split('/').pop();
+            
+            try {
+                // Fetch product details from API
+                const response = await fetch(`/api/products/${productId}`);
+                const product = await response.json();
+                
+                if (!product) {
+                    alert('Product not found');
+                    window.location.href = '/';
+                    return;
+                }
 
-            // Update UI with product details
-            document.getElementById('productImage').src = product.image;
-            document.getElementById('productName').textContent = product.name;
-            document.getElementById('productPlan').textContent = product.Plans;
-            document.getElementById('productPrice').textContent = `₹${product.price}/day`;
-            document.getElementById('productTotal').textContent = `₹${product.total}`;
-            document.getElementById('productDescription').textContent = product.description || 
-                'Invest in this plan to earn daily returns. Terms and conditions apply.';
+                // Update UI with product details
+                document.getElementById('productImage').src = product.image;
+                document.getElementById('productName').textContent = product.name;
+                document.getElementById('productPlan').textContent = product.Plans;
+                document.getElementById('productPrice').textContent = `₹${product.price}/day`;
+                document.getElementById('productTotal').textContent = `₹${product.total}`;
+                document.getElementById('productDescription').textContent = product.description;
+                
+            } catch (error) {
+                console.error('Error loading product:', error);
+                alert('Failed to load product details');
+            }
         });
 
-        function purchaseProduct() {
-            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-            if (!currentUser) {
-                alert('Please login to purchase');
-                window.location.href = 'login.html';
-                return;
-            }
-
-            const product = JSON.parse(localStorage.getItem('selectedProduct'));
-            if (currentUser.balance < product.price) {
-                alert('Insufficient balance. Please deposit funds.');
-                return;
-            }
-
-            // Here you would typically make an API call to process the purchase
-            // For now, we'll just simulate it
+        async function purchaseProduct() {
+            const productId = window.location.pathname.split('/').pop();
+            
             try {
-                // Deduct balance
-                currentUser.balance -= product.price;
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                // Check if user is logged in
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    alert('Please login to purchase');
+                    window.location.href = '/login';
+                    return;
+                }
 
-                // Add to user's purchased products
-                const purchases = JSON.parse(localStorage.getItem('purchases') || '[]');
-                purchases.push({
-                    productId: product.id,
-                    purchaseDate: new Date().toISOString(),
-                    price: product.price,
-                    status: 'active'
+                // Make purchase API call
+                const response = await fetch('/api/purchase', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ productId })
                 });
-                localStorage.setItem('purchases', JSON.stringify(purchases));
 
-                alert('Purchase successful! Check your profile for investment details.');
-                window.location.href = 'profile.html';
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('Purchase successful!');
+                    window.location.href = '/profile';
+                } else {
+                    alert(result.error || 'Purchase failed');
+                }
             } catch (error) {
+                console.error('Purchase error:', error);
                 alert('Purchase failed. Please try again.');
             }
         }

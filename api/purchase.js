@@ -59,15 +59,13 @@ router.post('/', async (req, res) => {
     };
     user.purchases.push(purchase);
 
-    // Optionally add investment that yields daily earnings (so profile daily update can pick these up)
+    // Add purchase to user's investments
     user.investments = user.investments || [];
     user.investments.push({
       productId: product._id,
-      name: product.name,
-      amount: price,
-      dailyEarning: Number(product.dailyEarning || 0),
-      status: 'active',
-      startDate: new Date()
+      purchaseDate: new Date(),
+      price: product.price,
+      status: 'active'
     });
 
     await user.save();
