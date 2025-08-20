@@ -91,5 +91,30 @@ router.delete('/:id', auth, async (req, res) => {
   }
 });
 
+async function signup(formData) {
+  // send to backend endpoint
+  const resp = await fetch('/api/auth/signup', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(formData)
+  });
+  return resp.json();
+}
+
+// Example form handler
+document.getElementById('signupForm')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const name = document.getElementById('name').value;
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+  const res = await signup({ name, email, password });
+  if (res && res.success) {
+    // handle success (redirect, save token if returned, etc.)
+    window.location.href = '/profile';
+  } else {
+    alert(res.error || 'Signup failed');
+  }
+});
+
 module.exports = router;
 

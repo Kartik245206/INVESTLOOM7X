@@ -17,7 +17,7 @@ const auth = {
                 if (!publicPages.includes(currentPage)) {
                     sessionStorage.setItem('redirectAfterLogin', window.location.href);
                     window.location.href = 'login.html';
-                    return false;
+                    return; // Stop execution to prevent UI updates before redirect
                 }
                 
                 // No token, user is not logged in
@@ -50,15 +50,15 @@ const auth = {
     
     // Update UI for logged out users
     updateUIForLoggedOutUser() {
-        const userInfoContainer = document.querySelector('.user-account-info');
-        if (userInfoContainer) {
-            userInfoContainer.innerHTML = `
+        const userInfoContainers = document.querySelectorAll('.user-account-info');
+        userInfoContainers.forEach(container => {
+            container.innerHTML = `
                 <div class="login-signup-buttons">
                     <a href="login.html" class="btn btn-primary">Login</a>
                     <a href="signup.html" class="btn btn-outline-primary">Sign Up</a>
                 </div>
             `;
-        }
+        });
         
         // Update navigation links
         const navLinks = document.querySelector('.nav-links');
@@ -74,9 +74,9 @@ const auth = {
 
     // Update user profile display
     updateUserProfile(user) {
-        const userInfoContainer = document.querySelector('.user-account-info');
-        if (userInfoContainer) {
-            userInfoContainer.innerHTML = `
+        const userInfoContainers = document.querySelectorAll('.user-account-info');
+        userInfoContainers.forEach(container => {
+            container.innerHTML = `
                 <div class="user-profile-pic">
                     <img src="${user.profilePic || 'assets/images/author.jpg'}" alt="${user.username}">
                 </div>
@@ -88,7 +88,7 @@ const auth = {
                     </div>
                 </div>
             `;
-        }
+        });
     },
 
     // Handle login
@@ -105,7 +105,20 @@ const auth = {
 
             const data = await response.json();
             
-            if (response.ok) {
+            if (response.ok && data.token) {
+                // Store token and user data
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+
+                // Check if there's a redirect URL stored
+                const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
+                if (redirectUrl) {
+                    sessionStorage.removeItem('redirectAfterLogin');
+                    window.location.href = redirectUrl;
+                } else {
+                    // Redirect to homepage
+                    window.location.href = 'index.html';
+                }
                 return { success: true, user: data.user };
             }
             return { success: false, message: data.message };

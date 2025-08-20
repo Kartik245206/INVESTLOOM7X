@@ -15,6 +15,7 @@
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="assets/js/common.js"></script>
+  <script src="assets/js/auth.js"></script>
   </head>
 
   <body>
@@ -40,17 +41,16 @@
           <img src="assets/images/logo.png" alt="INVESTLOOM7X">
         </a>
         <div class="menu-trigger" onclick="toggleMobileMenu()">
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
-        <div class="nav-links" id="navLinks">
-          <!-- This will be dynamically updated by auth.js based on login status -->
-          <a href="index.html" class="active">Home</a>
-          <a href="author.html">Explore</a>
-          <a href="profile.html">Profile</a>
-          <a href="Host-WEB/admin_Login_page.html">Admin</a>
-          <a href="javascript:void(0)" onclick="logout()">Logout</a>
+
+          <div class="nav-links" id="navLinks">
+            <!-- This will be dynamically updated by auth.js based on login status -->
+            <a href="index.html" class="active">Home</a>
+            <a href="explore.html">Explore</a>
+            <a href="create.html">Create Yours</a>
+            <a href="profile.html">Profile</a>
+            <a href="Host-WEB/admin_Login_page.html">Admin</a>
+            <a href="javascript:void(0)" onclick="auth.logout()">Logout</a>
+          </div>
         </div>
       </nav>
     </div>
@@ -73,52 +73,8 @@
   </div>
 
   <script>
-    // Initialize user session
     document.addEventListener('DOMContentLoaded', function() {
         auth.initSession();
-        // Initialize UI components
-        initializeUI();
-        
-        // Update user account info
-        updateUserAccountInfo();
-        
-        // Add event listeners to navigation links
-        document.querySelectorAll('.nav-links a').forEach(link => {
-            link.addEventListener('click', function(e) {
-                if (this.getAttribute('onclick') === 'logout()') {
-                    e.preventDefault();
-                    logout();
-                }
-            });
-        });
-        
-        // Handle responsive layout
-        handleResponsiveLayout();
-        
-        // Add window resize event listener
-        window.addEventListener('resize', function() {
-            handleResponsiveLayout();
-        });
-        
-        // Add click event listener to document to close mobile menu when clicking outside
-        document.addEventListener('click', function(e) {
-            const navLinks = document.getElementById('navLinks');
-            const menuTrigger = document.querySelector('.menu-trigger');
-            const sideNav = document.querySelector('.side-nav');
-            
-            // If clicking outside the menu and the menu is open, close it
-            if (navLinks && navLinks.classList.contains('active') && 
-                !e.target.closest('.nav-links') && 
-                !e.target.closest('.menu-trigger')) {
-                navLinks.classList.remove('active');
-                if (menuTrigger) menuTrigger.classList.remove('active');
-                
-                // Also close side nav on mobile
-                if (window.innerWidth <= 991 && sideNav && sideNav.classList.contains('active')) {
-                    sideNav.classList.remove('active');
-                }
-            }
-        });
     });
     
     // Toggle mobile menu
@@ -127,12 +83,13 @@
         const menuTrigger = document.querySelector('.menu-trigger');
         const sideNav = document.querySelector('.side-nav');
         
-        navLinks.classList.toggle('active');
-        menuTrigger.classList.toggle('active');
+        if (navLinks) navLinks.classList.toggle('active');
+        if (menuTrigger) menuTrigger.classList.toggle('active');
         
         // Toggle side navigation on mobile
         if (window.innerWidth <= 991 && sideNav) {
             sideNav.classList.toggle('active');
+            document.body.classList.toggle('menu-active');
         }
     }
     
@@ -197,8 +154,12 @@
           sideNav.style.bottom = '0';
           sideNav.style.left = '0';
           sideNav.style.width = '100%';
+          sideNav.style.height = 'auto';
           sideNav.style.transform = 'translateY(100%)';
+          sideNav.style.display = 'flex';
+          sideNav.style.justifyContent = 'space-around';
           sideNav.classList.remove('active');
+          document.body.classList.remove('menu-active');
         }
       } else {
         // Position side nav at left for desktop

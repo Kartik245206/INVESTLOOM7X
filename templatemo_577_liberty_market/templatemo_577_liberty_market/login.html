@@ -85,35 +85,12 @@
               return;
             }
 
-            try {
-              const res = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
-                credentials: 'include'
-              });
-              const data = await res.json();
-              if (res.ok && data.success) {
-                // Store token and user data
-                localStorage.setItem('token', data.token);
-                localStorage.setItem('user', JSON.stringify(data.user));
-                
-                // Check if there's a redirect URL stored
-                const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
-                if (redirectUrl) {
-                    sessionStorage.removeItem('redirectAfterLogin');
-                    window.location.href = redirectUrl;
-                } else {
-                    // Redirect to homepage
-                    window.location.href = 'index.html';
-                }
-              } else {
-                alert(data.error || 'Login failed');
-              }
-            } catch (err) {
-              console.error(err);
-              alert('Login failed, try again');
+            const result = await auth.login(email, password);
+
+            if (!result.success) {
+              alert(result.message || 'Login failed. Please check your credentials.');
             }
+            // Successful login is handled by auth.js (redirect)
           });
         });
     </script>

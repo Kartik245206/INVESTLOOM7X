@@ -167,7 +167,7 @@
     }
 
     body.menu-active .side-nav {
-        left: 0;
+        transform: translateY(0);
     }
 }
 

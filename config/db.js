@@ -1,24 +1,30 @@
 const mongoose = require('mongoose');
 
-const connectDB = async () => {
+async function connectDB() {
   const uri = process.env.MONGODB_URI;
   if (!uri) {
-    console.error('MONGODB_URI not set in environment');
+    console.error('[db] MONGODB_URI not set');
     throw new Error('MONGODB_URI not set');
   }
 
   try {
+    // avoid deprecation warnings and get useful logging
     await mongoose.connect(uri, {
-      // options for mongoose v6+ are not required but can be added
-      // useNewUrlParser, useUnifiedTopology are defaults in modern mongoose
+      appName: 'investloom7x',
+      // mongoose v6+ uses sensible defaults; add options only if needed
     });
-    console.log('MongoDB connected:', mongoose.connection.host);
+    console.log('[db] Connected to MongoDB');
+    mongoose.connection.on('disconnected', () => {
+      console.warn('[db] MongoDB disconnected');
+    });
+    mongoose.connection.on('error', (err) => {
+      console.error('[db] MongoDB connection error', err);
+    });
   } catch (err) {
-    console.error('MongoDB connection error:', err.message);
-    // optional: retry logic
-    setTimeout(() => connectDB(), 5000);
+    console.error('[db] Failed to connect to MongoDB', err);
+    // rethrow so server can decide to exit or retry
     throw err;
   }
-};
+}
 
 module.exports = connectDB;

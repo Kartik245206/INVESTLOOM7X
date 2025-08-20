@@ -1,9 +1,9 @@
 const express = require('express');
+const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const User = require('./models/User'); // ensure this model exists and exports mongoose model
 
-const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'change_this_secret';
 const TOKEN_EXPIRES = '7d';
 
@@ -17,11 +17,6 @@ router.get('/ping', (req, res) => res.json({ ok: true }));
 // Signup
 router.post('/signup', async (req, res) => {
   try {
-    const mongoose = require('mongoose');
-    console.log('[auth.signup] mongoose.readyState=', mongoose.connection.readyState);
-    console.log('[auth.signup] req.body keys:', Object.keys(req.body || {}));
-    console.log('[auth.signup] passwordProvided:', !!req.body?.password);
-
     const { name = '', email = '', password = '' } = req.body || {};
     if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
 
@@ -113,5 +108,15 @@ router.post('/login', async (req, res) => {
     return res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
+// call /api/auth/signup instead of writing to localStorage
+async function signup(formData) {
+  const resp = await fetch('/api/auth/signup', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(formData),
+  });
+  return resp.json();
+}
 
 module.exports = router;

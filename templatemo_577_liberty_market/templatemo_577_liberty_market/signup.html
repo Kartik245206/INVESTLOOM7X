@@ -80,158 +80,30 @@
     <script src="vendor/jquery/jquery.min.js"></script>
     <script src="assets/js/auth.js"></script>
     <script>
-        const alertMessage = document.getElementById('alertMessage');
-        const signupForm = document.getElementById('signupForm');
+        document.addEventListener('DOMContentLoaded', function() {
+            const signupForm = document.getElementById('signupForm');
 
-        function showAlert(message, type) {
-            alertMessage.textContent = message;
-            alertMessage.className = `alert alert-${type}`;
-            alertMessage.style.display = 'block';
-            
-            if (type === 'success') {
-                setTimeout(() => window.location.href = 'index.html', 1500);
-            } else {
-                setTimeout(() => alertMessage.style.display = 'none', 3000);
-            }
-        }
-
-        function showError(message) {
-            errorAlert.textContent = message;
-            errorAlert.style.display = 'block';
-            setTimeout(() => {
-                errorAlert.style.display = 'none';
-            }, 3000);
-        }
-
-        function showSuccess() {
-            successAlert.style.display = 'block';
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 1500);
-        }
-
-        function handleSignup(event) {
-            event.preventDefault();
-            
-            const userData = {
-                fullName: document.getElementById('fullName').value.trim(),
-                email: document.getElementById('email').value.trim(),
-                username: document.getElementById('username').value.trim(),
-                password: document.getElementById('password').value,
-                phone: document.getElementById('phone').value.trim(),
-                upiId: document.getElementById('upiId').value.trim()
-            };
-
-            // Validation
-            if (!userData.fullName || !userData.email || !userData.username || 
-                !userData.password || !userData.phone || !userData.upiId) {
-                showAlert('Please fill in all required fields', 'danger');
-                return;
-            }
-
-            if (userData.password.length < 6) {
-                showAlert('Password must be at least 6 characters long', 'danger');
-                return;
-            }
-
-            if (!userData.email.includes('@')) {
-                showAlert('Please enter a valid email address', 'danger');
-                return;
-            }
-
-            if (!/^\d{10}$/.test(userData.phone)) {
-                showAlert('Please enter a valid 10-digit phone number', 'danger');
-                return;
-            }
-
-            if (!/^[a-zA-Z0-9.\-_]{2,49}@[a-zA-Z._]{2,49}$/.test(userData.upiId)) {
-                showAlert('Please enter a valid UPI ID', 'danger');
-                return;
-            }
-
-            // Try to create account
-            const result = auth.signup(userData);
-            if (result.success) {
-                showAlert('Account created successfully!', 'success');
-            } else {
-                showAlert(result.message, 'danger');
-            }
-        }
-
-        // Restore form data if exists
-        window.addEventListener('DOMContentLoaded', () => {
-            const savedData = sessionStorage.getItem('signupFormData');
-            if (savedData) {
-                const formData = JSON.parse(savedData);
-                document.getElementById('fullName').value = formData.fullName || '';
-                document.getElementById('email').value = formData.email || '';
-                document.getElementById('username').value = formData.username || '';
-                document.getElementById('phone').value = formData.phone || '';
-                document.getElementById('upiId').value = formData.upiId || '';
-            }
-        });
-
-        // Clear form data when successfully navigating away
-        window.addEventListener('beforeunload', () => {
-            if (window.location.href.includes('index.html')) {
-                sessionStorage.removeItem('signupFormData');
-            }
-        });
-
-        document.addEventListener('DOMContentLoaded', function () {
-          const form = document.getElementById('signupForm');
-          if (!form) return;
-
-          form.addEventListener('submit', async function (e) {
-            e.preventDefault();
-            const name = document.getElementById('fullName')?.value || '';
-            const email = document.getElementById('email')?.value?.trim();
-            const password = document.getElementById('password')?.value;
-            const username = document.getElementById('username')?.value?.trim();
-            const phone = document.getElementById('phone')?.value?.trim();
-            const upiId = document.getElementById('upiId')?.value?.trim();
-
-            if (!email || !password) {
-              showAlert('Email and password are required', 'danger');
-              return;
-            }
-
-            try {
-              // Create account
-              const res = await fetch('/api/auth/signup', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, email, password }),
-                credentials: 'include'
-              });
-              const data = await res.json();
-              
-              if (res.ok && data.success) {
-                showAlert('Account created successfully! Redirecting...', 'success');
-                // Store user data in localStorage for client-side auth
-                localStorage.setItem('token', data.token || 'user_token'); // In a real app, this would be a JWT
-                localStorage.setItem('user', JSON.stringify(data.user));
+            signupForm.addEventListener('submit', function(event) {
+                event.preventDefault();
                 
-                // Check if there's a redirect URL stored
-                const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
-                
-                // Redirect to appropriate page after a short delay
-                setTimeout(() => {
-                  if (redirectUrl) {
-                    sessionStorage.removeItem('redirectAfterLogin');
-                    window.location.href = redirectUrl;
-                  } else {
-                    window.location.href = 'index.html';
-                  }
-                }, 1500);
-              } else {
-                showAlert(data.error || 'Signup failed', 'danger');
-              }
-            } catch (err) {
-              console.error(err);
-              showAlert('Signup failed, please try again', 'danger');
-            }
-          });
+                const userData = {
+                    fullName: document.getElementById('fullName').value.trim(),
+                    email: document.getElementById('email').value.trim(),
+                    username: document.getElementById('username').value.trim(),
+                    password: document.getElementById('password').value,
+                    phone: document.getElementById('phone').value.trim(),
+                    upiId: document.getElementById('upiId').value.trim()
+                };
+
+                const result = auth.signup(userData);
+
+                if (result.success) {
+                    alert('Signup successful! Redirecting to login...');
+                    window.location.href = 'login.html';
+                } else {
+                    alert(result.message || 'Signup failed. Please try again.');
+                }
+            });
         });
     </script>
 </body>
