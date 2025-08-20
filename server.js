@@ -36,12 +36,19 @@ async function connectDB(retries = 5) {
     return false;
 }
 
+// Define base directory for views
+const VIEWS_DIR = path.join(__dirname, 'templatemo_577_liberty_market', 'templatemo_577_liberty_market');
+
+// Debug log for paths
+console.log('Views directory:', VIEWS_DIR);
+console.log('Directory exists:', require('fs').existsSync(VIEWS_DIR));
+
 // Initialize DB and start server
 (async () => {
     try {
         await connectDB();
         
-        // Middleware
+        // Initialize Express middleware
         app.use(cookieParser());
         app.use(express.json());
         app.use(express.urlencoded({ extended: true }));
@@ -92,39 +99,46 @@ async function connectDB(retries = 5) {
         app.use('/api/transactions', requireAuth, require('./api/transactions'));
         app.use('/api/withdraw', requireAuth, require('./api/withdraw'));
 
-        // Serve static files
-        app.use(express.static(path.join(__dirname, 'templatemo_577_liberty_market')));
+        // Serve static files with debug logging
+        app.use((req, res, next) => {
+            console.log('Static file request:', req.url);
+            next();
+        }, express.static(VIEWS_DIR));
 
-        // Main routes
-        app.get('/', (req, res) => {
-            res.sendFile(path.join(__dirname, 'templatemo_577_liberty_market/index.html'));
-        });
+        // Route handlers with consistent path handling
+        const sendView = (fileName) => (req, res) => {
+            const filePath = path.join(VIEWS_DIR, fileName);
+            console.log(`Serving view: ${filePath}`);
+            res.sendFile(filePath);
+        };
 
-        app.get('/login', (req, res) => {
-            res.sendFile(path.join(__dirname, 'templatemo_577_liberty_market/login.html'));
-        });
-
-        app.get('/signup', (req, res) => {
-            res.sendFile(path.join(__dirname, 'templatemo_577_liberty_market/signup.html'));
-        });
-
-        app.get('/profile', (req, res) => {
-            res.sendFile(path.join(__dirname, 'templatemo_577_liberty_market/profile.html'));
-        });
-
-        app.get('/details/:id', (req, res) => {
-            res.sendFile(path.join(__dirname, 'templatemo_577_liberty_market/details.html'));
-        });
+        // Define routes
+        app.get('/', sendView('index.html'));
+        app.get('/login', sendView('login.html'));
+        app.get('/signup', sendView('signup.html'));
+        app.get('/profile', sendView('profile.html'));
+        app.get('/details/:id', sendView('details.html'));
 
         // Health check endpoint
         app.get('/health', (req, res) => {
             res.json({
                 status: 'ok',
-                mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+                mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+                viewsPath: VIEWS_DIR
             });
         });
 
-        // Error handling
+        // 404 handler
+        app.use((req, res) => {
+            console.log('404 for path:', req.path);
+            res.status(404).json({ 
+                error: 'Not Found',
+                path: req.path,
+                requestedFile: path.join(VIEWS_DIR, req.path)
+            });
+        });
+
+        // Error Handlers
         app.use((err, req, res, next) => {
             console.error('Error details:', {
                 message: err.message,
@@ -133,40 +147,37 @@ async function connectDB(retries = 5) {
                 method: req.method
             });
             
-            res.status(err.status || 500).json({
+            res.status(500).json({
                 error: NODE_ENV === 'production' ? 'Internal Server Error' : err.message,
                 path: req.path
             });
         });
 
-        // Handle 404
-        app.use((req, res) => {
-            res.status(404).json({ error: 'Not Found' });
+        // Start server with enhanced logging
+        const server = app.listen(PORT, () => {
+            console.log(`Server running at http://localhost:${PORT}`);
+            console.log('Static files served from:', VIEWS_DIR);
         });
 
-        let server;
-
-        mongoose.connection.once('open', () => {
-            server = app.listen(PORT, () => {
-                console.log(`Server running on port ${PORT}`);
+        // Graceful shutdown
+        process.on('SIGTERM', () => {
+            console.log('SIGTERM received...');
+            server.close(() => {
+                console.log('Server closed');
+                mongoose.connection.close(false, () => {
+                    console.log('MongoDB connection closed');
+                    process.exit(0);
+                });
             });
         });
 
-        // Add graceful shutdown
-        process.on('SIGTERM', async () => {
-            console.log('SIGTERM received...');
-            if (server) {
-                server.close(() => {
-                    console.log('Server closed');
-                    mongoose.connection.close(false, () => {
-                        console.log('MongoDB connection closed');
-                        process.exit(0);
-                    });
-                });
-            }
-        });
     } catch (err) {
-        console.error('Startup error:', err);
+        console.error('Failed to start server:', err);
         process.exit(1);
     }
 })();
+
+// Add basic error handling for uncaught errors
+process.on('unhandledRejection', (err) => {
+    console.error('Unhandled Rejection:', err);
+});
