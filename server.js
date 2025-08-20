@@ -12,21 +12,29 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 
 const app = express();
 
-// Connect to database
-const connectDB = async () => {
-    try {
-        await mongoose.connect(process.env.MONGODB_URI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true
-        });
-        console.log('MongoDB Connected');
-    } catch (err) {
-        console.error('MongoDB connection error:', err);
-        process.exit(1);
+// Enhanced database connection with retries
+const connectDB = async (retries = 5) => {
+    while (retries) {
+        try {
+            await mongoose.connect(process.env.MONGODB_URI, {
+                useNewUrlParser: true,
+                useUnifiedTopology: true,
+                serverSelectionTimeoutMS: 5000
+            });
+            console.log('MongoDB Connected');
+            return;
+        } catch (err) {
+            console.error(`MongoDB connection error (${retries} retries left):`, err);
+            retries -= 1;
+            if (!retries) process.exit(1);
+            // Wait 5 seconds before retrying
+            await new Promise(resolve => setTimeout(resolve, 5000));
+        }
     }
 };
 
-connectDB();
+// Initial database connection
+connectDB().catch(console.error);
 
 // Middleware
 app.use(cookieParser());
@@ -114,7 +122,20 @@ app.use((req, res) => {
     res.status(404).json({ error: 'Not Found' });
 });
 
-// Start server
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+// Graceful shutdown handling
+process.on('SIGTERM', async () => {
+    console.log('SIGTERM received, shutting down...');
+    await mongoose.connection.close();
+    process.exit(0);
+});
+
+process.on('unhandledRejection', (err) => {
+    console.error('Unhandled Rejection:', err);
+});
+
+// Start server only after successful DB connection
+mongoose.connection.once('open', () => {
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
 });
