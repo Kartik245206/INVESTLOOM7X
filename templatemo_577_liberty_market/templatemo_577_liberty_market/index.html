@@ -11,6 +11,10 @@
   <link href="assets/css/fontawesome.css" rel="stylesheet">
   <link href="assets/css/templatemo-liberty-market.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <!-- JavaScript Libraries -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/js/common.js"></script>
   </head>
 
   <body>
@@ -30,18 +34,26 @@
 
   <!-- Header Area -->
   <header class="header-area">
-    <nav class="main-nav">
-      <a href="index.html" class="logo">
-        <img src="assets/images/logo.png" alt="INVESTLOOM7X">
-      </a>
-      <div class="nav-links">
-        <!-- This will be dynamically updated by auth.js based on login status -->
-        <a href="index.html" class="active">Home</a>
-        <a href="author.html">Explore</a>
-        <a href="login.html">Login</a>
-        <a href="signup.html">Sign Up</a>
-      </div>
-    </nav>
+    <div class="container">
+      <nav class="main-nav">
+        <a href="index.html" class="logo">
+          <img src="assets/images/logo.png" alt="INVESTLOOM7X">
+        </a>
+        <div class="menu-trigger" onclick="toggleMobileMenu()">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <div class="nav-links" id="navLinks">
+          <!-- This will be dynamically updated by auth.js based on login status -->
+          <a href="index.html" class="active">Home</a>
+          <a href="author.html">Explore</a>
+          <a href="profile.html">Profile</a>
+          <a href="Host-WEB/admin_Login_page.html">Admin</a>
+          <a href="javascript:void(0)" onclick="logout()">Logout</a>
+        </div>
+      </nav>
+    </div>
   </header>
 
   <!-- User Account Info -->
@@ -64,52 +76,221 @@
     // Initialize user session
     document.addEventListener('DOMContentLoaded', function() {
         auth.initSession();
+        // Initialize UI components
+        initializeUI();
+        
+        // Update user account info
+        updateUserAccountInfo();
+        
+        // Add event listeners to navigation links
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                if (this.getAttribute('onclick') === 'logout()') {
+                    e.preventDefault();
+                    logout();
+                }
+            });
+        });
+        
+        // Handle responsive layout
+        handleResponsiveLayout();
+        
+        // Add window resize event listener
+        window.addEventListener('resize', function() {
+            handleResponsiveLayout();
+        });
+        
+        // Add click event listener to document to close mobile menu when clicking outside
+        document.addEventListener('click', function(e) {
+            const navLinks = document.getElementById('navLinks');
+            const menuTrigger = document.querySelector('.menu-trigger');
+            const sideNav = document.querySelector('.side-nav');
+            
+            // If clicking outside the menu and the menu is open, close it
+            if (navLinks && navLinks.classList.contains('active') && 
+                !e.target.closest('.nav-links') && 
+                !e.target.closest('.menu-trigger')) {
+                navLinks.classList.remove('active');
+                if (menuTrigger) menuTrigger.classList.remove('active');
+                
+                // Also close side nav on mobile
+                if (window.innerWidth <= 991 && sideNav && sideNav.classList.contains('active')) {
+                    sideNav.classList.remove('active');
+                }
+            }
+        });
     });
+    
+    // Toggle mobile menu
+    function toggleMobileMenu() {
+        const navLinks = document.getElementById('navLinks');
+        const menuTrigger = document.querySelector('.menu-trigger');
+        const sideNav = document.querySelector('.side-nav');
+        
+        navLinks.classList.toggle('active');
+        menuTrigger.classList.toggle('active');
+        
+        // Toggle side navigation on mobile
+        if (window.innerWidth <= 991 && sideNav) {
+            sideNav.classList.toggle('active');
+        }
+    }
+    
+    // Logout function
+    function logout() {
+        // Clear user data from localStorage
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        localStorage.removeItem('currentUser');
+        
+        // Redirect to login page
+        window.location.href = 'login.html';
+    }
+    
+    // Update user account info
+    function updateUserAccountInfo() {
+      const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+      const userAccountInfo = document.getElementById('userAccountInfo');
+      
+      // Only proceed if element exists
+      if (userAccountInfo) {
+        if (currentUser) {
+          // Show user account info
+          userAccountInfo.style.display = 'flex';
+          
+          // Update profile picture if available
+          const userProfilePic = document.getElementById('userProfilePic');
+          if (userProfilePic && currentUser.profilePic) {
+            userProfilePic.src = currentUser.profilePic;
+          }
+          
+          // Update balance amount
+          const userBalanceAmount = document.getElementById('userBalanceAmount');
+          if (userBalanceAmount) {
+            userBalanceAmount.textContent = '₹' + (currentUser.balance || 0);
+          }
+        } else {
+          // Hide user account info if not logged in
+          userAccountInfo.style.display = 'none';
+        }
+      }
+    }
+    
+    // Handle responsive layout
+    function handleResponsiveLayout() {
+      const isMobile = window.innerWidth <= 991;
+      const navLinks = document.getElementById('navLinks');
+      const menuTrigger = document.querySelector('.menu-trigger');
+      const sideNav = document.querySelector('.side-nav');
+      
+      if (isMobile) {
+        if (navLinks) {
+          navLinks.classList.remove('active');
+        }
+        if (menuTrigger) {
+          menuTrigger.classList.remove('active');
+        }
+        
+        // Position side nav at bottom for mobile
+        if (sideNav) {
+          sideNav.style.top = 'auto';
+          sideNav.style.bottom = '0';
+          sideNav.style.left = '0';
+          sideNav.style.width = '100%';
+          sideNav.style.transform = 'translateY(100%)';
+          sideNav.classList.remove('active');
+        }
+      } else {
+        // Position side nav at left for desktop
+        if (sideNav) {
+          sideNav.style.transform = 'translateY(-50%)';
+          sideNav.style.top = '50%';
+          sideNav.style.bottom = 'auto';
+        }
+      }
+    }
+    
+    // Initialize UI components
+    function initializeUI() {
+        // Add click event listeners to category items
+        document.querySelectorAll('.categories .item').forEach(item => {
+            item.addEventListener('click', function() {
+                const action = this.querySelector('h4').textContent.toLowerCase();
+                
+                switch(action) {
+                    case 'emi':
+                        showEMICalculator();
+                        break;
+                    case 'deposit':
+                        showDepositModal();
+                        break;
+                    case 'withdraw':
+                        handleWithdrawal();
+                        break;
+                    case 'balance':
+                        showBalance();
+                        break;
+                }
+            });
+        });
+        
+        // Add click event listeners to payment options
+        document.querySelectorAll('.payment-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const method = this.getAttribute('data-app');
+                selectPayment(method);
+            });
+        });
+        
+        // Load products
+        loadProducts();
+        
+        // Initialize side navigation
+        document.querySelectorAll('.side-nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                if (this.getAttribute('onclick').includes('logout()')) {
+                    logout();
+                }
+            });
+        });
+    }
+    
+    // Show EMI calculator
+    function showEMICalculator() {
+        // Implement EMI calculator functionality
+        alert('EMI Calculator will be shown here');
+    }
+    
+    // Show deposit modal
+    function showDepositModal() {
+        const depositModal = new bootstrap.Modal(document.getElementById('depositModal'));
+        depositModal.show();
+    }
+    
+    // Show balance
+    function showBalance() {
+        window.location.href = 'profile.html';
+    }
   </script>
   <!-- ***** Preloader End ***** -->
 
-  <!-- ***** Header Area Start ***** -->
-  <header class="header-area header-sticky">
-    <div class="menu-trigger" onclick="toggleMobileMenu()">
-      <span></span>
-      <span></span>
-      <span></span>
-    </div>
-      <div class="container">
-          <div class="row">
-              <div class="col-12">
-                  <nav class="main-nav">
-                      <!-- ***** Logo Start ***** -->
-                      <div class="text-center logo-container">
-                          <a href="index.html" class="logo">
-                              <img src="assets/images/logo.png" alt="">
-                          </a>
-                      </div>
-                      <!-- ***** Logo End ***** -->
-                      
-                      <!-- ***** Menu Start ***** -->
-                      <ul class="nav">
-                          <li><a href="index.html" class="active">Home</a></li>
-                          <li><a href="profile.html">Profile</a></li>
-                          <li><a href="Host-WEB/admin_Login_page.html">Admin</a></li>
-                          <li><a href="signup.html">Logout</a></li>
+  <!-- We're removing the duplicate header and keeping only one navigation -->
+  <!-- The first header (header-area) will be used and improved -->
 
-                      </ul>
-                      <!-- ***** Menu End ***** -->
-                  </nav>
-              </div>
-          </div>
-      </div>
-  </header>
-  <!-- ***** Header Area End ***** -->
 
-  <!-- ***** Side Navigation -->
+  <!-- ***** Side Navigation ***** -->
   <div class="side-nav">
     <div class="side-nav-item" onclick="window.location.href='index.html'">
       <div class="side-nav-icon">
         <i class="fa fa-home"></i>
       </div>
       <div class="side-nav-text">Home</div>
+    </div>
+    <div class="side-nav-item" onclick="window.location.href='author.html'">
+      <div class="side-nav-icon">
+        <i class="fa fa-compass"></i>
+      </div>
+      <div class="side-nav-text">Explore</div>
     </div>
     <div class="side-nav-item" onclick="window.location.href='profile.html'">
       <div class="side-nav-icon">
@@ -122,6 +303,12 @@
         <i class="fa fa-cog"></i>
       </div>
       <div class="side-nav-text">Admin</div>
+    </div>
+    <div class="side-nav-item" onclick="logout()">
+      <div class="side-nav-icon">
+        <i class="fa fa-sign-out-alt"></i>
+      </div>
+      <div class="side-nav-text">Logout</div>
     </div>
   </div>
 
@@ -160,6 +347,174 @@
     left: 0;
     right: 0;
     z-index: 100;
+    padding: 15px 0;
+}
+
+.header-area .main-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+}
+
+.header-area .logo img {
+    max-height: 50px;
+}
+
+.header-area .nav-links {
+    display: flex;
+    gap: 20px;
+}
+
+.header-area .nav-links a {
+    color: #fff;
+    font-weight: 500;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    position: relative;
+    padding: 5px 0;
+}
+
+.header-area .nav-links a:hover,
+.header-area .nav-links a.active {
+    color: #7453fc;
+}
+
+.header-area .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: #7453fc;
+    transition: width 0.3s ease;
+}
+
+.header-area .nav-links a:hover::after,
+.header-area .nav-links a.active::after {
+    width: 100%;
+}
+
+.menu-trigger {
+    display: none;
+    cursor: pointer;
+}
+
+.menu-trigger span {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background-color: #fff;
+    margin: 5px 0;
+    transition: all 0.3s ease;
+}
+
+.menu-trigger.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+
+.menu-trigger.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.menu-trigger.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -6px);
+}
+
+/* Side Navigation Styles */
+.side-nav {
+    position: fixed;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(1, 11, 44, 0.8);
+    backdrop-filter: blur(10px);
+    padding: 20px 10px;
+    border-radius: 0 10px 10px 0;
+    z-index: 99;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.side-nav-item {
+    padding: 15px 10px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.side-nav-item:hover {
+    background: rgba(116, 83, 252, 0.3);
+    border-radius: 8px;
+}
+
+.side-nav-icon {
+    font-size: 20px;
+    color: #fff;
+    margin-bottom: 5px;
+}
+
+.side-nav-text {
+    font-size: 12px;
+    color: #fff;
+}
+
+/* Mobile Styles */
+@media (max-width: 991px) {
+    .menu-trigger {
+        display: block;
+    }
+    
+    .header-area .nav-links {
+        position: fixed;
+        top: 80px;
+        right: -300px;
+        width: 280px;
+        height: auto;
+        background: rgba(1, 11, 44, 0.95);
+        flex-direction: column;
+        padding: 20px;
+        border-radius: 10px 0 0 10px;
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .header-area .nav-links.active {
+        right: 0;
+    }
+    
+    .header-area .nav-links a {
+        padding: 12px 0;
+        width: 100%;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .header-area .nav-links a:last-child {
+        border-bottom: none;
+    }
+    
+    /* Mobile Side Nav */
+    .side-nav {
+        bottom: 0;
+        left: 0;
+        right: 0;
+        top: auto;
+        transform: translateY(100%);
+        display: flex;
+        justify-content: space-around;
+        padding: 10px;
+        border-radius: 10px 10px 0 0;
+    }
+    
+    .side-nav.active {
+        transform: translateY(0);
+    }
+    
+    .side-nav-item {
+        padding: 10px 5px;
+        flex: 1;
+    }
 }
 
 /* Main Banner Styles */
@@ -168,7 +523,7 @@
     background-position: center center;
     background-repeat: no-repeat;
     background-size: cover;
-    padding: 100px 0px;
+    padding: 150px 0 100px;
     margin-bottom: 60px;
     border-radius: 0px;
     position: relative;
@@ -177,11 +532,11 @@
 .main-banner::before {
     content: '';
     position: absolute;
-    top: 20px;
+    top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.6);
     border-radius: 0px;
 }
 
@@ -197,7 +552,7 @@
 }
 
 .main-banner .header-text h1 {
-    font-size: 32px;
+    font-size: 36px;
     margin-bottom: 15px;
     color: #fff;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
@@ -208,6 +563,144 @@
     color: #b4b2ba;
     line-height: 1.6;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+/* User Account Info Styles */
+.user-account-info {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.user-profile-pic img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #7453fc;
+}
+
+.user-info {
+    margin-left: 20px;
+}
+
+.username {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 5px;
+}
+
+.balance-amount {
+    font-size: 24px;
+    font-weight: 700;
+    color: #7453fc;
+    margin-bottom: 5px;
+}
+
+.balance-label {
+    font-size: 14px;
+    color: #b4b2ba;
+}
+
+/* Categories Styles */
+.categories .item {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 30px 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    margin-bottom: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.categories .item:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    background: rgba(116, 83, 252, 0.1);
+}
+
+.categories .item .icon {
+    margin-bottom: 20px;
+}
+
+.categories .item .icon img {
+    max-width: 60px;
+}
+
+.categories .item h4 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #fff;
+}
+
+.categories .item .icon-button {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    background: #7453fc;
+    border-radius: 50%;
+    color: #fff;
+    transition: all 0.3s ease;
+}
+
+.categories .item .icon-button:hover {
+    background: #fff;
+    color: #7453fc;
+}
+
+/* Responsive Styles */
+@media (max-width: 991px) {
+    .header-area .nav-links {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: rgba(1, 11, 44, 0.95);
+        flex-direction: column;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        transform: translateY(20px);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .header-area .nav-links.active {
+        transform: translateY(0);
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .menu-trigger {
+        display: block;
+    }
+    
+    .menu-trigger.active span:nth-child(1) {
+        transform: rotate(45deg) translate(5px, 6px);
+    }
+    
+    .menu-trigger.active span:nth-child(2) {
+        opacity: 0;
+    }
+    
+    .menu-trigger.active span:nth-child(3) {
+        transform: rotate(-45deg) translate(5px, -6px);
+    }
+    
+    .side-nav {
+        display: none;
+    }
 }
 </style>
 
