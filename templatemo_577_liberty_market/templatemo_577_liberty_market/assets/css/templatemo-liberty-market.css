@@ -1728,47 +1728,90 @@ body {
   }
 }
 
-/* Payment Options */
-.payment-option {
+/* Update logo size */
+.header-area .logo img {
+    width: 180px; /* Increase from default */
+    height: auto;
+    margin-top: 10px;
+}
+
+/* Style menu trigger button */
+.menu-trigger {
     cursor: pointer;
-    padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    text-align: center;
-    transition: all 0.3s;
+    display: block;
+    position: relative;
+    width: 35px;
+    height: 35px;
+    padding: 8px;
+    margin-left: auto;
 }
 
-.payment-option:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+.menu-trigger span {
+    background: #fff;
+    display: block;
+    height: 3px;
+    margin: 6px 0;
+    transition: all 0.3s ease;
+    width: 100%;
 }
 
-.payment-option.active {
-    border-color: #7453fc;
-    background: rgba(116, 83, 252, 0.1);
+/* Active state for menu trigger */
+.menu-trigger.active span:nth-child(1) {
+    transform: rotate(45deg) translate(6px, 6px);
 }
 
-.quick-amounts button {
-    margin: 5px;
-    min-width: 80px;
+.menu-trigger.active span:nth-child(2) {
+    opacity: 0;
 }
 
-.payment-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-    margin: 20px 0;
+.menu-trigger.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(6px, -6px);
 }
 
-/* Ensure product grid is visible */
-#productContainer, .currently-market-items {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    visibility: visible !important;
-    opacity: 1 !important;
+/* Add these styles for the details page */
+.item-details-page {
+    padding: 60px 0;
+    background: #1d1d1d;
 }
 
-/* Ensure product card defaults */
-.currently-market-item { display: block !important; }
-.currently-market-item .left-image img { max-width:100%; height:auto; display:block; }
+.item-details-page .left-image img {
+    border-radius: 20px;
+    margin-bottom: 30px;
+}
+
+.item-details-page h4 {
+    font-size: 20px;
+    margin-bottom: 25px;
+}
+
+.item-details-page .bid {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.item-details-page .bid strong {
+    font-size: 20px;
+    color: #7453fc;
+}
+
+.buttons {
+    margin-top: 30px;
+}
+
+.main-button a {
+    display: inline-block;
+    background-color: #7453fc;
+    padding: 12px 30px;
+    border-radius: 25px;
+    color: #fff;
+    text-transform: capitalize;
+    letter-spacing: 0.5px;
+    transition: all .3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.main-button a:hover {
+    background-color: #fff;
+    color: #7453fc;
+}

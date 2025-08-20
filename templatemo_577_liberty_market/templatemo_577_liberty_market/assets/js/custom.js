@@ -486,3 +486,40 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+function toggleMobileMenu(trigger) {
+    trigger.classList.toggle('active');
+    const navLinks = document.querySelector('.nav-links');
+    if (navLinks) {
+        navLinks.classList.toggle('show');
+    }
+}
+
+// Add mobile menu styles
+document.head.insertAdjacentHTML('beforeend', `
+<style>
+    .nav-links {
+        display: none;
+    }
+    
+    .nav-links.show {
+        display: block;
+        position: absolute;
+        top: 80px;
+        right: 0;
+        background: #1d1d1d;
+        width: 200px;
+        padding: 20px;
+        border-radius: 10px;
+    }
+    
+    @media (min-width: 992px) {
+        .nav-links {
+            display: flex;
+        }
+        .menu-trigger {
+            display: none;
+        }
+    }
+</style>
+`);

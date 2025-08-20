@@ -39,13 +39,15 @@
         <a href="index.html" class="logo">
           <img src="assets/images/logo.png" alt="INVESTLOOM7X">
         </a>
-        <div class="menu-trigger" onclick="toggleMobileMenu()">
+        <div class="menu-trigger" onclick="toggleMobileMenu(this)">
+          <span></span>
+          <span></span>
+          <span></span>
+      </div>
 
           <div class="nav-links" id="navLinks">
             <!-- This will be dynamically updated by auth.js based on login status -->
             <a href="index.html" class="active">Home</a>
-            <a href="explore.html">Explore</a>
-            <a href="create.html">Create Yours</a>
             <a href="profile.html">Profile</a>
             <a href="Host-WEB/admin_Login_page.html">Admin</a>
             <a href="javascript:void(0)" onclick="auth.logout()">Logout</a>
@@ -77,9 +79,9 @@
     });
     
     // Toggle mobile menu
-    function toggleMobileMenu() {
+    function toggleMobileMenu(trigger) {
         const navLinks = document.getElementById('navLinks');
-        const menuTrigger = document.querySelector('.menu-trigger');
+        const menuTrigger = trigger;
         const sideNav = document.querySelector('.side-nav');
         
         if (navLinks) navLinks.classList.toggle('active');
