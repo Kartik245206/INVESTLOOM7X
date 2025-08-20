@@ -66,10 +66,20 @@ async function connectDB(retries = 5) {
         }));
 
         // CORS configuration
+        const allowedOrigins = [
+            'https://investloom7x.onrender.com',
+            'http://localhost:3000',
+            'http://127.0.0.1:3000'
+        ];
+
         app.use(cors({
-            origin: process.env.NODE_ENV === 'production' 
-                ? ['https://investloom7x.onrender.com'] 
-                : ['http://localhost:3000'],
+            origin: function(origin, callback) {
+                if (!origin || allowedOrigins.includes(origin)) {
+                    callback(null, true);
+                } else {
+                    callback(new Error('Not allowed by CORS'));
+                }
+            },
             credentials: true
         }));
 
@@ -83,27 +93,27 @@ async function connectDB(retries = 5) {
         app.use('/api/withdraw', requireAuth, require('./api/withdraw'));
 
         // Serve static files
-        app.use(express.static(path.join(__dirname, 'templatemo_577_liberty_market/templatemo_577_liberty_market')));
+        app.use(express.static(path.join(__dirname, 'templatemo_577_liberty_market')));
 
         // Main routes
         app.get('/', (req, res) => {
-            res.sendFile(path.join(__dirname, 'templatemo_577_liberty_market/templatemo_577_liberty_market/index.html'));
+            res.sendFile(path.join(__dirname, 'templatemo_577_liberty_market/index.html'));
         });
 
         app.get('/login', (req, res) => {
-            res.sendFile(path.join(__dirname, 'templatemo_577_liberty_market/templatemo_577_liberty_market/login.html'));
+            res.sendFile(path.join(__dirname, 'templatemo_577_liberty_market/login.html'));
         });
 
         app.get('/signup', (req, res) => {
-            res.sendFile(path.join(__dirname, 'templatemo_577_liberty_market/templatemo_577_liberty_market/signup.html'));
+            res.sendFile(path.join(__dirname, 'templatemo_577_liberty_market/signup.html'));
         });
 
         app.get('/profile', (req, res) => {
-            res.sendFile(path.join(__dirname, 'templatemo_577_liberty_market/templatemo_577_liberty_market/profile.html'));
+            res.sendFile(path.join(__dirname, 'templatemo_577_liberty_market/profile.html'));
         });
 
         app.get('/details/:id', (req, res) => {
-            res.sendFile(path.join(__dirname, 'templatemo_577_liberty_market/templatemo_577_liberty_market/details.html'));
+            res.sendFile(path.join(__dirname, 'templatemo_577_liberty_market/details.html'));
         });
 
         // Health check endpoint
@@ -116,9 +126,16 @@ async function connectDB(retries = 5) {
 
         // Error handling
         app.use((err, req, res, next) => {
-            console.error('Error:', err.stack);
-            res.status(500).json({
-                error: NODE_ENV === 'production' ? 'Internal Server Error' : err.message
+            console.error('Error details:', {
+                message: err.message,
+                stack: err.stack,
+                path: req.path,
+                method: req.method
+            });
+            
+            res.status(err.status || 500).json({
+                error: NODE_ENV === 'production' ? 'Internal Server Error' : err.message,
+                path: req.path
             });
         });
 
@@ -127,20 +144,26 @@ async function connectDB(retries = 5) {
             res.status(404).json({ error: 'Not Found' });
         });
 
-        // Graceful shutdown handling
+        let server;
+
+        mongoose.connection.once('open', () => {
+            server = app.listen(PORT, () => {
+                console.log(`Server running on port ${PORT}`);
+            });
+        });
+
+        // Add graceful shutdown
         process.on('SIGTERM', async () => {
-            console.log('SIGTERM received, shutting down...');
-            await mongoose.connection.close();
-            process.exit(0);
-        });
-
-        process.on('unhandledRejection', (err) => {
-            console.error('Unhandled Rejection:', err);
-        });
-
-        // Start server only after successful DB connection
-        app.listen(PORT, () => {
-            console.log(`Server running on port ${PORT}`);
+            console.log('SIGTERM received...');
+            if (server) {
+                server.close(() => {
+                    console.log('Server closed');
+                    mongoose.connection.close(false, () => {
+                        console.log('MongoDB connection closed');
+                        process.exit(0);
+                    });
+                });
+            }
         });
     } catch (err) {
         console.error('Startup error:', err);
