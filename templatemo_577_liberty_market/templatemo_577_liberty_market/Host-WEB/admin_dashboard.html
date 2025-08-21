@@ -37,7 +37,7 @@
         // Check authentication when page loads
         document.addEventListener('DOMContentLoaded', function() {
             if (!adminAuth.checkAdminAuth()) {
-                window.location.replace('admin_Login_page.html');
+                window.location.replace('./admin_Login_page.html');
                 return;
             }
             // Load navigation
@@ -282,13 +282,15 @@
 </head>
 <body>
     <!-- Add this at the start of your body tag -->
-<script src="../assets/js/adminAuth.js"></script>
+<script src="./admin.js"></script>
 <script>
     // Check admin authentication when page loads
     document.addEventListener('DOMContentLoaded', function() {
-        if (!checkAdminAuth()) {
+        if (!adminAuth.checkAdminAuth()) {
             return; // This will redirect to login if not authenticated
         }
+        // Load products when page loads
+        loadProducts();
     });
 </script>
     <div class="d-flex">

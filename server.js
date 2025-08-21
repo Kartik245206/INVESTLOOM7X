@@ -98,6 +98,7 @@ console.log('Directory exists:', require('fs').existsSync(VIEWS_DIR));
         app.use('/api/purchase', requireAuth, require('./api/purchase'));
         app.use('/api/transactions', requireAuth, require('./api/transactions'));
         app.use('/api/withdraw', requireAuth, require('./api/withdraw'));
+        app.use('/api/products', require('./api/products'));
 
         // Serve static files with debug logging
         app.use((req, res, next) => {

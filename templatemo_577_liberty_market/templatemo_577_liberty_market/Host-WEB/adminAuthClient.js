@@ -17,7 +17,7 @@ const adminAuth = {
         localStorage.removeItem('adminLoggedIn');
         localStorage.removeItem('ADMIN_SECRET');
         localStorage.removeItem('adminPhone');
-        window.location.replace('admin_Login_page.html');
+        window.location.replace('./admin_Login_page.html');
     },
 
     logout() {
@@ -34,7 +34,7 @@ function adminLogin(phone, password) {
         localStorage.setItem('adminLoggedIn', 'true');
         localStorage.setItem('ADMIN_SECRET', 'some_secret_token'); // Simulate a token
         localStorage.setItem('adminPhone', ADMIN_PHONE);
-        window.location.href = 'admin_dashboard.html';
+        window.location.href = './admin_dashboard.html';
         return true;
     } else {
         return false;
