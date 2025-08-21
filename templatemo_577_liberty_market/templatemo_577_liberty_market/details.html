@@ -71,7 +71,7 @@
                             <h4>100 Days</h4>
                         </div>
                         <div class="purchase-button">
-                            <button onclick="purchaseProduct()" class="main-button">Purchase Now</button>
+                            <button id="purchaseButton" class="main-button">Purchase Now</button>
                         </div>
                     </div>
                 </div>
@@ -113,10 +113,14 @@
         document.getElementById('productPlan').textContent = product.Plans;
         document.getElementById('productPrice').textContent = `₹${product.price}/day`;
         document.getElementById('productTotal').textContent = `₹${product.total}`;
+
+        // Add click handler for purchase button
+        document.getElementById('purchaseButton').addEventListener('click', purchaseProduct);
     });
 
     async function purchaseProduct() {
         try {
+            // Check if user is logged in
             const currentUser = JSON.parse(localStorage.getItem('currentUser'));
             if (!currentUser) {
                 alert('Please login to purchase');
@@ -124,18 +128,112 @@
                 return;
             }
 
+            // Get product details
             const urlParams = new URLSearchParams(window.location.search);
             const productId = urlParams.get('id');
             const products = JSON.parse(localStorage.getItem('products') || '[]');
             const product = products.find(p => p.id == productId);
 
-            // Show payment modal
-            showPaymentModal(product, currentUser);
+            if (!product) {
+                alert('Product not found');
+                return;
+            }
+
+            // Show notice modal before payment
+            showNoticeModal(product, currentUser);
 
         } catch (error) {
             console.error('Purchase error:', error);
             alert(error.message || 'Purchase failed. Please try again.');
         }
+    }
+
+    function showNoticeModal(product, user) {
+        const noticeHTML = `
+        <div class="modal fade" id="noticeModal">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-warning">
+                        <h5 class="modal-title text-dark">⚠️ Important Notice</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="notice-content">
+                            <h6 class="text-danger mb-3">Please Read Carefully</h6>
+                            
+                            <div class="notice-points">
+                                <p>1. This is a competitive investment product where you'll be matched with another user.</p>
+                                
+                                <p>2. Only TWO users can participate in this battle for returns.</p>
+                                
+                                <p>3. The winning conditions are:</p>
+                                <ul>
+                                    <li>Higher deposit amount than opponent</li>
+                                    <li>Longer survival in the investment period</li>
+                                    <li>Active daily check-ins</li>
+                                </ul>
+                                
+                                <p>4. The winning user will receive:</p>
+                                <ul>
+                                    <li>Original investment amount</li>
+                                    <li>Additional 25% bonus returns</li>
+                                    <li>Opponent's forfeited amount (if they quit early)</li>
+                                </ul>
+
+                                <p class="text-danger">5. WARNING: Early withdrawal will result in:</p>
+                                <ul class="text-danger">
+                                    <li>Immediate forfeit of invested amount</li>
+                                    <li>Transfer of benefits to opponent</li>
+                                    <li>Account penalty for 7 days</li>
+                                </ul>
+                            </div>
+
+                            <div class="mt-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="agreeCheck">
+                                    <label class="form-check-label" for="agreeCheck">
+                                        I understand and agree to these competitive terms
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button onclick="handleAgreement()" id="continueBtn" class="btn btn-primary" disabled>
+                            Agree & Continue
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+
+        // Add modal to body
+        document.body.insertAdjacentHTML('beforeend', noticeHTML);
+        
+        // Show modal
+        const noticeModal = new bootstrap.Modal(document.getElementById('noticeModal'));
+        noticeModal.show();
+
+        // Handle checkbox
+        document.getElementById('agreeCheck').addEventListener('change', function(e) {
+            document.getElementById('continueBtn').disabled = !e.target.checked;
+        });
+    }
+
+    function handleAgreement() {
+        // Close notice modal
+        bootstrap.Modal.getInstance(document.getElementById('noticeModal')).hide();
+        
+        // Get current product and user
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id');
+        const products = JSON.parse(localStorage.getItem('products') || '[]');
+        const product = products.find(p => p.id == productId);
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+
+        // Show payment modal
+        showPaymentModal(product, currentUser);
     }
 
     function showPaymentModal(product, user) {
