@@ -129,57 +129,106 @@
             const products = JSON.parse(localStorage.getItem('products') || '[]');
             const product = products.find(p => p.id == productId);
 
-            if (!product) {
-                alert('Product not found');
-                return;
-            }
-
-            // API call to backend
-            const response = await fetch('/api/purchase', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
-                body: JSON.stringify({
-                    productId: product.id,
-                    amount: product.price
-                })
-            });
-
-            if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.message || 'Purchase failed');
-            }
-
-            const result = await response.json();
-
-            // Update local storage with new balance
-            currentUser.balance = result.newBalance;
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-
-            // Add to purchases
-            const purchases = JSON.parse(localStorage.getItem('purchases') || '[]');
-            purchases.push({
-                id: result.purchaseId || 'PUR_' + Date.now(),
-                productId: product.id,
-                productName: product.name,
-                purchaseDate: new Date().toISOString(),
-                price: product.price,
-                totalReturn: product.total,
-                daysRemaining: 100,
-                status: 'active',
-                dailyReturns: []
-            });
-            localStorage.setItem('purchases', JSON.stringify(purchases));
-
-            alert('Purchase successful! Check your profile for investment details.');
-            window.location.href = 'profile.html';
+            // Show payment modal
+            showPaymentModal(product, currentUser);
 
         } catch (error) {
             console.error('Purchase error:', error);
             alert(error.message || 'Purchase failed. Please try again.');
         }
+    }
+
+    function showPaymentModal(product, user) {
+        const modalHTML = `
+        <div class="modal fade" id="paymentModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Select Payment Method</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="payment-methods">
+                            <button class="payment-method-btn active" onclick="selectPaymentMethod('upi')">
+                                <img src="assets/images/upi-icon.png" alt="UPI">
+                                <span>UPI Payment</span>
+                            </button>
+                            <div class="upi-apps mt-3">
+                                <h6>Select UPI App</h6>
+                                <div class="upi-app-list">
+                                    <button onclick="initiateUPIPayment('gpay')">
+                                        <img src="assets/images/gpay.png" alt="Google Pay">
+                                    </button>
+                                    <button onclick="initiateUPIPayment('phonepe')">
+                                        <img src="assets/images/phonepe.png" alt="PhonePe">
+                                    </button>
+                                    <button onclick="initiateUPIPayment('paytm')">
+                                        <img src="assets/images/paytm.png" alt="Paytm">
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="payment-details mt-4">
+                                <div class="amount-details">
+                                    <h6>Payment Details</h6>
+                                    <p>Amount: ₹${product.total}</p>
+                                    <p>UPI ID: ${user.upiId || 'Please update UPI ID in profile'}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+
+        // Add modal to body
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        
+        // Show modal
+        const paymentModal = new bootstrap.Modal(document.getElementById('paymentModal'));
+        paymentModal.show();
+    }
+
+    function initiateUPIPayment(app) {
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id');
+        const products = JSON.parse(localStorage.getItem('products') || '[]');
+        const product = products.find(p => p.id == productId);
+
+        // UPI deep linking
+        const upiURL = {
+            gpay: `upi://pay?pa=${currentUser.upiId}&pn=${currentUser.username}&am=${product.total}&cu=INR&tn=INVESTLOOM7X-${productId}`,
+            phonepe: `phonepe://pay?pa=${currentUser.upiId}&pn=${currentUser.username}&am=${product.total}&cu=INR&tn=INVESTLOOM7X-${productId}`,
+            paytm: `paytmmp://pay?pa=${currentUser.upiId}&pn=${currentUser.username}&am=${product.total}&cu=INR&tn=INVESTLOOM7X-${productId}`
+        };
+
+        // Open UPI app
+        window.location.href = upiURL[app];
+
+        // Listen for payment status
+        checkPaymentStatus(product);
+    }
+
+    function checkPaymentStatus(product) {
+        // Show payment processing modal
+        const processingModal = `
+        <div class="modal fade" id="processingModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-body text-center">
+                        <div class="spinner-border text-primary mb-3"></div>
+                        <h5>Processing Payment</h5>
+                        <p>Please complete the payment in your UPI app</p>
+                        <button onclick="confirmPayment('${product.id}')" class="btn btn-primary mt-3">
+                            I have completed the payment
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+
+        document.body.insertAdjacentHTML('beforeend', processingModal);
+        new bootstrap.Modal(document.getElementById('processingModal')).show();
     }
     </script>
 

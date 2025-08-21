@@ -241,12 +241,23 @@ const auth = {
     }
 };
 
-// Add this to your existing auth.js
+// Remove or modify the authentication check
 function checkAuth() {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        window.location.href = 'login.html';
-        return false;
+    // Allow access to profile without login
+    if (window.location.pathname.includes('profile.html')) {
+        return true;
+    }
+    
+    // Only check auth for protected pages
+    const protectedPages = ['details.html', 'admin_dashboard.html'];
+    const currentPage = window.location.pathname.split('/').pop();
+    
+    if (protectedPages.includes(currentPage)) {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = 'login.html';
+            return false;
+        }
     }
     return true;
 }

@@ -29,11 +29,6 @@
         </div>
     </div>
 
-    <!-- Header Area -->
-     <div class="logo-container" style="text-align: center; margin-bottom: 40px;">
-        <img src="assets/images/logo.png" alt="INVESTLOOM7X">
-     </div>
-
     <!-- User Account Info -->
     <div class="container mt-4">
         <div class="user-account-info">
@@ -181,6 +176,22 @@
             <i class="fas fa-sign-out-alt"></i>
             <span>Logout</span>
         </a>
+
+        <!-- Add this to your side navigation -->
+        <script>
+        if (!localStorage.getItem('currentUser')) {
+            document.write(`
+                <a href="signup.html" class="nav-link">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Sign Up</span>
+                </a>
+                <a href="login.html" class="nav-link">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Login</span>
+                </a>
+            `);
+        }
+        </script>
     </div>
 
 
@@ -322,71 +333,14 @@
         }
 
         .side-nav-icon {
-            font-size: 20px;
+            font-size: 10px;
             color: #fff;
             margin-bottom: 5px;
         }
 
         .side-nav-text {
-            font-size: 12px;
+            font-size: 10px;
             color: #fff;
-        }
-
-        /* Mobile Styles */
-        @media (max-width: 991px) {
-            .menu-trigger {
-                display: block;
-            }
-
-            .header-area .nav-links {
-                position: fixed;
-                top: 80px;
-                right: -300px;
-                width: 280px;
-                height: auto;
-                background: rgba(1, 11, 44, 0.95);
-                flex-direction: column;
-                padding: 20px;
-                border-radius: 10px 0 0 10px;
-                box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
-                transition: all 0.3s ease;
-            }
-
-            .header-area .nav-links.active {
-                right: 0;
-            }
-
-            .header-area .nav-links a {
-                padding: 12px 0;
-                width: 100%;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            }
-
-            .header-area .nav-links a:last-child {
-                border-bottom: none;
-            }
-
-            /* Mobile Side Nav */
-            .side-nav {
-                bottom: 0;
-                left: 0;
-                right: 0;
-                top: auto;
-                transform: translateY(100%);
-                display: flex;
-                justify-content: space-around;
-                padding: 10px;
-                border-radius: 10px 10px 0 0;
-            }
-
-            .side-nav.active {
-                transform: translateY(0);
-            }
-
-            .side-nav-item {
-                padding: 10px 5px;
-                flex: 1;
-            }
         }
 
         /* Main Banner Styles */

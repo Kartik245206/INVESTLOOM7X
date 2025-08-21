@@ -294,5 +294,33 @@
       });
     </script>
     <script src="assets/js/navigation.js"></script>
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    
+    if (currentUser) {
+        // Show logged in user's data
+        document.getElementById('username').textContent = currentUser.username;
+        document.getElementById('userBalance').textContent = '₹' + (currentUser.balance || 0);
+        if (currentUser.profilePic) {
+            document.getElementById('profilePic').src = currentUser.profilePic;
+        }
+    } else {
+        // Show guest view
+        document.getElementById('username').textContent = 'Guest User';
+        document.getElementById('userBalance').textContent = '₹0';
+        document.getElementById('profilePic').src = 'assets/images/author.jpg';
+        
+        // Show login/signup buttons
+        document.querySelector('.profile-actions').innerHTML = `
+            <a href="login.html" class="btn btn-primary">Login</a>
+            <a href="signup.html" class="btn btn-secondary">Sign Up</a>
+        `;
+        
+        // Hide sensitive features
+        document.querySelectorAll('.requires-auth').forEach(el => el.style.display = 'none');
+    }
+});
+</script>
 </body>
 </html>

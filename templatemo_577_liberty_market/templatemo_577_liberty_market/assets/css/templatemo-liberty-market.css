@@ -585,17 +585,20 @@ body {
     margin: 0 auto;
 }
 
-.payment-method-btn {
-    background: #f8f9fa;
-    border: 1px solid #e0e0e0;
+.payment-methods {
     padding: 20px;
-    border-radius: 15px;
-    transition: all 0.3s;
+}
+
+.payment-method-btn {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 10px;
-    cursor: pointer;
+    width: 100%;
+    padding: 15px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+    color: #fff;
+    margin-bottom: 10px;
 }
 
 .payment-method-btn:hover {
@@ -606,25 +609,13 @@ body {
 }
 
 .payment-method-btn img {
-    width: 50px;
-    height: 50px;
-    object-fit: contain;
-    transition: all 0.3s;
+    width: 30px;
+    margin-right: 15px;
 }
 
-.payment-method-btn:hover img {
-    transform: scale(1.1);
-}
-
-.payment-method-btn span {
-    font-size: 16px;
-    color: #333;
-    font-weight: 500;
-    transition: all 0.3s;
-}
-
-.payment-method-btn:hover span {
-    color: white;
+.payment-method-btn.active {
+    border-color: #7453fc;
+    background: rgba(116,83,252,0.1);
 }
 
 .qr-code {
