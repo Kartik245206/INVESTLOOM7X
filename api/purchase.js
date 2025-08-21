@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const authMiddleware = require('./auth-middleware');
+const { requireAuth } = require('./auth-middleware');
 const Transaction = require('../models/Transaction');
 const { verifyUPIPayment } = require('../utils/upiVerification');
 
 // Initiate payment
-router.post('/initiate', authMiddleware, async (req, res) => {
+router.post('/initiate', requireAuth, async (req, res) => {
     try {
         const { productId, amount, transactionId, upiId } = req.body;
         
@@ -28,7 +28,7 @@ router.post('/initiate', authMiddleware, async (req, res) => {
 });
 
 // Check payment status
-router.get('/status/:transactionId', authMiddleware, async (req, res) => {
+router.get('/status/:transactionId', requireAuth, async (req, res) => {
     try {
         const { transactionId } = req.params;
         

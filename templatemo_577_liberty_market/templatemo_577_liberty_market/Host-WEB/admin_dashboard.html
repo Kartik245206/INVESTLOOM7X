@@ -32,17 +32,11 @@
     
     <!-- Navigation and Authentication Scripts -->
     <script src="../assets/js/navigation.js"></script>
-    <script src="auth.js"></script>
+    <script src="./adminAuthClient.js"></script>
     <script>
-        // Immediate authentication check
-        if (!localStorage.getItem('adminLoggedIn') || 
-            localStorage.getItem('adminPhone') !== '7417915397') {
-            window.location.replace('admin_Login_page.html');
-        }
-
         // Check authentication when page loads
         document.addEventListener('DOMContentLoaded', function() {
-            if (!auth.checkAdminAuth()) {
+            if (!adminAuth.checkAdminAuth()) {
                 window.location.replace('admin_Login_page.html');
                 return;
             }

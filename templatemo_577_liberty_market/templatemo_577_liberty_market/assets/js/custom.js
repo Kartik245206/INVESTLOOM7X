@@ -549,9 +549,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const menuButton = document.querySelector('.mobile-menu-button');
     const mobileMenu = document.querySelector('.mobile-menu');
     
-    menuButton.addEventListener('click', function() {
-        mobileMenu.classList.toggle('active');
-    });
+    if (menuButton) {
+        menuButton.addEventListener('click', function() {
+            mobileMenu.classList.toggle('active');
+        });
+    }
 
     // Close menu when clicking outside
     document.addEventListener('click', function(e) {
