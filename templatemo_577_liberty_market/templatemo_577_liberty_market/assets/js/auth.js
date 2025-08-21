@@ -240,3 +240,18 @@ const auth = {
         }
     }
 };
+
+// Add this to your existing auth.js
+function checkAuth() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = 'login.html';
+        return false;
+    }
+    return true;
+}
+
+// Add this at the start of each protected page
+document.addEventListener('DOMContentLoaded', function() {
+    checkAuth();
+});

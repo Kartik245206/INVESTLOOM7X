@@ -832,7 +832,7 @@ body {
   }
   
   .logo img {
-    width: 250px;
+    width: 200px;
     margin-bottom: 5px;
   }
 }
@@ -848,7 +848,7 @@ body {
   }
 
   .logo img {
-    width: 150px;
+    width: 100px;
   }
 }
 
@@ -906,37 +906,127 @@ body {
 /* Sidebar Navigation Styles */
 .side-nav {
     position: fixed;
-    top: 0;
     left: 0;
+    top: 0;
+    width: 80px;
     height: 100vh;
-    width: 250px;
-    background: #1d1d1d;
-    padding: 20px;
+    background: #0a1229;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
     z-index: 1000;
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .side-nav a {
-    display: flex;
-    align-items: center;
-    padding: 15px;
+    width: 100%;
+    padding: 15px 0;
+    text-align: center;
     color: #fff;
     text-decoration: none;
-    border-radius: 8px;
-    margin-bottom: 10px;
     transition: all 0.3s ease;
 }
 
-.side-nav a:hover,
-.side-nav a.active {
+.side-nav a:hover {
     background: rgba(116, 83, 252, 0.1);
     color: #7453fc;
 }
 
+.side-nav a.active {
+    background: #7453fc;
+    color: #fff;
+}
+
 .side-nav a i {
-    margin-right: 10px;
-    width: 20px;
+    display: block;
+    font-size: 20px;
+    margin-bottom: 5px;
+}
+
+.side-nav a span {
+    font-size: 12px;
+}
+
+/* Adjust main content margin */
+.main-banner,
+.container {
+    margin-left: 80px;
+}
+
+.currently-market {
+    padding: 30px 0;
+    margin-left: 80px; /* Account for side nav */
+}
+
+.currently-market-item {
+    background: rgba(22, 22, 22, 0.9);
+    border-radius: 20px;
+    padding: 30px;
+    margin: 15px;
+    transition: all 0.3s;
+    min-height: 420px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     text-align: center;
+}
+
+.currently-market-item:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 0 20px rgba(116, 83, 252, 0.2);
+}
+
+.currently-market-item img {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 15px;
+    margin-bottom: 20px;
+}
+
+.currently-market-item h4 {
+    font-size: 20px;
+    margin-bottom: 15px;
+    color: #fff;
+}
+
+.plan-details {
+    margin: 15px 0;
+    color: #7453fc;
+}
+
+.amount-per-day {
+    font-size: 18px;
+    color: #fff;
+    margin: 10px 0;
+}
+
+.duration-info {
+    color: #ccc;
+    margin: 10px 0;
+}
+
+.view-details-btn {
+    background: #7453fc;
+    color: #fff;
+    padding: 12px 30px;
+    border-radius: 25px;
+    text-decoration: none;
+    margin-top: auto;
+    transition: all 0.3s;
+}
+
+.view-details-btn:hover {
+    background: #5b3fcc;
+    color: #fff;
+}
+
+/* Grid layout for products */
+.market-items-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    padding: 0 30px;
 }
 
 

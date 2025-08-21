@@ -84,7 +84,40 @@ document.addEventListener('DOMContentLoaded', function() {
             link.classList.add('active');
         }
     });
+    
+    // Add click handlers for all navigation items
+    document.querySelectorAll('.side-nav a').forEach(link => {
+        link.addEventListener('click', handleNavigation);
+    });
 });
+
+function handleNavigation(e) {
+    e.preventDefault();
+    const route = e.currentTarget.getAttribute('data-route') || e.currentTarget.id;
+
+    switch(route) {
+        case 'Home':
+            window.location.href = 'index.html';
+            break;
+        case 'Profile':
+            window.location.href = 'profile.html';
+            break;
+        case 'Admin':
+            window.location.href = 'Host-WEB/admin_dashboard.html';
+            break;
+        case 'Logout':
+            handleLogout();
+            break;
+        default:
+            console.error('Unknown route:', route);
+    }
+}
+
+function handleLogout() {
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('token');
+    window.location.href = 'login.html';
+}
 
 // Close mobile menu when clicking outside
 document.addEventListener('click', function(event) {
