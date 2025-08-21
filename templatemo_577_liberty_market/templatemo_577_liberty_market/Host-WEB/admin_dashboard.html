@@ -287,6 +287,16 @@
     </style>
 </head>
 <body>
+    <!-- Add this at the start of your body tag -->
+<script src="../assets/js/adminAuth.js"></script>
+<script>
+    // Check admin authentication when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        if (!checkAdminAuth()) {
+            return; // This will redirect to login if not authenticated
+        }
+    });
+</script>
     <div class="d-flex">
         <!-- Sidebar -->
         <nav class="admin-sidebar side-nav" id="adminSidebar">
@@ -986,7 +996,6 @@ function logError(error) {
 
             const modal = new bootstrap.Modal(document.getElementById('editProductModal'));
             document.getElementById('editProductId').value = product.id;
-            document.getElementById('editExistingImage').value = product.image || '';
             document.getElementById('editProductName').value = product.name || '';
             document.getElementById('editProductPlans').value = product.Plans || product.plans || '';
             document.getElementById('editProductEarn').value = product.Earn || product.earn || '';
@@ -1006,422 +1015,365 @@ function logError(error) {
 
         function saveProduct() {
             const form = document.getElementById('addProductForm');
-            if (!form.checkValidity()) {
-                form.reportValidity();
+            const formData = new FormData(form);
+
+            // Basic validation
+            if (!formData.get('name') || !formData.get('price') || !formData.get('image')) {
+                alert('Please fill all required fields');
                 return;
             }
 
-            const imageFile = document.getElementById('productImage').files[0];
-            if (!imageFile) {
-                alert('Please select an image');
-                return;
-            }
-
+            const imageFile = formData.get('image');
             const reader = new FileReader();
-            reader.onload = function(e) {
-                const newProduct = {
-                    id: Date.now(),
+            
+            reader.onload = async function(e) {
+                const productData = {
+                    name: formData.get('name'),
+                    category: formData.get('category'),
+                    price: Number(formData.get('price')),
+                    total: Number(formData.get('total')),
                     image: e.target.result,
-                    name: document.getElementById('productName').value,
-                    Plans: document.getElementById('productPlans').value, // Changed from plans to Plans
-                    Earn: document.getElementById('productEarn').value,
-                    category: document.getElementById('productCategory').value,
-                    price: document.getElementById('productPricePerDay').value,
-                    total: document.getElementById('productTotalAmount').value,
-                    categoryClass: getCategoryClass(document.getElementById('productCategory').value)
+                    Plans: formData.get('category') + ' Plan',
+                    description: formData.get('description') || '',
+                    status: 'active'
                 };
 
-                // Save to server
-                const SECRET = localStorage.getItem('ADMIN_SECRET') || '';
-                fetch(API_BASE + '/api/admin/products', {
-                  method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-secret': SECRET },
-                  body: JSON.stringify({
-                    name: newProduct.name,
-                    image: newProduct.image,
-                    plans: newProduct.Plans,
-                    earn: Number(newProduct.Earn),
-                    category: newProduct.category,
-                    price: Number(newProduct.price),
-                    total: Number(newProduct.total)
-                  })
-                }).then(()=>{
-                  // Refresh products table
-                  loadProductsFromServer();
-                  bootstrap.Modal.getInstance(document.getElementById('addProductModal')).hide();
-                  alert('Product added successfully!');
-                }).catch(e=>alert('Save failed: '+e.message));
+                try {
+                    const response = await fetch('/api/admin/products', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                            'x-admin-secret': localStorage.getItem('ADMIN_SECRET')
+                        },
+                        body: JSON.stringify(productData)
+                    });
 
-                // Reset form
-                form.reset();
-                document.getElementById('imagePreview').classList.add('d-none');
+                    if (!response.ok) throw new Error('Failed to add product');
 
-                // Close handled after server save; avoid duplicate calls
+                    // Close modal and refresh list
+                    bootstrap.Modal.getInstance(document.getElementById('addProductModal')).hide();
+                    await loadProductsFromServer();
+                    alert('Product added successfully!');
+                    form.reset();
+                    document.getElementById('imagePreview').classList.add('d-none');
+
+                } catch (error) {
+                    console.error('Error adding product:', error);
+                    alert('Failed to add product: ' + error.message);
+                }
             };
 
             reader.readAsDataURL(imageFile);
         }
-        let imageData; // Declare imageData in the outer scope
-        function isMongoId(v){ return typeof v === 'string' && /^[a-f0-9]{24}$/i.test(v); }
 
-        async function updateProduct() {
-            try {
-                const productId = document.getElementById('editProductId').value;
-                if (!productId) {
-                    throw new Error('Product ID is missing');
-                }
+        async function deleteProduct(id) {
+    if (!confirm('Are you sure you want to delete this product?')) return;
 
-                const formData = {
-                    name: document.getElementById('editProductName').value,
-                    plans: document.getElementById('editProductPlans').value,
-                    earn: Number(document.getElementById('editProductEarn').value),
-                    category: document.getElementById('editProductCategory').value,
-                    price: Number(document.getElementById('editProductPrice').value),
-                    total: Number(document.getElementById('editProductTotal').value)
-                };
-
-                // Handle image update if a new image is selected
-                const imageInput = document.getElementById('editProductImage');
-                if (imageInput && imageInput.files && imageInput.files[0]) {
-                    const file = imageInput.files[0];
-                    const reader = new FileReader();
-                    
-                    reader.onload = async function(event) {
-                        formData.image = event.target.result; // Base64 encoded image
-                        console.log('Updating product with new image:', productId);
-                        await sendUpdateRequest(productId, formData);
-                    };
-                    
-                    reader.readAsDataURL(file);
-                } else {
-                    console.log('Updating product without changing image:', productId);
-                    console.log('Update data:', formData);
-                    await sendUpdateRequest(productId, formData);
-                }
-            } catch (error) {
-                console.error('Update error:', error);
-                alert('Failed to update product: ' + error.message);
-            }
-        }
-        // Add this function to check admin authentication
-        function getAdminToken() {
-            return localStorage.getItem('adminLoggedIn');
-        }
-
-        async function sendUpdateRequest(productId, formData) {
     try {
-        const SECRET = localStorage.getItem('ADMIN_SECRET');
-        if (!SECRET) throw new Error('Admin authentication required');
+        const response = await fetch(`/api/admin/products/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'x-admin-secret': localStorage.getItem('ADMIN_SECRET')
+            }
+        });
 
-        const response = await fetch(`${API_BASE}/api/products/${productId}`, {
+        if (!response.ok) throw new Error('Failed to delete product');
+
+        await loadProductsFromServer();
+        alert('Product deleted successfully!');
+
+    } catch (error) {
+        console.error('Error deleting product:', error);
+        alert('Failed to delete product: ' + error.message);
+    }
+}
+
+function openEditModal(product) {
+    const modal = new bootstrap.Modal(document.getElementById('editProductModal'));
+    
+    // Fill form fields
+    document.getElementById('editProductId').value = product.id;
+    document.getElementById('editProductName').value = product.name;
+    document.getElementById('editProductCategory').value = product.category;
+    document.getElementById('editProductPrice').value = product.price;
+    document.getElementById('editProductTotal').value = product.total;
+    document.getElementById('editProductPlans').value = product.Plans;
+    
+    // Show current image
+    const preview = document.getElementById('editImagePreview');
+    if (preview && product.image) {
+        preview.src = product.image;
+        preview.style.display = 'block';
+    }
+
+    modal.show();
+}
+
+async function updateProduct() {
+    const productId = document.getElementById('editProductId').value;
+    const formData = new FormData(document.getElementById('editProductForm'));
+    const imageFile = document.getElementById('editProductImage').files[0];
+
+    const productData = {
+        name: formData.get('name'),
+        category: formData.get('category'),
+        price: Number(formData.get('price')),
+        total: Number(formData.get('total')),
+        Plans: formData.get('plans')
+    };
+
+    if (imageFile) {
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            productData.image = e.target.result;
+            await sendUpdateRequest(productId, productData);
+        };
+        reader.readAsDataURL(imageFile);
+    } else {
+        await sendUpdateRequest(productId, productData);
+    }
+}
+
+async function sendUpdateRequest(productId, data) {
+    try {
+        const response = await fetch(`/api/admin/products/${productId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                'x-admin-secret': SECRET
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'x-admin-secret': localStorage.getItem('ADMIN_SECRET')
             },
-            body: JSON.stringify({
-                name: formData.name,
-                plans: formData.plans,
-                earn: Number(formData.earn),
-                category: formData.category,
-                price: Number(formData.price),
-                total: Number(formData.total),
-                image: formData.image
-            })
+            body: JSON.stringify(data)
         });
 
         if (!response.ok) throw new Error('Failed to update product');
-        const result = await response.json();
-        
-        // Refresh the product list
-        loadProductsFromServer();
-        
-        // Close the modal
-        const modal = bootstrap.Modal.getInstance(document.getElementById('editProductModal'));
-        if (modal) modal.hide();
-        
-        return result;
+
+        bootstrap.Modal.getInstance(document.getElementById('editProductModal')).hide();
+        await loadProductsFromServer();
+        alert('Product updated successfully!');
+
     } catch (error) {
-        console.error('Update error:', error);
-        throw error;
+        console.error('Error updating product:', error);
+        alert('Failed to update product: ' + error.message);
     }
-        }
+}
 
-        async function deleteProduct(id) {
-            if (!confirm('Are you sure you want to delete this product? This cannot be undone.')) {
-                return;
+async function loadProductsFromServer() {
+    try {
+        const response = await fetch('/api/admin/products', {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'x-admin-secret': localStorage.getItem('ADMIN_SECRET')
             }
-
-            const SECRET = localStorage.getItem('ADMIN_SECRET') || '';
-            
-            try {
-                const response = await fetch(`${API_BASE}/api/admin/products/${id}`, {
-                    method: 'DELETE',
-                    headers: { 'x-admin-secret': SECRET }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Delete failed');
-                }
-
-                // Refresh products table
-                await loadProductsFromServer();
-                
-                // Refresh main page if open
-                if (window.opener && !window.opener.closed) {
-                    window.opener.location.reload();
-                }
-
-                alert('Product deleted successfully!');
-
-            } catch (error) {
-                alert('Failed to delete product: ' + error.message);
-            }
-        }
-
-        function loadProductsFromServer() {
-            const SECRET = localStorage.getItem('ADMIN_SECRET') || '';
-            fetch(API_BASE + '/api/admin/products', { headers: { 'x-admin-secret': SECRET }})
-              .then(async r=>{
-                if(r.status===401){
-                  alert('Unauthorized: set the correct admin secret.');
-                  ensureAdminSecret();
-                  return { products: [] };
-                }
-                return r.json();
-              })
-              .then(d=>{
-                 const list = (d&&d.products)||[];
-                 if(list.length){
-                   renderProductsTable(list);
-                 } else {
-                   showLocalProductsFallback();
-                 }
-              })
-              .catch(()=>showLocalProductsFallback());
-        }
-
-        function renderProductsTable(products) {
-            const tbody = document.getElementById('productTableBody');
-            
-            if (!tbody) return;
-
-            if(!products.length){
-                tbody.innerHTML = '<tr><td colspan="9" class="text-muted">No products yet. Click "Add New Product" to create one.</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = products.map(product => `
-                <tr>
-                    <td>${product._id || product.id}</td>
-                    <td><img src="${product.image}" alt="${product.name}" style="width: 50px; height: 50px; object-fit: cover;"></td>
-                    <td>${product.planes||product.Plans||''}</td>
-                    <td>${product.earn||product.Earn||''}</td>
-                    <td>${product.name}</td>
-                    <td>${product.category}</td>
-                    <td>₹${product.price}/day</td>
-                    <td>₹${product.total}</td>
-                    <td>
-                        <button class="btn btn-sm btn-warning me-2" onclick='openEditModal(${JSON.stringify({
-                          id: (product._id||product.id),
-                          image: product.image,
-                          name: product.name,
-                          Plans: product.plans||product.Plans||'',
-                          Earn: product.earn||product.Earn||'',
-                          category: product.category,
-                          price: product.price,
-                          total: product.total
-                        })})'>
-                            <i class="bi bi-pencil"></i> Edit
-                        </button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteProduct('${product._id || product.id}')">
-                            <i class="bi bi-trash"></i> Delete
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        // ---------- Local fallback & import ----------
-        function getLocalProducts(){
-          try { return JSON.parse(localStorage.getItem('products')||'[]'); } catch(_) { return []; }
-        }
-
-        function showLocalProductsFallback(){
-          const local = getLocalProducts();
-          const tbody = document.getElementById('productTableBody');
-          if(!tbody) return;
-          if(!local.length){
-            tbody.innerHTML = '<tr><td colspan="9" class="text-muted">No products in database yet. Use "Add New Product" or "Import Local Products" if you previously used local storage.</td></tr>';
-            return;
-          }
-          tbody.innerHTML = local.map(p=>`
-            <tr class="table-warning">
-              <td>${p.id}</td>
-              <td><img src="${p.image}" style="width:50px;height:50px;object-fit:cover"></td>
-              <td>${p.plans||p.Plans||''}</td>
-              <td>${p.Earn||''}</td>
-              <td>${p.name}</td>
-              <td>${p.category||''}</td>
-              <td>₹${p.price||0}/day</td>
-              <td>₹${p.total||0}</td>
-              <td class="d-flex gap-2">
-                <button class="btn btn-sm btn-warning" onclick='openEditModal(${JSON.stringify({
-                  id: String(p.id), image: p.image, name: p.name, Plans: p.plans||p.Plans||'', Earn: p.Earn||'',
-                  category: p.category||'', price: p.price||0, total: p.total||0
-                })})'>Edit</button>
-                <button class="btn btn-sm btn-outline-primary" onclick="importLocalProducts([${p.id}])">Import</button>
-              </td>
-            </tr>
-          `).join('');
-        }
-
-        async function importLocalProducts(onlyIds){
-          const local = getLocalProducts().filter(p=> !onlyIds || onlyIds.includes(p.id));
-          if(!local.length){ alert('No local products found.'); return; }
-          const SECRET = localStorage.getItem('ADMIN_SECRET') || '';
-          let imported = 0;
-          for(const p of local){
-            try{
-              await fetch(API_BASE + '/api/admin/products', {
-                method:'POST', headers:{ 'Content-Type':'application/json','x-admin-secret':SECRET },
-                body: JSON.stringify({
-                  name:p.name, image:p.image, plans:p.plans||p.Plans||'', earn:Number(p.Earn||0),
-                  category:p.category||'', price:Number(p.price||0), total:Number(p.total||0)
-                })
-              });
-              imported++;
-            }catch(_){ /* ignore one-off errors */ }
-          }
-          alert('Imported '+imported+' product(s) to database');
-          loadProductsFromServer();
-        }
-
-        // Add image preview functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('productImage')?.addEventListener('change', function(e) {
-                const preview = document.getElementById('imagePreview');
-                preview.src = URL.createObjectURL(e.target.files[0]);
-                preview.style.display = 'block';
-            });
-
-            document.getElementById('editProductImage')?.addEventListener('change', function(e) {
-                const preview = document.getElementById('editImagePreview');
-                preview.src = URL.createObjectURL(e.target.files[0]);
-            });
         });
 
-        function getSettingsContent() {
-            return `
-                <h2>General Settings</h2>
-                <div class="mt-4">
-                    <div class="mb-3">
-                        <label class="form-label">Site Description</label>
-                        <textarea class="form-control" rows="3"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Contact Email</label>
-                        <input type="email" class="form-control">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Social Media Links</label>
-                        <input type="url" class="form-control mb-2" placeholder="Facebook URL">
-                        <input type="url" class="form-control mb-2" placeholder="Twitter URL">
-                        <input type="url" class="form-control" placeholder="Instagram URL">
-                    </div>
-                    <button class="btn btn-primary">Save Settings</button>
-                </div>
-            `;
-        }
+        if (!response.ok) throw new Error('Failed to load products');
 
-        // Add this to save appearance settings
-        function saveAppearanceSettings() {
-            const logoFile = document.getElementById('logoImage').files[0];
+        const data = await response.json();
+        renderProductsTable(data.products || []);
+
+    } catch (error) {
+        console.error('Error loading products:', error);
+        alert('Failed to load products: ' + error.message);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadProductsFromServer();
+    setupEventListeners();
+});
+
+function setupEventListeners() {
+    // Add Product Button
+    document.querySelector('[data-bs-target="#addProductModal"]').addEventListener('click', function() {
+        resetAddProductForm();
+        const modal = new bootstrap.Modal(document.getElementById('addProductModal'));
+        modal.show();
+    });
+
+    // Image Preview for Add Product
+    document.getElementById('productImage').addEventListener('change', function(e) {
+        const preview = document.getElementById('imagePreview');
+        if (e.target.files && e.target.files[0]) {
             const reader = new FileReader();
-
-            const saveSettings = (logoDataUrl) => {
-                const settings = {
-                    siteTitle: document.getElementById('siteTitle').value,
-                    primaryColor: document.getElementById('primaryColor').value,
-                    fontFamily: document.getElementById('fontFamily').value,
-                    heroTitle: document.getElementById('heroTitle').value,
-                    heroSubtitle: document.getElementById('heroSubtitle').value,
-                    footerText: document.getElementById('footerText').value,
-                    logo: logoDataUrl || (JSON.parse(localStorage.getItem('appearanceSettings')) || {}).logo
-                };
-                localStorage.setItem('appearanceSettings', JSON.stringify(settings));
-                alert('Settings saved!');
-            };
-
-            if (logoFile) {
-                reader.onload = function(e) {
-                    saveSettings(e.target.result);
-                };
-                reader.readAsDataURL(logoFile);
-            } else {
-                const existingSettings = JSON.parse(localStorage.getItem('appearanceSettings'));
-                saveSettings(existingSettings ? existingSettings.logo : null);
+            reader.onload = function(event) {
+                preview.src = event.target.result;
+                preview.classList.remove('d-none');
             }
+            reader.readAsDataURL(e.target.files[0]);
         }
+    });
+}
 
-        // Load saved settings
-        function loadSavedSettings() {
-            const settings = JSON.parse(localStorage.getItem('appearanceSettings'));
-            if (settings) {
-                document.getElementById('siteTitle').value = settings.siteTitle || '';
-                document.getElementById('primaryColor').value = settings.primaryColor || '#007bff';
-                document.getElementById('fontFamily').value = settings.fontFamily || '';
-                document.getElementById('heroTitle').value = settings.heroTitle || '';
-                document.getElementById('heroSubtitle').value = settings.heroSubtitle || '';
-                document.getElementById('footerText').value = settings.footerText || '';
-                if (settings.logo) {
-                    const logoPreview = document.getElementById('logoPreview');
-                    logoPreview.src = settings.logo;
-                    logoPreview.style.display = 'block';
-                }
-            }
+function saveProduct() {
+    const form = document.getElementById('addProductForm');
+    const formData = new FormData(form);
+
+    // Basic validation
+    if (!formData.get('name') || !formData.get('price') || !formData.get('image')) {
+        alert('Please fill all required fields');
+        return;
+    }
+
+    const imageFile = formData.get('image');
+    const reader = new FileReader();
+    
+    reader.onload = async function(e) {
+        const productData = {
+            name: formData.get('name'),
+            category: formData.get('category'),
+            price: Number(formData.get('price')),
+            total: Number(formData.get('total')),
+            image: e.target.result,
+            Plans: formData.get('category') + ' Plan',
+            description: formData.get('description') || '',
+            status: 'active'
+        };
+
+        try {
+            const response = await fetch('/api/admin/products', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    'x-admin-secret': localStorage.getItem('ADMIN_SECRET')
+                },
+                body: JSON.stringify(productData)
+            });
+
+            if (!response.ok) throw new Error('Failed to add product');
+
+            // Close modal and refresh list
+            bootstrap.Modal.getInstance(document.getElementById('addProductModal')).hide();
+            await loadProductsFromServer();
+            alert('Product added successfully!');
+            form.reset();
+            document.getElementById('imagePreview').classList.add('d-none');
+
+        } catch (error) {
+            console.error('Error adding product:', error);
+            alert('Failed to add product: ' + error.message);
         }
+    };
 
-        // Load saved settings on appearance section load
-        document.getElementById('mainContent').addEventListener('DOMSubtreeModified', function() {
-            if (document.getElementById('mainContent').innerHTML.includes('Appearance Settings')) {
-                loadSavedSettings();
-                
-                const logoImageInput = document.getElementById('logoImage');
-                if (logoImageInput) {
-                    logoImageInput.addEventListener('change', function(e) {
-                        const preview = document.getElementById('logoPreview');
-                        if (e.target.files && e.target.files[0]) {
-                            const reader = new FileReader();
-                            reader.onload = function(event) {
-                                preview.src = event.target.result;
-                                preview.style.display = 'block';
-                            }
-                            reader.readAsDataURL(e.target.files[0]);
-                        }
-                    });
-                }
+    reader.readAsDataURL(imageFile);
+}
+
+async function deleteProduct(id) {
+    if (!confirm('Are you sure you want to delete this product?')) return;
+
+    try {
+        const response = await fetch(`/api/admin/products/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'x-admin-secret': localStorage.getItem('ADMIN_SECRET')
             }
         });
 
-        // Add to admin_dashboard.html
-        function logout() {
-            localStorage.removeItem('adminLoggedIn');
-            localStorage.removeItem('appearanceSettings');
-            // Update this path
-            window.location.href = 'admin_Login_page.html';
-        }
+        if (!response.ok) throw new Error('Failed to delete product');
 
-        function addProduct() {
-            saveProduct();
-        }
+        await loadProductsFromServer();
+        alert('Product deleted successfully!');
 
-        document.addEventListener('DOMContentLoaded', function() {
-            loadSection('dashboard');
+    } catch (error) {
+        console.error('Error deleting product:', error);
+        alert('Failed to delete product: ' + error.message);
+    }
+}
+
+function openEditModal(product) {
+    const modal = new bootstrap.Modal(document.getElementById('editProductModal'));
+    
+    // Fill form fields
+    document.getElementById('editProductId').value = product.id;
+    document.getElementById('editProductName').value = product.name;
+    document.getElementById('editProductCategory').value = product.category;
+    document.getElementById('editProductPrice').value = product.price;
+    document.getElementById('editProductTotal').value = product.total;
+    document.getElementById('editProductPlans').value = product.Plans;
+    
+    // Show current image
+    const preview = document.getElementById('editImagePreview');
+    if (preview && product.image) {
+        preview.src = product.image;
+        preview.style.display = 'block';
+    }
+
+    modal.show();
+}
+
+async function updateProduct() {
+    const productId = document.getElementById('editProductId').value;
+    const formData = new FormData(document.getElementById('editProductForm'));
+    const imageFile = document.getElementById('editProductImage').files[0];
+
+    const productData = {
+        name: formData.get('name'),
+        category: formData.get('category'),
+        price: Number(formData.get('price')),
+        total: Number(formData.get('total')),
+        Plans: formData.get('plans')
+    };
+
+    if (imageFile) {
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            productData.image = e.target.result;
+            await sendUpdateRequest(productId, productData);
+        };
+        reader.readAsDataURL(imageFile);
+    } else {
+        await sendUpdateRequest(productId, productData);
+    }
+}
+
+async function sendUpdateRequest(productId, data) {
+    try {
+        const response = await fetch(`/api/admin/products/${productId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'x-admin-secret': localStorage.getItem('ADMIN_SECRET')
+            },
+            body: JSON.stringify(data)
         });
 
-        // minimal helper to avoid errors when saving
-        function getCategoryClass(val){ return val; }
-    </script>
-    <script src="admin.js"></script>
+        if (!response.ok) throw new Error('Failed to update product');
+
+        bootstrap.Modal.getInstance(document.getElementById('editProductModal')).hide();
+        await loadProductsFromServer();
+        alert('Product updated successfully!');
+
+    } catch (error) {
+        console.error('Error updating product:', error);
+        alert('Failed to update product: ' + error.message);
+    }
+}
+
+async function loadProductsFromServer() {
+    try {
+        const response = await fetch('/api/admin/products', {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'x-admin-secret': localStorage.getItem('ADMIN_SECRET')
+            }
+        });
+
+        if (!response.ok) throw new Error('Failed to load products');
+
+        const data = await response.json();
+        renderProductsTable(data.products || []);
+
+    } catch (error) {
+        console.error('Error loading products:', error);
+        alert('Failed to load products: ' + error.message);
+    }
+}
+</script>
+<script src="admin.js"></script>
 </body>
 </html>

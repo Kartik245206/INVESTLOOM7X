@@ -1,46 +1,49 @@
 const express = require('express');
 const router = express.Router();
 const Product = require('../models/Product');
-const auth = require('./middleware/auth'); // protect admin routes if needed
+const authMiddleware = require('./auth-middleware');
 
-// Public: get published products
+// Get all products
 router.get('/', async (req, res) => {
-  try {
-    const products = await Product.find({ status: 'active' }).sort({ createdAt: -1 }).lean();
-    res.json(products);
-  } catch (err) {
-    console.error('Products GET err', err);
-    res.status(500).json({ error: 'Failed to fetch products' });
-  }
+    try {
+        const products = await Product.find({ status: 'active' });
+        res.json({ products });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
-// Admin create/update/delete (protect with auth, add admin check in real app)
-router.post('/', auth, async (req, res) => {
-  try {
-    const p = await Product.create(req.body);
-    res.json(p);
-  } catch (err) {
-    console.error('Products POST err', err);
-    res.status(500).json({ error: 'Create failed' });
-  }
+// Admin routes
+router.post('/', authMiddleware, async (req, res) => {
+    try {
+        const product = new Product(req.body);
+        await product.save();
+        res.status(201).json(product);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
-router.put('/:id', auth, async (req, res) => {
-  try {
-    const updated = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.json(updated);
-  } catch (err) {
-    res.status(500).json({ error: 'Update failed' });
-  }
+router.put('/:id', authMiddleware, async (req, res) => {
+    try {
+        const product = await Product.findByIdAndUpdate(
+            req.params.id, 
+            req.body,
+            { new: true }
+        );
+        res.json(product);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
-router.delete('/:id', auth, async (req, res) => {
-  try {
-    await Product.findByIdAndDelete(req.params.id);
-    res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ error: 'Delete failed' });
-  }
+router.delete('/:id', authMiddleware, async (req, res) => {
+    try {
+        await Product.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Product deleted' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 module.exports = router;

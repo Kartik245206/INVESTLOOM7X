@@ -56,21 +56,22 @@
 <body>
     <div class="container login-container">
         <h2 class="text-center mb-4">Admin Login</h2>
-        <form id="loginForm">
+        <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
             <div class="mb-4">
                 <label class="form-label">Phone Number</label>
-                <input type="tel" class="form-control" id="phone" required>
+                <input type="tel" class="form-control" id="phone" required pattern="[0-9]{10}">
             </div>
             <div class="mb-4">
                 <label class="form-label">Password</label>
                 <input type="password" class="form-control" id="password" required>
             </div>
-            <button type="button" id="adminLoginBtn" class="btn btn-primary w-100">Login</button>
+            <button type="submit" id="adminLoginBtn" class="btn btn-primary w-100">Login</button>
         </form>
     </div>
 
     <div id="errorMessage" class="alert alert-danger"></div>
 
+    <script src="../assets/js/adminAuth.js"></script>
     <script>
         // Admin credentials
         const ADMIN_PHONE = '7417915397';
@@ -91,36 +92,16 @@
             }, 3000);
         }
 
-        function handleAdminLogin() {
-            const phone = document.getElementById('phone').value.trim();
+        function handleAdminLogin(event) {
+            event.preventDefault();
+            const phone = document.getElementById('phone').value;
             const password = document.getElementById('password').value;
-
-            // Clear previous error
-            document.getElementById('errorMessage').style.display = 'none';
-
-            // Validate input format
-            if (!phone || !password) {
-                showError('Please enter both phone number and password');
-                return;
+            
+            if (adminLogin(phone, password)) {
+                // Success - redirect handled in adminLogin function
+            } else {
+                alert('Invalid credentials');
             }
-
-            if (phone !== ADMIN_PHONE) {
-                showError('Invalid phone number');
-                return;
-            }
-
-            if (password !== ADMIN_PASSWORD) {
-                showError('Invalid password');
-                return;
-            }
-
-            // Set admin session data
-            localStorage.setItem('adminLoggedIn', 'true');
-            localStorage.setItem('adminPhone', phone);
-            localStorage.setItem('ADMIN_SECRET', 'liberty_market_admin_' + Date.now());
-
-            // Redirect to dashboard
-            window.location.href = 'admin_dashboard.html';
         }
 
         // Also allow Enter key to submit and attach click handler without inline attributes

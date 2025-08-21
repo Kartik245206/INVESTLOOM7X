@@ -103,7 +103,13 @@ function handleNavigation(e) {
             window.location.href = 'profile.html';
             break;
         case 'Admin':
-            window.location.href = 'Host-WEB/admin_dashboard.html';
+            // Check admin authentication first
+            const isAdminAuthenticated = localStorage.getItem('adminAuthenticated');
+            if (!isAdminAuthenticated) {
+                window.location.href = 'Host-WEB/admin_Login_page.html';
+            } else {
+                window.location.href = 'Host-WEB/admin_dashboard.html';
+            }
             break;
         case 'Logout':
             handleLogout();
@@ -113,9 +119,11 @@ function handleNavigation(e) {
     }
 }
 
+// Add this to your logout function
 function handleLogout() {
     localStorage.removeItem('currentUser');
     localStorage.removeItem('token');
+    localStorage.removeItem('adminAuthenticated'); // Also clear admin authentication
     window.location.href = 'login.html';
 }
 
