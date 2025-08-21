@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Change viewport meta to force desktop view -->
+    <meta name="viewport" content="width=360">
     <title>Product Details - InvestLoom7x</title>
     
     <!-- CSS -->
@@ -30,20 +31,12 @@
                 <a href="index.html" class="logo">
                     <img src="assets/images/logo.png" alt="INVESTLOOM7X">
                 </a>
-                <div class="menu-trigger" id="menuTrigger">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
-                <div class="mobile-menu-overlay" id="mobileMenu">
-                    <div class="menu-items">
-                        <a href="index.html"><i class="fas fa-home"></i> Dashboard</a>
-                        <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
-                        <a href="javascript:void(0)" onclick="showWithdrawModal()">
-                            <i class="fas fa-money-bill-wave"></i> Withdrawal
-                        </a>
-                    </div>
-                </div>
+                <!-- Desktop navigation menu -->
+                <ul class="nav">
+                    <li><a href="index.html">Dashboard</a></li>
+                    <li><a href="profile.html">Profile</a></li>
+                    <li><a href="javascript:void(0)" onclick="showWithdrawModal()">Withdrawal</a></li>
+                </ul>
             </nav>
         </div>
     </header>
