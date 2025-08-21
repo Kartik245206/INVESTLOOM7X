@@ -86,38 +86,6 @@
         </div>
     </div>
 
-    <!-- Deposit Modal -->
-    <div class="modal fade" id="depositModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Add Funds to Wallet</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Amount</label>
-                        <input type="number" class="form-control" id="depositAmount" min="100">
-                        <small class="text-muted">Minimum deposit: ₹100</small>
-                    </div>
-                    <div class="payment-qr text-center">
-                        <img src="assets/images/Gpay-QR.jpg" alt="Payment QR" style="max-width: 200px">
-                        <p class="mt-2">Scan QR code to pay</p>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Transaction ID</label>
-                        <input type="text" class="form-control" id="transactionId" required>
-                        <small class="text-muted">Enter UPI transaction ID after payment</small>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="confirmDeposit()">Confirm Deposit</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Scripts -->
     <script src="vendor/jquery/jquery.min.js"></script>
     <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -173,40 +141,34 @@
                 return;
             }
 
-            // Show confirmation dialog with product details
-            const confirmPurchase = confirm(
-                `Confirm Purchase:\n\n` +
-                `Plan: ${product.name}\n` +
-                `Daily Return: ₹${product.price}/day\n` +
-                `Total Return: ₹${product.total}\n` +
-                `Duration: 100 Days\n\n` +
-                `Your Balance: ₹${currentUser.balance}\n` +
-                `Amount to be deducted: ₹${product.price}`
-            );
+            // API call to backend
+            const response = await fetch('/api/purchase', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify({
+                    productId: product.id,
+                    amount: product.price
+                })
+            });
 
-            if (!confirmPurchase) return;
-
-            if (currentUser.balance < product.price) {
-                alert('Insufficient balance. Please add funds to your wallet.');
-                // Show deposit modal
-                const depositModal = new bootstrap.Modal(document.getElementById('depositModal'));
-                depositModal.show();
-                return;
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Purchase failed');
             }
 
-            // Show loading state
-            const purchaseButton = document.querySelector('.purchase-button button');
-            purchaseButton.disabled = true;
-            purchaseButton.textContent = 'Processing...';
+            const result = await response.json();
 
-            // Process purchase
-            currentUser.balance -= product.price;
+            // Update local storage with new balance
+            currentUser.balance = result.newBalance;
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
 
             // Add to purchases
             const purchases = JSON.parse(localStorage.getItem('purchases') || '[]');
-            const purchase = {
-                id: 'PUR_' + Date.now(),
+            purchases.push({
+                id: result.purchaseId || 'PUR_' + Date.now(),
                 productId: product.id,
                 productName: product.name,
                 purchaseDate: new Date().toISOString(),
@@ -215,64 +177,15 @@
                 daysRemaining: 100,
                 status: 'active',
                 dailyReturns: []
-            };
-            purchases.push(purchase);
+            });
             localStorage.setItem('purchases', JSON.stringify(purchases));
 
-            // Show success message
-            alert(`
-                Purchase Successful!\n
-                Your investment plan is now active.\n
-                Daily returns will be credited to your wallet.\n
-                View your investments in the Profile section.
-            `);
-
-            // Redirect to profile
-            window.location.href = 'profile.html#investments';
+            alert('Purchase successful! Check your profile for investment details.');
+            window.location.href = 'profile.html';
 
         } catch (error) {
             console.error('Purchase error:', error);
-            alert('Purchase failed. Please try again.');
-            // Reset button state
-            const purchaseButton = document.querySelector('.purchase-button button');
-            purchaseButton.disabled = false;
-            purchaseButton.textContent = 'Purchase Now';
-        }
-    }
-
-    async function confirmDeposit() {
-        const amount = document.getElementById('depositAmount').value;
-        const transactionId = document.getElementById('transactionId').value;
-
-        if (!amount || amount < 100) {
-            alert('Please enter a valid amount (minimum ₹100)');
-            return;
-        }
-
-        if (!transactionId) {
-            alert('Please enter transaction ID');
-            return;
-        }
-
-        try {
-            // In real app, verify payment with backend
-            // For demo, directly update balance
-            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-            currentUser.balance = (parseFloat(currentUser.balance) || 0) + parseFloat(amount);
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-
-            // Close modal
-            const depositModal = bootstrap.Modal.getInstance(document.getElementById('depositModal'));
-            depositModal.hide();
-
-            // Show success message
-            alert(`₹${amount} added to your wallet successfully!`);
-            
-            // Refresh page to update balance display
-            window.location.reload();
-
-        } catch (error) {
-            alert('Deposit failed. Please try again.');
+            alert(error.message || 'Purchase failed. Please try again.');
         }
     }
     </script>

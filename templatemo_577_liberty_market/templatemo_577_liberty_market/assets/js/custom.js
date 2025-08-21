@@ -544,6 +544,23 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// Mobile Menu Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const menuButton = document.querySelector('.mobile-menu-button');
+    const mobileMenu = document.querySelector('.mobile-menu');
+    
+    menuButton.addEventListener('click', function() {
+        mobileMenu.classList.toggle('active');
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!mobileMenu.contains(e.target) && !menuButton.contains(e.target)) {
+            mobileMenu.classList.remove('active');
+        }
+    });
+});
+
 // Menu functions
 function showWithdrawModal() {
     const withdrawModal = new bootstrap.Modal(document.getElementById('withdrawModal'));
