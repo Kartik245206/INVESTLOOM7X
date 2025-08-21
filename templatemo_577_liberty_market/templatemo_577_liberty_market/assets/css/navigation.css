@@ -176,21 +176,34 @@
 
     /* Mobile Menu Overlay */
     .mobile-menu-overlay {
+        display: none; 
         position: fixed;
-        top: 0;
-        right: -300px;
-        width: 300px;
-        height: 100vh;
-        background: #1d1d1d;
-        z-index: 999;
-        transition: 0.3s;
-        padding: 80px 20px 20px;
+        top: 60px; /* header ke niche */
+        right: 0;
+        width: 250px;
+        background: rgba(1, 11, 44, 0.95);
+        flex-direction: column;
+        padding: 15px;
+        border-radius: 8px 0 0 8px;
         box-shadow: -5px 0 15px rgba(0,0,0,0.3);
+        z-index: 999;
     }
 
     .mobile-menu-overlay.active {
-        right: 0;
+        display: flex;  /* click karne ke baad show hoga */
     }
+
+    .mobile-menu-overlay .menu-items a {
+        color: #fff;
+        padding: 12px 10px;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        text-decoration: none;
+    }
+
+    .mobile-menu-overlay .menu-items a:last-child {
+        border-bottom: none;
+    }
+
 
     .menu-items {
         display: flex;
