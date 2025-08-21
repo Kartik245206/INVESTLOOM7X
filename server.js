@@ -56,8 +56,18 @@ console.log('Directory exists:', require('fs').existsSync(VIEWS_DIR));
         app.use(express.json({ limit: '50mb' }));
         app.use(express.urlencoded({ extended: true }));
         app.use(cors());
-        app.use(helmet());
+        app.use(helmet({
+            contentSecurityPolicy: false,  // For development only
+        }));
         app.use(cookieParser());
+
+        // Serve static files from the template directory
+        app.use(express.static(path.join(__dirname, 'templatemo_577_liberty_market', 'templatemo_577_liberty_market')));
+
+        // Add route for root path
+        app.get('/', (req, res) => {
+            res.sendFile(path.join(VIEWS_DIR, 'index.html'));
+        });
 
         // API routes
         app.use('/api/auth', require('./api/auth'));
@@ -65,6 +75,16 @@ console.log('Directory exists:', require('fs').existsSync(VIEWS_DIR));
         app.use('/api/purchase', require('./api/purchase'));
         app.use('/api/transactions', require('./api/transactions'));
         app.use('/api/withdraw', require('./api/withdraw'));
+
+        // Handle 404 for API routes
+        app.use('/api/*', (req, res) => {
+            res.status(404).json({ error: 'API endpoint not found' });
+        });
+
+        // Handle all other routes by serving index.html
+        app.get('*', (req, res) => {
+            res.sendFile(path.join(VIEWS_DIR, 'index.html'));
+        });
 
         app.listen(PORT, () => {
             console.log(`Server running on port ${PORT}`);
