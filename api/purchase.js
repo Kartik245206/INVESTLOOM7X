@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const { requireAuth } = require('./auth-middleware');
-const Transaction = require('../models/Transaction');
-const { verifyUPIPayment } = require('../utils/upiVerification');
+const authMiddleware = require('./auth-middleware');
+const Transaction = require('../models/Transaction'); // Fix path
+const Product = require('../models/Product');
+const User = require('../models/User');
 
 // Initiate payment
-router.post('/initiate', requireAuth, async (req, res) => {
+router.post('/initiate', authMiddleware.requireAuth, async (req, res) => {
     try {
         const { productId, amount, transactionId, upiId } = req.body;
         
@@ -28,7 +29,7 @@ router.post('/initiate', requireAuth, async (req, res) => {
 });
 
 // Check payment status
-router.get('/status/:transactionId', requireAuth, async (req, res) => {
+router.get('/status/:transactionId', authMiddleware.requireAuth, async (req, res) => {
     try {
         const { transactionId } = req.params;
         
