@@ -832,7 +832,7 @@ body {
   }
   
   .logo img {
-    width: 200px;
+    width: 250px;
     margin-bottom: 5px;
   }
 }
@@ -903,33 +903,42 @@ body {
   pointer-events: none;
 }
 
-/* Remove these mobile-specific media queries and styles */
-.mobile-menu,
-.mobile-menu-button,
-.mobile-menu-overlay,
-.menu-trigger {
-    display: none !important;
+/* Sidebar Navigation Styles */
+.side-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 250px;
+    background: #1d1d1d;
+    padding: 20px;
+    z-index: 1000;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Keep desktop navigation always visible */
-.main-nav {
-    display: flex !important;
+.side-nav a {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
 }
 
-/* Force desktop layout */
-@media screen and (max-width: 991px) {
-    .header-area .main-nav {
-        background: transparent;
-        display: flex !important;
-        padding: 0px;
-        position: fixed;
-    }
-
-    .header-area .main-nav .logo {
-        display: flex !important;
-    }
-
-    .main-banner {
-        padding-top: 150px;
-    }
+.side-nav a:hover,
+.side-nav a.active {
+    background: rgba(116, 83, 252, 0.1);
+    color: #7453fc;
 }
+
+.side-nav a i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+}
+
+
+
+

@@ -30,6 +30,60 @@ document.addEventListener('DOMContentLoaded', function() {
             item.classList.add('active');
         }
     });
+
+    const sideNavLinks = document.querySelectorAll('.side-nav a');
+    
+    sideNavLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Remove active class from all links
+            sideNavLinks.forEach(l => l.classList.remove('active'));
+            
+            // Add active class to clicked link
+            this.classList.add('active');
+            
+            // Get the route from data attribute
+            const route = this.getAttribute('data-route');
+            
+            // Handle navigation based on route
+            switch(route) {
+                case 'dashboard':
+                    window.location.href = 'index.html';
+                    break;
+                case 'profile':
+                    window.location.href = 'profile.html';
+                    break;
+                case 'admin':
+                    window.location.href = 'Host-WEB/admin_dashboard.html';
+                    break;
+                case 'logout':
+                    handleLogout();
+                    break;
+                default:
+                    console.error('Unknown route:', route);
+            }
+        });
+    });
+    
+    // Logout handler
+    function handleLogout() {
+        // Clear user session
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('token');
+        
+        // Redirect to login page
+        window.location.href = 'login.html';
+    }
+    
+    // Set active link based on current page
+    const currentPage = window.location.pathname.split('/').pop();
+    sideNavLinks.forEach(link => {
+        const route = link.getAttribute('data-route');
+        if (currentPage.includes(route)) {
+            link.classList.add('active');
+        }
+    });
 });
 
 // Close mobile menu when clicking outside

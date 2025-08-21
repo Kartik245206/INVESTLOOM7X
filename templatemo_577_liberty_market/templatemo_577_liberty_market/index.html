@@ -30,22 +30,9 @@
     </div>
 
     <!-- Header Area -->
-    <header class="header-area">
-        <div class="container">
-            <nav class="main-nav">
-                <!-- Logo -->
-                <a href="index.html" class="logo">
-                    <img src="assets/images/logo.png" alt="INVESTLOOM7X">
-                </a>
-
-                <ul class="nav">
-                    <li><a href="index.html" class="active">Dashboard</a></li>
-                    <li><a href="profile.html">Profile</a></li>
-                    <li><a href="javascript:void(0)" onclick="showWithdrawModal()">Withdrawal</a></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
+     <div class="logo-container" style="text-align: center; margin-bottom: 90px;">
+        <img src="assets/images/logo.png" alt="INVESTLOOM7X">
+     </div>
 
     <!-- User Account Info -->
     <div class="container mt-4">
@@ -1264,207 +1251,107 @@
 
 
 
+    <!-- Move modals here, before closing body tag -->
+    <!-- Withdrawal Modal -->
+    <div class="modal fade" id="withdrawModal" tabindex="-1" aria-labelledby="withdrawModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="withdrawModalLabel">Withdraw Money</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="withdrawAmount" class="form-label">Enter Amount (₹)</label>
+                        <input type="number" class="form-control" id="withdrawAmount" min="500" step="100" required>
+                        <small class="text-muted">Minimum withdrawal amount: ₹500</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="upiId" class="form-label">Your UPI ID</label>
+                        <input type="text" class="form-control" id="upiId" placeholder="example@upi" required>
+                        <small class="text-muted">Enter your registered UPI ID</small>
+                    </div>
+
+                    <div id="withdrawalStatus" class="alert d-none">
+                        <!-- Status messages will appear here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="initiateWithdrawal()">Withdraw</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deposit Modal -->
+    <div class="modal fade" id="depositModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Deposit Funds</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="depositForm">
+                        <div class="mb-3">
+                            <label class="form-label">Amount to Deposit (₹)</label>
+                            <input type="number" class="form-control" id="depositAmount" min="100" required>
+                            <small class="text-muted">Minimum deposit: ₹100</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Payment Method</label>
+                            <div class="payment-methods">
+                                <div class="form-check">
+                                    <input type="radio" class="form-check-input" name="payMethod" value="upi" checked>
+                                    <label class="form-check-label">
+                                        <img src="assets/images/gpay.png" height="30"> UPI
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="radio" class="form-check-input" name="payMethod" value="bank">
+                                    <label class="form-check-label">
+                                        <i class="fas fa-university"></i> Bank Transfer
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Company Payment Details -->
+                        <div id="companyUpiDetails">
+                            <div class="text-center mb-3">
+                                <img src="assets/images/Gpay-QR.jpg" alt="UPI QR" style="max-width: 200px">
+                                <p class="mt-2">UPI ID: your@upi</p>
+                            </div>
+                        </div>
+                        <div id="companyBankDetails" style="display:none">
+                            <div class="bank-details">
+                                <p><strong>Bank:</strong> Your Bank Name</p>
+                                <p><strong>A/C:</strong> Your Account Number</p>
+                                <p><strong>IFSC:</strong> Your IFSC Code</p>
+                            </div>
+                        </div>
+                        <!-- Transaction Reference -->
+                        <div class="mb-3">
+                            <label class="form-label">Transaction Reference/UTR</label>
+                            <input type="text" class="form-control" id="transactionRef" required>
+                            <small class="text-muted">Enter UPI reference number or bank transaction ID</small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="processDeposit()">Confirm Deposit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- All scripts should be here -->
+    <script src="assets/js/navigation.js"></script>
 </body>
 </html>
-
-<!-- Withdrawal Modal -->
-<div class="modal fade" id="withdrawModal" tabindex="-1" aria-labelledby="withdrawModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered"></div>
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="withdrawModalLabel">Withdraw Money</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label for="withdrawAmount" class="form-label">Enter Amount (₹)</label>
-                    <input type="number" class="form-control" id="withdrawAmount" min="500" step="100" required>
-                    <small class="text-muted">Minimum withdrawal amount: ₹500</small>
-                </div>
-
-                <div class="mb-3">
-                    <label for="upiId" class="form-label">Your UPI ID</label>
-                    <input type="text" class="form-control" id="upiId" placeholder="example@upi" required>
-                    <small class="text-muted">Enter your registered UPI ID</small>
-                </div>
-
-                <div id="withdrawalStatus" class="alert d-none">
-                    <!-- Status messages will appear here -->
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" onclick="initiateWithdrawal()">Withdraw</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    function handleWithdrawal() {
-        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-        if (!currentUser) {
-            alert('Please login to withdraw money');
-            window.location.href = 'login.html';
-            return;
-        }
-
-        // Store current balance in session for withdrawal page
-        sessionStorage.setItem('withdrawAmount', currentUser.balance);
-
-        // Redirect to profile page withdrawal section
-        window.location.href = 'profile.html#withdraw';
-    }
-
-    async function initiateWithdrawal() {
-        const withdrawAmount = parseFloat(document.getElementById('withdrawAmount').value);
-        const upiId = document.getElementById('upiId').value;
-        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-        const statusDiv = document.getElementById('withdrawalStatus');
-
-        // Reset status
-        statusDiv.className = 'alert';
-
-        // Validation checks
-        if (!withdrawAmount || withdrawAmount < 500) {
-            statusDiv.className = 'alert alert-danger';
-            statusDiv.textContent = 'Minimum withdrawal amount is ₹500';
-            statusDiv.classList.remove('d-none');
-            return;
-        }
-
-        if (!upiId || !upiId.includes('@')) {
-            statusDiv.className = 'alert alert-danger';
-            statusDiv.textContent = 'Please enter a valid UPI ID';
-            statusDiv.classList.remove('d-none');
-            return;
-        }
-
-        if (withdrawAmount > currentUser.balance) {
-            statusDiv.className = 'alert alert-danger';
-            statusDiv.textContent = 'Insufficient balance';
-            statusDiv.classList.remove('d-none');
-            return;
-        }
-
-        try {
-            statusDiv.className = 'alert alert-info';
-            statusDiv.textContent = 'Processing withdrawal request...';
-            statusDiv.classList.remove('d-none');
-
-            // Call withdrawal API
-            const response = await fetch('http://localhost:3000/api/withdraw', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    userId: currentUser.id || currentUser._id,
-                    amount: withdrawAmount,
-                    upiId: upiId,
-                    timestamp: new Date().toISOString()
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error('Withdrawal failed');
-            }
-
-            const result = await response.json();
-
-            if (result.success) {
-                // Update local balance
-                currentUser.balance -= withdrawAmount;
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-
-                // Update UI
-                const userBalanceAmount = document.getElementById('userBalanceAmount');
-                if (userBalanceAmount) {
-                    userBalanceAmount.textContent = '₹' + currentUser.balance;
-                }
-
-                statusDiv.className = 'alert alert-success';
-                statusDiv.textContent = 'Withdrawal successful! Amount will be credited to your UPI ID shortly.';
-
-                // Close modal after 3 seconds
-                setTimeout(() => {
-                    $('#withdrawModal').modal('hide');
-                    // Refresh user stats
-                    updateUserBalance();
-                }, 3000);
-            } else {
-                throw new Error(result.message || 'Withdrawal failed');
-            }
-        } catch (error) {
-            statusDiv.className = 'alert alert-danger';
-            statusDiv.textContent = error.message || 'An error occurred during withdrawal';
-        }
-    }
-</script>
-
-
-
-<!-- Add Deposit Modal -->
-<div class="modal fade" id="depositModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Deposit Funds</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="depositForm">
-                    <div class="mb-3">
-                        <label class="form-label">Amount to Deposit (₹)</label>
-                        <input type="number" class="form-control" id="depositAmount" min="100" required>
-                        <small class="text-muted">Minimum deposit: ₹100</small>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Payment Method</label>
-                        <div class="payment-methods">
-                            <div class="form-check">
-                                <input type="radio" class="form-check-input" name="payMethod" value="upi" checked>
-                                <label class="form-check-label">
-                                    <img src="assets/images/gpay.png" height="30"> UPI
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input type="radio" class="form-check-input" name="payMethod" value="bank">
-                                <label class="form-check-label">
-                                    <i class="fas fa-university"></i> Bank Transfer
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Company Payment Details -->
-                    <div id="companyUpiDetails">
-                        <div class="text-center mb-3">
-                            <img src="assets/images/Gpay-QR.jpg" alt="UPI QR" style="max-width: 200px">
-                            <p class="mt-2">UPI ID: your@upi</p>
-                        </div>
-                    </div>
-                    <div id="companyBankDetails" style="display:none">
-                        <div class="bank-details">
-                            <p><strong>Bank:</strong> Your Bank Name</p>
-                            <p><strong>A/C:</strong> Your Account Number</p>
-                            <p><strong>IFSC:</strong> Your IFSC Code</p>
-                        </div>
-                    </div>
-                    <!-- Transaction Reference -->
-                    <div class="mb-3">
-                        <label class="form-label">Transaction Reference/UTR</label>
-                        <input type="text" class="form-control" id="transactionRef" required>
-                        <small class="text-muted">Enter UPI reference number or bank transaction ID</small>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" onclick="processDeposit()">Confirm Deposit</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 
 
