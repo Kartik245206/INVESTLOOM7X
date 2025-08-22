@@ -15,7 +15,6 @@
 </head>
 
 <body>
-    <!-- Common JavaScript Functions will be loaded after jQuery -->
 
     <!-- ***** Preloader Start ***** -->
     <div id="js-preloader" class="js-preloader">
@@ -489,7 +488,7 @@
         .currently-market-items {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
+            gap: 15px;  /* Reduced from 25px or 30px to 15px */
             padding: 20px 0;
         }
 
@@ -997,11 +996,11 @@
             if (productContainer) {
                 if (isMobile) {
                     productContainer.style.gridTemplateColumns = '1fr';
-                    productContainer.style.gap = '15px';
+                    productContainer.style.gap = '10px';  /* Reduced from 15px to 10px for mobile */
                     productContainer.style.padding = '0 10px';
                 } else {
-                    productContainer.style.gridTemplateColumns = 'repeat(auto-fit, minmax(400px, 1fr))';
-                    productContainer.style.gap = '30px';
+                    productContainer.style.gridTemplateColumns = 'repeat(auto-fit, minmax(300px, 1fr))';  /* Reduced from 400px to 300px */
+                    productContainer.style.gap = '15px';  /* Reduced from 30px to 15px for desktop */
                     productContainer.style.padding = '0';
                 }
             }
@@ -1010,105 +1009,69 @@
         // Listen for window resize
         window.addEventListener('resize', handleResponsiveLayout);
 
+        function loadProducts() {
+            // Cache DOM selection
+            const container = document.getElementById('productContainer');
+            if (!container) return;
 
+            // Get products from localStorage
+            let products;
+            try {
+                products = JSON.parse(localStorage.getItem('products') || '[]');
+            } catch (e) {
+                console.error('Error parsing products:', e);
+                products = [];
+            }
 
-    function loadProducts() {
-        const container = document.querySelector('.row.currently-market-items');
-        if (!container) return;
+            // Create document fragment for better performance
+            const fragment = document.createDocumentFragment();
 
-        // Get products from localStorage
-        let products = JSON.parse(localStorage.getItem('products') || '[]');
+            // Sort products once before mapping
+            products.sort((a, b) => a.id - b.id);
 
-        // Map products to display format
-        products = products.map(p => ({
-            id: p._id || p.id,
-            image: p.image || 'assets/images/market-01.jpg',
-            name: p.name,
-            Plans: p.plans || p.Plans || '',
-            price: p.price || p.pricePerDay || '0',
-            total: p.total || p.totalAmount || '0',
-            category: p.category || '',
-            categoryClass: getCategoryClass(p.category)
-        }));
-
-        container.innerHTML = '';
-
-        // Sort products by ID to maintain consistent order
-        products.sort((a, b) => a.id - b.id);
-
-        products.forEach(product => {
-            const html = `
-            <div class="col-lg-3 col-md-6 col-sm-12 currently-market-item">
-                <div class="item">
-                    <div class="left-image">
-                        <img src="${product.image}" alt="${product.name}">
-                    </div>
-                    <div class="right-content">
-                        <h4>${product.name}</h4>
-                        <span class="author"><h6>${product.Plans || ''}</h6></span>
-                        <div class="line-dec"></div>
-                        <span class="bid">
-                            Amount/Day<br>
-                            <strong>₹${product.price}/day</strong><br>
-                            <em>(₹${product.total})</em>
-                        </span>
-                        <span class="ends">Ends In<br><strong>100 Days</strong></span>
-                        <div class="text-button">
-                            <a href="details.html?id=${product.id}">View Details</a>
+            products.forEach(product => {
+                const productDiv = document.createElement('div');
+                productDiv.className = 'col-lg-3 col-md-6 col-sm-12 currently-market-item';
+                
+                productDiv.innerHTML = `
+                    <div class="item">
+                        <div class="left-image">
+                            <img src="${product.image || 'assets/images/market-01.jpg'}" alt="${product.name}" loading="lazy">
+                        </div>
+                        <div class="right-content">
+                            <h4>${product.name}</h4>
+                            <span class="author"><h6>${product.Plans || ''}</h6></span>
+                            <div class="line-dec"></div>
+                            <span class="bid">
+                                Amount/Day<br>
+                                <strong>₹${product.price}/day</strong><br>
+                                <em>(₹${product.total})</em>
+                            </span>
+                            <span class="ends">Ends In<br><strong>100 Days</strong></span>
+                            <div class="text-button">
+                                <a href="details.html?id=${product.id}">View Details</a>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        `;
-            container.insertAdjacentHTML('beforeend', html);
-        });
-    }
-
-    function getCategoryClass(category) {
-        switch (category?.toLowerCase()) {
-            case 'room': return 'room';
-            case 'apartment': return 'apartment';
-            case 'house': return 'house';
-            case 'villa': return 'villa';
-            default: return '';
-        }
-    }
-
-    // Initial load
-
-        loadProducts();
-
-        // Listen for changes
-        window.addEventListener('storage', function (e) {
-            if (e.key === 'products' || e.key === 'productsUpdated') {
-                loadProducts();
-            }
-        });
-
-        // Refresh products every 30 seconds to catch any updates
-        setInterval(loadProducts, 30000);
-
-    // Add event listener for DOM content loaded to set up filters
-    document.addEventListener('DOMContentLoaded', function () {
-        // Initial load of products
-        loadProducts();
-
-        // Category filter clicks
-        document.querySelectorAll('.filters ul li').forEach(button => {
-            button.addEventListener('click', function () {
-                const filterValue = this.getAttribute('data-filter');
-                const items = document.querySelectorAll('.currently-market-item');
-
-                items.forEach(item => {
-                    if (filterValue === '*' || item.classList.contains(filterValue.substring(1))) {
-                        item.style.display = 'block';
-                    } else {
-                        item.style.display = 'none';
-                    }
-                });
+                `;
+                
+                fragment.appendChild(productDiv);
             });
+
+            // Clear and update container in one operation
+            container.innerHTML = '';
+            container.appendChild(fragment);
+        }
+
+        // Add this to improve initial load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load products immediately
+            loadProducts();
+            
+            // Then refresh every 30 seconds
+            setInterval(loadProducts, 30000);
         });
-    });
+
     </script>
 
     <!-- Bootstrap JS Bundle (includes Popper) -->
