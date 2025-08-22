@@ -209,38 +209,81 @@
             async function loadProducts() {
                 try {
                     const response = await fetch('/api/products');
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
                     const data = await response.json();
+                    console.log('Products data:', data); // Debug log
+                    
                     const productContainer = document.getElementById('productContainer');
+                    if (!productContainer) {
+                        console.error('Product container not found!');
+                        return;
+                    }
                     
                     if (data.products && data.products.length > 0) {
-                        productContainer.innerHTML = data.products.map(product => `
-                            <div class="col-lg-4">
+                        const productsHTML = data.products.map(product => `
+                            <div class="col-lg-4 mb-4">
                                 <div class="item">
-                                    <div class="card">
-                                        <img src="${product.image || 'assets/images/default-product.jpg'}" alt="${product.name}">
-                                        <h4>${product.name}</h4>
-                                        <p>${product.description}</p>
-                                        <div class="price">
-                                            <span>₹${product.price}</span>
+                                    <div class="card h-100">
+                                        <img src="${product.image || 'assets/images/default-product.jpg'}" 
+                                             alt="${product.name}" 
+                                             class="card-img-top">
+                                        <div class="card-body">
+                                            <h4 class="card-title">${product.name}</h4>
+                                            <p class="card-text">${product.description || ''}</p>
+                                            <div class="price mb-3">
+                                                <span class="amount">₹${product.price}</span>
+                                            </div>
+                                            <button class="btn btn-primary w-100" 
+                                                    onclick="handlePurchase('${product._id}')">
+                                                Buy Now
+                                            </button>
                                         </div>
-
-                                        <button class="btn btn-primary" onclick="handlePurchase('${product._id}')">Buy Now</button>
                                     </div>
                                 </div>
                             </div>
                         `).join('');
+                        productContainer.innerHTML = productsHTML;
                     } else {
-                        productContainer.innerHTML = '<div class="col-12 text-center"><h3>No products available</h3></div>';
+                        productContainer.innerHTML = `
+                            <div class="col-12 text-center">
+                                <div class="alert alert-info">
+                                    <h3>No products available at the moment</h3>
+                                    <p>Please check back later for new products</p>
+                                </div>
+                            </div>`;
                     }
                 } catch (error) {
                     console.error('Error loading products:', error);
-                    document.getElementById('productContainer').innerHTML = 
-                        '<div class="col-12 text-center"><h3>Error loading products</h3></div>';
+                    const productContainer = document.getElementById('productContainer');
+                    if (productContainer) {
+                        productContainer.innerHTML = `
+                            <div class="col-12 text-center">
+                                <div class="alert alert-danger">
+                                    <h3>Error loading products</h3>
+                                    <p>Please try refreshing the page</p>
+                                </div>
+                            </div>`;
+                    }
                 }
             }
 
+            // Function to handle purchase
+            function handlePurchase(productId) {
+                if (!localStorage.getItem('currentUser')) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                // Implement purchase logic here
+                console.log('Purchase initiated for product:', productId);
+            }
+
             // Load products when page loads
-            document.addEventListener('DOMContentLoaded', loadProducts);
+            document.addEventListener('DOMContentLoaded', () => {
+                console.log('DOM loaded, fetching products...'); // Debug log
+                loadProducts();
+            });
             </script>
                 <div class="col-lg-4 align-self-center">
                     <div class="header-text">

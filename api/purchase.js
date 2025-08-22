@@ -3,6 +3,7 @@ const router = express.Router();
 const authMiddleware = require('./auth-middleware');
 const Transaction = require('../models/Transaction');
 const { verifyUPIPayment } = require('../utils/upiVerification');
+const purchaseController = require('./controllers/purchaseController'); // should export a function
 
 // Initiate payment
 router.post('/initiate', authMiddleware, async (req, res) => {
@@ -61,5 +62,7 @@ router.get('/status/:transactionId', authMiddleware, async (req, res) => {
         res.status(500).json({ error: 'Failed to check payment status' });
     }
 });
+
+router.post('/purchase', purchaseController.handlePurchase); // handlePurchase should be a function
 
 module.exports = router;
