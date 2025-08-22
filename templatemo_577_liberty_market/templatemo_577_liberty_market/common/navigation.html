@@ -1,11 +1,6 @@
 <!-- Common Navigation Template -->
 <!-- ***** Header Area Start ***** -->
 <header class="header-area header-sticky">
-    <div class="menu-trigger" onclick="toggleMobileMenu()">
-        <span></span>
-        <span></span>
-        <span></span>
-    </div>
     <div class="container">
         <div class="row">
             <div class="col-12">
@@ -18,16 +13,10 @@
                     </div>
                     <!-- ***** Logo End ***** -->
                     
-                    <!-- ***** Menu Start ***** -->
-                    <ul class="nav">
-                        <li><a href="index.html">Home</a></li>
-                        <li><a href="profile.html">Profile</a></li>
-                        <li><a href="explore.html">Explore</a></li>
-                        <li><a href="create.html">Create Yours</a></li>
-                        <li><a href="Host-WEB/admin_Login_page.html">Admin</a></li>
-                        <li><a href="#" onclick="auth.logout()">Logout</a></li>
-                    </ul>
-                    <!-- ***** Menu End ***** -->
+                    <div class="user-balance-info" style="margin-left: auto; text-align: right;">
+                        <div class="balance-amount" id="userBalanceAmount" style="color: #fff; font-size: 18px; font-weight: 600;">₹0.00</div>
+                        <div class="balance-label" style="color: #ccc; font-size: 12px;">Available Balance</div>
+                    </div>
                 </nav>
             </div>
         </div>
