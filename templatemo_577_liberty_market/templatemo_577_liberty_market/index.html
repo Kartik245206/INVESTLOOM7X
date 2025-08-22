@@ -163,41 +163,90 @@
             <i class="fas fa-home"></i>
             <span>Home</span>
         </a>
-        <a href="#" id="Profile" class="nav-link">
-            <i class="fas fa-user"></i>
-            <span>Profile</span>
-        </a>
-        <a href="#" id="Admin" class="nav-link">
-            <i class="fas fa-cog"></i>
-            <span>Admin</span>
-        </a>
-        <a href="#" id="Logout" class="nav-link">
-            <i class="fas fa-sign-out-alt"></i>
-            <span>Logout</span>
-        </a>
+        <div id="authNav"></div>
+    </div>
 
-        <!-- Add this to your side navigation -->
-        <script>
-        if (!localStorage.getItem('currentUser')) {
-            document.write(`
-                <a href="signup.html" class="nav-link">
-                    <i class="fas fa-user-plus"></i>
-                    <span>Sign Up</span>
+    <script>
+    function updateNavigation() {
+        const authNav = document.getElementById('authNav');
+        const currentUser = localStorage.getItem('currentUser');
+
+        if (currentUser) {
+            authNav.innerHTML = `
+                <a href="#" id="Profile" class="nav-link">
+                    <i class="fas fa-user"></i>
+                    <span>Profile</span>
                 </a>
+                <a href="#" id="Admin" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    <span>Admin</span>
+                </a>
+                <a href="#" onclick="logout()" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            `;
+        } else {
+            authNav.innerHTML = `
                 <a href="login.html" class="nav-link">
                     <i class="fas fa-sign-in-alt"></i>
                     <span>Login</span>
                 </a>
-            `);
+                <a href="signup.html" class="nav-link">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Sign Up</span>
+                </a>
+            `;
         }
-        </script>
-    </div>
+    }
+
+    // Update navigation when page loads
+    document.addEventListener('DOMContentLoaded', updateNavigation);
+    </script>
 
 
     <!-- ***** Main Banner Area Start ***** -->
     <div class="main-banner">
         <div class="container">
-            <div class="row">
+            <div class="row" id="productContainer">
+                <!-- Products will be loaded here dynamically -->
+            </div>
+            <script>
+            async function loadProducts() {
+                try {
+                    const response = await fetch('/api/products');
+                    const data = await response.json();
+                    const productContainer = document.getElementById('productContainer');
+                    
+                    if (data.products && data.products.length > 0) {
+                        productContainer.innerHTML = data.products.map(product => `
+                            <div class="col-lg-4">
+                                <div class="item">
+                                    <div class="card">
+                                        <img src="${product.image || 'assets/images/default-product.jpg'}" alt="${product.name}">
+                                        <h4>${product.name}</h4>
+                                        <p>${product.description}</p>
+                                        <div class="price">
+                                            <span>₹${product.price}</span>
+                                        </div>
+                                        <button class="btn btn-primary" onclick="handlePurchase('${product._id}')">Buy Now</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('');
+                    } else {
+                        productContainer.innerHTML = '<div class="col-12 text-center"><h3>No products available</h3></div>';
+                    }
+                } catch (error) {
+                    console.error('Error loading products:', error);
+                    document.getElementById('productContainer').innerHTML = 
+                        '<div class="col-12 text-center"><h3>Error loading products</h3></div>';
+                }
+            }
+
+            // Load products when page loads
+            document.addEventListener('DOMContentLoaded', loadProducts);
+            </script>
                 <div class="col-lg-4 align-self-center">
                     <div class="user-account-info" id="userAccountInfo">
                         <div class="user-profile-pic">
