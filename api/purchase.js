@@ -31,26 +31,13 @@ router.post('/initiate', auth, async (req, res) => {
 router.get('/status/:transactionId', auth, async (req, res) => {
     try {
         const { transactionId } = req.params;
-        
-        // Get transaction from database
         const transaction = await Transaction.findOne({ transactionId });
         
         if (!transaction) {
             return res.status(404).json({ error: 'Transaction not found' });
         }
 
-        // Verify UPI payment status
-        const paymentStatus = await verifyUPIPayment(transactionId);
-        
-        if (paymentStatus.success) {
-            // Update transaction status
-            transaction.status = 'SUCCESS';
-            transaction.completedAt = new Date();
-            await transaction.save();
-
-            // Add investment to user's portfolio
-            await addInvestmentToUser(req.user.id, transaction.productId);
-            
+        if (transaction.status === 'SUCCESS') {
             return res.json({ status: 'SUCCESS' });
         }
         
@@ -62,8 +49,8 @@ router.get('/status/:transactionId', auth, async (req, res) => {
     }
 });
 
-// Handle purchase request
-router.post('/purchase', auth, (req, res) => {
+// Handle purchase request - Fixed callback function syntax
+router.post('/purchase', auth, async (req, res) => {
     try {
         const { productId, amount } = req.body;
         const userId = req.user.id;
@@ -75,38 +62,29 @@ router.post('/purchase', auth, (req, res) => {
             });
         }
 
-        Product.findById(productId)
-            .then(product => {
-                if (!product) {
-                    return res.status(404).json({
-                        success: false,
-                        message: 'Product not found'
-                    });
-                }
-
-                const transaction = new Transaction({
-                    userId,
-                    productId,
-                    amount,
-                    status: 'completed'
-                });
-
-                return transaction.save();
-            })
-            .then(savedTransaction => {
-                res.status(200).json({
-                    success: true,
-                    message: 'Purchase successful',
-                    transaction: savedTransaction
-                });
-            })
-            .catch(error => {
-                console.error('Purchase error:', error);
-                res.status(500).json({
-                    success: false,
-                    message: 'Internal server error'
-                });
+        const product = await Product.findById(productId);
+        if (!product) {
+            return res.status(404).json({
+                success: false,
+                message: 'Product not found'
             });
+        }
+
+        const transaction = new Transaction({
+            userId,
+            productId,
+            amount,
+            status: 'completed'
+        });
+
+        await transaction.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Purchase successful',
+            transaction: transaction
+        });
+
     } catch (error) {
         console.error('Purchase error:', error);
         res.status(500).json({
