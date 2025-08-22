@@ -7,7 +7,7 @@ const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 const purchaseRouter = require('./api/purchase');
 
-// Load models
+// Load models in correct order
 require('./models/User');
 require('./models/Product');
 require('./models/Transaction');

@@ -1,11 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('./auth-middleware');
-const mongoose = require('mongoose');
-
-// Get models
-const Transaction = mongoose.model('Transaction');
-const Product = mongoose.model('Product');
+const Transaction = require('../models/Transaction');
+const Product = require('../models/Product');
 
 // Initiate payment
 router.post('/initiate', auth, async (req, res) => {

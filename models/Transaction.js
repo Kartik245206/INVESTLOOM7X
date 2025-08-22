@@ -15,23 +15,11 @@ const transactionSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    transactionId: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    paymentMethod: {
-        type: String,
-        enum: ['UPI', 'CARD', 'NETBANKING'],
-        required: true
-    },
     status: {
         type: String,
-        enum: ['PENDING', 'SUCCESS', 'FAILED'],
-        default: 'PENDING'
+        enum: ['pending', 'completed', 'failed'],
+        default: 'pending'
     },
-    upiId: String,
-    completedAt: Date,
     createdAt: {
         type: Date,
         default: Date.now
