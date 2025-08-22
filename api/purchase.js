@@ -63,12 +63,11 @@ router.get('/status/:transactionId', auth, async (req, res) => {
 });
 
 // Handle purchase request
-router.post('/purchase', auth, async (req, res) => {
+router.post('/purchase', auth, (req, res) => {
     try {
         const { productId, amount } = req.body;
         const userId = req.user.id;
 
-        // Validate inputs
         if (!productId || !amount) {
             return res.status(400).json({
                 success: false,
@@ -76,31 +75,38 @@ router.post('/purchase', auth, async (req, res) => {
             });
         }
 
-        // Find product
-        const product = await Product.findById(productId);
-        if (!product) {
-            return res.status(404).json({
-                success: false,
-                message: 'Product not found'
+        Product.findById(productId)
+            .then(product => {
+                if (!product) {
+                    return res.status(404).json({
+                        success: false,
+                        message: 'Product not found'
+                    });
+                }
+
+                const transaction = new Transaction({
+                    userId,
+                    productId,
+                    amount,
+                    status: 'completed'
+                });
+
+                return transaction.save();
+            })
+            .then(savedTransaction => {
+                res.status(200).json({
+                    success: true,
+                    message: 'Purchase successful',
+                    transaction: savedTransaction
+                });
+            })
+            .catch(error => {
+                console.error('Purchase error:', error);
+                res.status(500).json({
+                    success: false,
+                    message: 'Internal server error'
+                });
             });
-        }
-
-        // Create transaction record
-        const transaction = new Transaction({
-            userId,
-            productId,
-            amount,
-            status: 'completed'
-        });
-
-        await transaction.save();
-
-        res.status(200).json({
-            success: true,
-            message: 'Purchase successful',
-            transaction: transaction
-        });
-
     } catch (error) {
         console.error('Purchase error:', error);
         res.status(500).json({
