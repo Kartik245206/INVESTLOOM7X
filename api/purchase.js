@@ -65,20 +65,31 @@ router.get('/status/:transactionId', authMiddleware, async (req, res) => {
 // Handle purchase request
 router.post('/purchase', authMiddleware, async (req, res) => {
     try {
-        // Add your purchase logic here
-        const { productId, quantity } = req.body;
+        const { productId, amount } = req.body;
         
         // Validate request
-        if (!productId || !quantity) {
-            return res.status(400).json({ message: 'Missing required fields' });
+        if (!productId || !amount) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Product ID and amount are required' 
+            });
         }
 
-        // Add purchase processing logic here
-        
-        res.status(200).json({ message: 'Purchase successful' });
+        // Add your purchase logic here
+        // For example:
+        // const result = await processPurchase(productId, amount, req.user);
+
+        res.status(200).json({
+            success: true,
+            message: 'Purchase successful'
+        });
+
     } catch (error) {
         console.error('Purchase error:', error);
-        res.status(500).json({ message: 'Internal server error' });
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
     }
 });
 
