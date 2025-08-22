@@ -5,6 +5,7 @@ const path = require('path');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
+const purchaseRouter = require('./api/purchase');
 
 // Load models
 require('./models/User');

@@ -1,11 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const authMiddleware = require('./auth-middleware');
-const Transaction = require('../models/Transaction');
-const { verifyUPIPayment } = require('../utils/upiVerification');
+const auth = require('./auth-middleware');
+const mongoose = require('mongoose');
+
+// Get models
+const Transaction = mongoose.model('Transaction');
+const Product = mongoose.model('Product');
 
 // Initiate payment
-router.post('/initiate', authMiddleware, async (req, res) => {
+router.post('/initiate', auth, async (req, res) => {
     try {
         const { productId, amount, transactionId, upiId } = req.body;
         
@@ -28,7 +31,7 @@ router.post('/initiate', authMiddleware, async (req, res) => {
 });
 
 // Check payment status
-router.get('/status/:transactionId', authMiddleware, async (req, res) => {
+router.get('/status/:transactionId', auth, async (req, res) => {
     try {
         const { transactionId } = req.params;
         
@@ -63,25 +66,42 @@ router.get('/status/:transactionId', authMiddleware, async (req, res) => {
 });
 
 // Handle purchase request
-router.post('/purchase', authMiddleware, async (req, res) => {
+router.post('/purchase', auth, async (req, res) => {
     try {
         const { productId, amount } = req.body;
-        
-        // Validate request
+        const userId = req.user.id;
+
+        // Validate inputs
         if (!productId || !amount) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Product ID and amount are required' 
+            return res.status(400).json({
+                success: false,
+                message: 'Product ID and amount are required'
             });
         }
 
-        // Add your purchase logic here
-        // For example:
-        // const result = await processPurchase(productId, amount, req.user);
+        // Find product
+        const product = await Product.findById(productId);
+        if (!product) {
+            return res.status(404).json({
+                success: false,
+                message: 'Product not found'
+            });
+        }
+
+        // Create transaction record
+        const transaction = new Transaction({
+            userId,
+            productId,
+            amount,
+            status: 'completed'
+        });
+
+        await transaction.save();
 
         res.status(200).json({
             success: true,
-            message: 'Purchase successful'
+            message: 'Purchase successful',
+            transaction: transaction
         });
 
     } catch (error) {
