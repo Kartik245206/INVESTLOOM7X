@@ -140,6 +140,11 @@
             alert('EMI Calculator will be shown here');
         }
 
+        function handleWithdrawal() {
+            // Implement withdrawal functionality
+            window.location.href = 'profile.html';
+        }
+
         // Show deposit modal
         function showDepositModal() {
             const depositModal = new bootstrap.Modal(document.getElementById('depositModal'));
@@ -186,18 +191,7 @@
                     <span>Logout</span>
                 </a>
             `;
-        } else {
-            authNav.innerHTML = `
-                <a href="login.html" class="nav-link">
-                    <i class="fas fa-sign-in-alt"></i>
-                    <span>Login</span>
-                </a>
-                <a href="signup.html" class="nav-link">
-                    <i class="fas fa-user-plus"></i>
-                    <span>Sign Up</span>
-                </a>
-            `;
-        }
+        } else {}
     }
 
     // Update navigation when page loads
@@ -229,6 +223,7 @@
                                         <div class="price">
                                             <span>₹${product.price}</span>
                                         </div>
+
                                         <button class="btn btn-primary" onclick="handlePurchase('${product._id}')">Buy Now</button>
                                     </div>
                                 </div>
@@ -248,15 +243,6 @@
             document.addEventListener('DOMContentLoaded', loadProducts);
             </script>
                 <div class="col-lg-4 align-self-center">
-                    <div class="user-account-info" id="userAccountInfo">
-                        <div class="user-profile-pic">
-                            <img src="assets/images/author.jpg" alt="Profile" id="userProfilePic">
-                        </div>
-                        <div class="user-balance-info">
-                            <div class="balance-amount" id="userBalanceAmount">₹0</div>
-                            <div class="balance-label">Available Balance</div>
-                        </div>
-                    </div>
                     <div class="header-text">
                         <h1>TRADING in INVESTLOOM7X</h1>
                         <p> <h4>investloom7x can be freely downloaded and supportive.</h4></p>

@@ -34,7 +34,7 @@ body {
 /* User Account Info */
 .user-account-info {
     margin: 20px auto;
-    max-width: 300px;
+    max-width: 40px;
     display: flex;
     align-items: center;
     background: rgba(116, 83, 252, 0.1);

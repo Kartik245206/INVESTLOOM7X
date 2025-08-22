@@ -53,9 +53,9 @@ const auth = {
         const userInfoContainers = document.querySelectorAll('.user-account-info');
         userInfoContainers.forEach(container => {
             container.innerHTML = `
-                <div class="login-signup-buttons">
-                    <a href="login.html" class="btn btn-primary">Login</a>
-                    <a href="signup.html" class="btn btn-outline-primary">Sign Up</a>
+                <div class="user-account-info">
+                    <h2>Logged Out</h2>
+                    <p>You are not logged in. Please log in to access your account.</p
                 </div>
             `;
         });
