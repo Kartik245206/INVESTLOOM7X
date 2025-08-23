@@ -53,9 +53,9 @@ const auth = {
         const userInfoContainers = document.querySelectorAll('.user-account-info');
         userInfoContainers.forEach(container => {
             container.innerHTML = `
-                <div class="user-account-info" href="login.html">
-                    <h2>Login</h2>
-                </div>
+                <a href="index.html" class="logo">
+                    <img src="assets/images/logo.png" alt="INVESTLOOM7X">
+                </a>
             `;
         });
         
@@ -265,3 +265,39 @@ function checkAuth() {
 document.addEventListener('DOMContentLoaded', function() {
     checkAuth();
 });
+
+async function handleLogin(event) {
+    event.preventDefault();
+    
+    const email = document.getElementById('emailInput').value;
+    const password = document.getElementById('passwordInput').value;
+
+    try {
+        const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+        });
+
+        if (!response.ok) {
+            throw new Error('Invalid credentials');
+        }
+
+        const data = await response.json();
+        
+        // Store auth data
+        localStorage.setItem('userToken', data.token);
+        localStorage.setItem('userEmail', email);
+        localStorage.setItem('isLoggedIn', 'true');
+
+        // Redirect to home page
+        window.location.href = 'index.html';
+    } catch (error) {
+        alert('Login failed: ' + error.message);
+    }
+}
+
+// Add event listener to form
+document.getElementById('loginForm').addEventListener('submit', handleLogin);

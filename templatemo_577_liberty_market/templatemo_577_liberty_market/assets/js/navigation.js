@@ -139,3 +139,19 @@ document.addEventListener('click', function(event) {
     }
 });
 
+document.addEventListener('DOMContentLoaded', () => {
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const userEmail = localStorage.getItem('userEmail');
+    const userSection = document.getElementById('userSection');
+    const authButtons = document.getElementById('authButtons');
+
+    if (isLoggedIn && userEmail) {
+        userSection.style.display = 'block';
+        document.getElementById('userEmail').textContent = userEmail;
+        authButtons.style.display = 'none';
+    } else {
+        userSection.style.display = 'none';
+        authButtons.style.display = 'block';
+    }
+});
+

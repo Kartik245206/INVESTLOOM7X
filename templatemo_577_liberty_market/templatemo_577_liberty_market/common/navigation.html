@@ -5,18 +5,29 @@
         <div class="row">
             <div class="col-12">
                 <nav class="main-nav">
-                    <!-- ***** Logo Start ***** -->
-                    <div class="text-center logo-container">
-                        <a href="index.html" class="logo">
-                            <img src="assets/images/logo.png" alt="">
-                        </a>
-                    </div>
-                    <!-- ***** Logo End ***** -->
-                    
-                    <div class="user-balance-info" style="margin-left: auto; text-align: right;">
-                        <div class="balance-amount" id="userBalanceAmount" style="color: #fff; font-size: 18px; font-weight: 600;">₹0.00</div>
-                        <div class="balance-label" style="color: #ccc; font-size: 12px;">Available Balance</div>
-                    </div>
+                    <!-- Logo -->
+                    <a href="index.html" class="logo">
+                        <img src="assets/images/logo.png" alt="InvestLoom Logo" style="max-height: 50px;">
+                    </a>
+
+                    <!-- Menu -->
+                    <ul class="nav">
+                        <li><a href="index.html" class="active">Home</a></li>
+                        <li><a href="explore.html">Explore</a></li>
+                        <li><a href="details.html">Item Details</a></li>
+                        <li><a href="author.html">Author</a></li>
+                        <li><a href="create.html">Create Yours</a></li>
+                        <li id="userSection" style="display: none;">
+                            <a href="profile.html" class="user-profile">
+                                <i class="fa fa-user"></i>
+                                <span id="userEmail"></span>
+                            </a>
+                        </li>
+                        <li id="authButtons">
+                            <a href="login.html" class="btn btn-primary">Login</a>
+                            <a href="signup.html" class="btn btn-outline-primary">Sign Up</a>
+                        </li>
+                    </ul>
                 </nav>
             </div>
         </div>
