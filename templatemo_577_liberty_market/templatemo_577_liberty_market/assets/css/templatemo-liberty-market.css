@@ -90,7 +90,7 @@ Pre-loader Style
 
 /* Logo Styles */
 .logo img {
-  width: 320px;
+  width: 80px;
   height: auto;
   max-width: 100%;
   margin: 0 auto;
@@ -823,7 +823,7 @@ body {
   }
   
   .logo img {
-    width: 200px;
+    width: 80px;
     margin-bottom: 5px;
   }
 }
@@ -839,7 +839,7 @@ body {
   }
 
   .logo img {
-    width: 100px;
+    width: 40px;
   }
 }
 
