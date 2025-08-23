@@ -11,10 +11,29 @@ function toggleMobileMenu() {
 
 // Add active class to current page in navigation
 document.addEventListener('DOMContentLoaded', function() {
+    // Get current page path
     const currentPath = window.location.pathname;
-    const filename = currentPath.split('/').pop() || 'index.html';
+    const pageName = currentPath.split('/').pop() || 'index.html';
 
-    // Update top navigation
+    // Update side navigation HTML with active states
+    const sideNav = document.querySelector('.side-nav');
+    if (sideNav) {
+        sideNav.innerHTML = `
+            <a href="index.html" class="nav-link ${pageName === 'index.html' ? 'active' : ''}">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="profile.html" class="nav-link ${pageName === 'profile.html' ? 'active' : ''}">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </a>
+            <a href="details.html" class="nav-link ${pageName === 'details.html' ? 'active' : ''}">
+                <i class="fas fa-info-circle"></i>
+                <span>Details</span>
+            </a>
+        `;
+    }
+
     const navLinks = document.querySelectorAll('.nav li a');
     navLinks.forEach(link => {
         if (link.getAttribute('href').includes(filename)) {
