@@ -278,28 +278,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const nav = document.querySelector('.nav');
     
     menuTrigger.addEventListener('click', function() {
-        nav.classList.toggle('active');
         this.classList.toggle('active');
+        nav.classList.toggle('active');
     });
 
     // Close menu when clicking outside
     document.addEventListener('click', function(e) {
         if (!nav.contains(e.target) && !menuTrigger.contains(e.target)) {
-            nav.classList.remove('active');
             menuTrigger.classList.remove('active');
+            nav.classList.remove('active');
         }
     });
 
-    // Update active state based on current page
-    const currentPage = window.location.pathname.split('/').pop();
-    document.querySelectorAll('.nav a').forEach(link => {
-        if (link.getAttribute('href') === currentPage) {
-            link.classList.add('active');
-        }
-    });
+    // Add padding to body to account for fixed header
+    document.body.style.paddingTop = document.querySelector('.header-area').offsetHeight + 'px';
 });
-
-// Add to each dashboard HTML file's <head> section
-<link rel="stylesheet" href="../assets/css/navigation.css">
-<script src="../assets/js/navigation.js" defer></script>
 

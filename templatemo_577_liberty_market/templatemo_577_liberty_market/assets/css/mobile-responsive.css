@@ -71,3 +71,78 @@
         text-align: center;
     }
 }
+
+/* Action buttons row styling */
+.categories .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: nowrap;
+    margin: 0 -5px;
+}
+
+.categories .col-lg-3 {
+    flex: 0 0 auto;
+    width: calc(25% - 10px);
+    padding: 0 5px;
+    margin: 0;
+}
+
+.categories .item {
+    padding: 15px 10px;
+    min-height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.categories .item .icon {
+    margin-bottom: 10px;
+}
+
+.categories .item .icon img {
+    width: 30px;
+    height: 30px;
+}
+
+.categories .item h4 {
+    font-size: 14px;
+    margin: 0 0 5px;
+}
+
+.categories .item .icon-button {
+    width: 25px;
+    height: 25px;
+    line-height: 25px;
+}
+
+.categories .item .icon-button i {
+    font-size: 12px;
+}
+
+@media (max-width: 768px) {
+    .categories .row {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        margin: 0;
+    }
+    
+    .categories .row::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .categories .col-lg-3 {
+        min-width: 80px;
+        padding: 0 3px;
+    }
+    
+    .categories .item {
+        padding: 10px 5px;
+    }
+    
+    .categories .item h4 {
+        font-size: 12px;
+    }
+}
