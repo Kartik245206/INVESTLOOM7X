@@ -245,3 +245,61 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+document.addEventListener('DOMContentLoaded', function() {
+    const mobileMenuButton = document.createElement('div');
+    mobileMenuButton.className = 'mobile-menu-button';
+    mobileMenuButton.innerHTML = '☰';
+    document.querySelector('.header-area .main-nav').prepend(mobileMenuButton);
+
+    const navigation = document.querySelector('.navigation');
+    const closeButton = document.createElement('div');
+    closeButton.className = 'close-nav';
+    closeButton.innerHTML = '×';
+    navigation.prepend(closeButton);
+
+    mobileMenuButton.addEventListener('click', () => {
+        navigation.classList.add('active');
+    });
+
+    closeButton.addEventListener('click', () => {
+        navigation.classList.remove('active');
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!navigation.contains(e.target) && !mobileMenuButton.contains(e.target)) {
+            navigation.classList.remove('active');
+        }
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const menuTrigger = document.querySelector('.menu-trigger');
+    const nav = document.querySelector('.nav');
+    
+    menuTrigger.addEventListener('click', function() {
+        nav.classList.toggle('active');
+        this.classList.toggle('active');
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!nav.contains(e.target) && !menuTrigger.contains(e.target)) {
+            nav.classList.remove('active');
+            menuTrigger.classList.remove('active');
+        }
+    });
+
+    // Update active state based on current page
+    const currentPage = window.location.pathname.split('/').pop();
+    document.querySelectorAll('.nav a').forEach(link => {
+        if (link.getAttribute('href') === currentPage) {
+            link.classList.add('active');
+        }
+    });
+});
+
+// Add to each dashboard HTML file's <head> section
+<link rel="stylesheet" href="../assets/css/navigation.css">
+<script src="../assets/js/navigation.js" defer></script>
+

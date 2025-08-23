@@ -124,23 +124,20 @@
 }
 
 .main-nav {
+    position: relative;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 10px 0;
+    justify-content: space-between;
+    padding: 15px 0;
+    width: 100%;
 }
 
-.logo-container {
-    flex: 0 0 auto;
+.main-nav .logo {
+    flex-shrink: 0;
+    max-width: 150px;
 }
 
-.logo img {
-    display: block;
-    max-height: 50px;
-    width: auto;
-}
-
-.nav {
+.main-nav .nav {
     display: flex;
     align-items: center;
     margin: 0;
@@ -148,20 +145,10 @@
     list-style: none;
 }
 
-.nav li {
-    margin: 0 15px;
-}
-
-.nav li a {
-    color: #333;
-    text-decoration: none;
-    font-size: 16px;
-    transition: color 0.3s ease;
-}
-
-.nav li a:hover,
-.nav li a.active {
-    color: #7453fc;
+.menu-trigger {
+    display: none;
+    cursor: pointer;
+    padding: 10px;
 }
 
 /* User Profile Styles */
@@ -452,6 +439,51 @@ body {
 
     .side-nav .nav-link:hover {
         transform: translateY(-5px);
+    }
+}
+
+/* Navigation fixes */
+.navigation {
+    display: block !important; /* Force display */
+    z-index: 1000;
+}
+
+/* Navigation items */
+.navigation .nav-menu {
+    padding: 20px 0;
+}
+
+.navigation .nav-item {
+    padding: 10px 20px;
+}
+
+/* Close button styling */
+.close-nav {
+    display: none;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px 10px;
+}
+
+@media screen and (max-width: 768px) {
+    .close-nav {
+        display: block;
+    }
+
+    .navigation {
+        padding-top: 50px;
+    }
+
+    .navigation .nav-menu {
+        flex-direction: column;
+    }
+
+    .navigation .nav-item {
+        width: 100%;
+        text-align: left;
     }
 }
 
