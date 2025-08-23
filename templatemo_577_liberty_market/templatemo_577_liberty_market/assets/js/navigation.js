@@ -276,10 +276,13 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', function() {
     const menuTrigger = document.querySelector('.menu-trigger');
     const nav = document.querySelector('.nav');
-    
+    const sideNav = document.querySelector('.side-nav');
+
+    // Menu button click handler
     menuTrigger.addEventListener('click', function() {
         this.classList.toggle('active');
         nav.classList.toggle('active');
+        sideNav.classList.toggle('active');
     });
 
     // Close menu when clicking outside
@@ -287,8 +290,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!nav.contains(e.target) && !menuTrigger.contains(e.target)) {
             menuTrigger.classList.remove('active');
             nav.classList.remove('active');
+            sideNav.classList.remove('active');
         }
     });
+});
 
     // Add padding to body to account for fixed header
     document.body.style.paddingTop = document.querySelector('.header-area').offsetHeight + 'px';
