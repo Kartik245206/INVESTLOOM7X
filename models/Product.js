@@ -13,24 +13,17 @@ const productSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    total: {
-        type: Number,
-        required: true
-    },
-    image: {
-        type: String,
-        required: true
-    },
-    Plans: {
-        type: String,
-        required: true
-    },
     description: String,
+    imageUrl: {
+        type: String,
+        required: true
+    },
     status: {
         type: String,
         enum: ['active', 'inactive'],
         default: 'active'
     },
+    dailyEarning: Number,
     createdAt: {
         type: Date,
         default: Date.now

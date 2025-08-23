@@ -595,39 +595,38 @@ function logout() {
 }
 
 // Load Products function
-function loadProducts() {
-    const products = JSON.parse(localStorage.getItem('products') || '[]');
-    const container = document.querySelector('.row.grid');
-    if (!container) return;
+async function loadProducts() {
+    try {
+        const response = await fetch('/api/products');
+        const products = await response.json();
+        
+        const productsContainer = document.getElementById('products-container');
+        if (!productsContainer) return;
 
-    container.innerHTML = ''; // Clear existing content
-
-    products.forEach(product => {
-        const html = `
-            <div class="col-lg-3 col-md-6 col-sm-12">
+        productsContainer.innerHTML = products.map(product => `
+            <div class="col-lg-4 col-md-6">
                 <div class="item">
                     <div class="left-image">
-                        <img src="${product.image}" alt="${product.name}">
+                        <img src="${product.imageUrl}" alt="${product.name}">
                     </div>
                     <div class="right-content">
                         <h4>${product.name}</h4>
-                        <span class="author">
-                            <h6>${product.Plans || ''}</h6>
-                        </span>
-                        <div class="line-dec"></div>
-                        <span class="bid">
-                            Amount/Day<br><strong>₹${product.price}/day</strong>
-                        </span>
-                        <div class="text-button">
-                            <a href="/details/${product.id}" class="view-product">View Details</a>
+                        <div class="price">
+                            <span>Price: ₹${product.price}</span>
                         </div>
+                        <div class="info">
+                            <span>Category: ${product.category}</span>
+                            <span>Daily Earning: ₹${product.dailyEarning}</span>
+                        </div>
+                        <button class="btn btn-primary" onclick="purchaseProduct('${product._id}')">Purchase Now</button>
                     </div>
                 </div>
             </div>
-        `;
-        container.insertAdjacentHTML('beforeend', html);
-    });
+        `).join('');
+    } catch (error) {
+        console.error('Error loading products:', error);
+    }
 }
 
-// Call loadProducts on DOMContentLoaded
+// Load products when page loads
 document.addEventListener('DOMContentLoaded', loadProducts);

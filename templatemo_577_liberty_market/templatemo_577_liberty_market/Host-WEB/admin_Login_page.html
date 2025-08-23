@@ -13,16 +13,18 @@
         .login-container {
             max-width: 400px;
             margin: 100px auto;
-            padding: 30px;
-            background: #1c1f36;
-            box-shadow: 0 0 20px rgba(116, 83, 252, 0.15);
-            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+        .form-group {
+            margin-bottom: 15px;
         }
         .form-control {
-            background: #2c2f46;
-            border: 1px solid #3c3f56;
-            color: white;
-            padding: 12px;
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
         .form-control:focus {
             background: #2c2f46;
@@ -31,12 +33,16 @@
             box-shadow: 0 0 0 0.25rem rgba(116, 83, 252, 0.25);
         }
         .btn-primary {
-            background: #7453fc;
+            width: 100%;
+            padding: 10px;
+            background: #007bff;
             border: none;
-            padding: 12px;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
         }
         .btn-primary:hover {
-            background: #5b42c7;
+            background: #0056b3;
         }
         .form-label {
             color: #8e8e8e;
@@ -56,9 +62,9 @@
 <body>
     <div class="container login-container">
         <h2 class="text-center mb-4">Admin Login</h2>
-        <form id="adminLoginForm">
+        <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
             <div class="mb-4">
-                <label class="form-label">Phone Number</label>
+                <label class="form-label">User_Name</label>
                 <input type="tel" class="form-control" id="phone" required pattern="[0-9]{10}">
             </div>
             <div class="mb-4">

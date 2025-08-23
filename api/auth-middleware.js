@@ -1,18 +1,21 @@
 const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
-const authMiddleware = (req, res, next) => {
+const adminAuth = (req, res, next) => {
     try {
-        // Get token from header
+        // Check for admin secret
+        const adminSecret = req.headers['x-admin-secret'];
+        if (adminSecret !== process.env.ADMIN_SECRET) {
+            return res.status(401).json({ message: 'Invalid admin credentials' });
+        }
+
+        // Check JWT token
         const token = req.header('Authorization')?.replace('Bearer ', '');
-        
         if (!token) {
             return res.status(401).json({ message: 'No token, authorization denied' });
         }
 
-        // Verify token
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        
-        // Add user from payload
         req.user = decoded;
         next();
     } catch (error) {
@@ -20,4 +23,4 @@ const authMiddleware = (req, res, next) => {
     }
 };
 
-module.exports = authMiddleware;  // Export the function directly, not as an object
+module.exports = adminAuth;
