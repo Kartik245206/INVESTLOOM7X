@@ -275,27 +275,53 @@ document.addEventListener('DOMContentLoaded', function() {
 
 document.addEventListener('DOMContentLoaded', function() {
     const menuTrigger = document.querySelector('.menu-trigger');
-    const nav = document.querySelector('.nav');
     const sideNav = document.querySelector('.side-nav');
+    const nav = document.querySelector('.nav');
+    let touchStart = 0;
+    let touchEnd = 0;
 
     // Menu button click handler
-    menuTrigger.addEventListener('click', function() {
+    menuTrigger?.addEventListener('click', function() {
         this.classList.toggle('active');
-        nav.classList.toggle('active');
         sideNav.classList.toggle('active');
+        nav.classList.toggle('active');
     });
 
-    // Close menu when clicking outside
+    // Click outside to close
     document.addEventListener('click', function(e) {
-        if (!nav.contains(e.target) && !menuTrigger.contains(e.target)) {
-            menuTrigger.classList.remove('active');
-            nav.classList.remove('active');
+        if (!sideNav.contains(e.target) && 
+            !menuTrigger.contains(e.target)) {
             sideNav.classList.remove('active');
+            nav.classList.remove('active');
+            menuTrigger.classList.remove('active');
         }
     });
+
+    // Touch events for mobile swipe
+    document.addEventListener('touchstart', e => {
+        touchStart = e.changedTouches[0].screenX;
+    });
+
+    document.addEventListener('touchend', e => {
+        touchEnd = e.changedTouches[0].screenX;
+        handleSwipe();
+    });
+
+    function handleSwipe() {
+        const swipeLength = touchEnd - touchStart;
+        if (Math.abs(swipeLength) > 50) {
+            if (swipeLength > 0) {
+                // Swipe right - open menu
+                sideNav.classList.add('active');
+            } else {
+                // Swipe left - close menu
+                sideNav.classList.remove('active');
+            }
+        }
+    }
 });
 
     // Add padding to body to account for fixed header
     document.body.style.paddingTop = document.querySelector('.header-area').offsetHeight + 'px';
-});
+
 

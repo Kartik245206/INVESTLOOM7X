@@ -13,12 +13,13 @@
 .header-area .logo {
     display: flex;
     align-items: center;
-    max-width: 200px; /* Limit logo width */
+    max-width: 150px; /* Limit logo width */
+    padding: 5px 0;
 }
 
 .header-area .logo img {
     width: 100%;
-    max-height: 40px; /* Control logo height */
+    max-height: 35px; /* Control logo height */
     object-fit: contain;
 }
 
@@ -67,20 +68,20 @@
 
 .side-nav {
     position: fixed;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(1, 11, 44, 0.8);
-    backdrop-filter: blur(10px);
-    padding: 20px 10px;
-    border-radius: 0 10px 10px 0;
-    z-index: 9999;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    top: 0;
+    left: -180px; /* Initially hidden, showing only icons */
+    height: 100vh;
+    width: 220px;
+    background: rgba(20, 20, 20, 0.95);
+    padding: 80px 0 20px;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
 }
 
+.side-nav:hover,
 .side-nav.active {
-    left: 0;
-    transform: translateY(0) !important;
+    left: 0; /* Fully visible when hovered or active */
 }
 
 .side-nav-item {
@@ -105,20 +106,34 @@
     color: #7453fc;
 }
 
-.side-nav-text {
-    color: #333;
-    font-size: 16px;
-}
-
 .side-nav .nav-link {
     display: flex;
     align-items: center;
     padding: 12px 15px;
     color: #fff;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    border-radius: 8px;
-    margin-bottom: 5px;
+    transition: 0.3s;
+    white-space: nowrap;
+}
+
+.side-nav .nav-link i {
+    width: 40px;
+    font-size: 20px;
+    text-align: center;
+}
+
+.side-nav .nav-link span {
+    opacity: 0;
+    transition: 0.3s;
+}
+
+.side-nav:hover .nav-link span,
+.side-nav.active .nav-link span {
+    opacity: 1;
+}
+
+.side-nav-text {
+    color: #333;
+    font-size: 16px;
 }
 
 .side-nav .nav-link:hover {
@@ -274,168 +289,31 @@
         display: block;
     }
 
-    .nav {
-        display: none !important; /* Force hide on mobile */
-    }
-
-    .nav.active {
-        display: block !important;
-        position: fixed;
-        top: 70px;
-        left: 0;
-        width: 100%;
-        background: var(--background-dark);
-        padding: 20px 0;
-        z-index: 99;
-    }
-
-    /* Side navigation for mobile */
     .side-nav {
-        transform: translateX(-100%);
-        transition: transform 0.3s ease;
+        left: -220px; /* Fully hidden on mobile */
+        width: 220px;
     }
 
     .side-nav.active {
-        transform: translateX(0);
-    }
-    
-    .side-nav-item {
-        padding: 12px 15px;
-        flex-direction: column;
-        text-align: center;
-    }
-    
-    .side-nav-icon {
-        margin-right: 0;
-        margin-bottom: 5px;
-    }
-
-    body.menu-active .side-nav {
-        transform: translateY(0);
-    }
-
-    /* Mobile Menu Overlay */
-    .mobile-menu-overlay {
-        display: none; 
-        position: fixed;
-        top: 60px; /* header ke niche */
-        right: 0;
-        width: 250px;
-        background: rgba(1, 11, 44, 0.95);
-        flex-direction: column;
-        padding: 15px;
-        border-radius: 8px 0 0 8px;
-        box-shadow: -5px 0 15px rgba(0,0,0,0.3);
-        z-index: 999;
-    }
-
-    .mobile-menu-overlay.active {
-        display: flex;  /* click karne ke baad show hoga */
-    }
-
-    .mobile-menu-overlay .menu-items a {
-        color: #fff;
-        padding: 12px 10px;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-        text-decoration: none;
-    }
-
-    .mobile-menu-overlay .menu-items a:last-child {
-        border-bottom: none;
-    }
-
-
-    .menu-items {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-    }
-
-    .menu-items a {
-        color: #fff;
-        font-size: 18px;
-        padding: 12px 15px;
-        border-radius: 8px;
-        transition: 0.3s;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .menu-items a:hover {
-        background: #7453fc;
-        color: #fff;
-    }
-
-    .menu-items i {
-        width: 24px;
-        text-align: center;
-    }
-
-    /* Mobile Menu Styles */
-    .mobile-menu-button {
-        display: none;
-        position: fixed;
-        top: 20px;
-        left: 20px;
-        z-index: 1000;
-        background: none;
-        border: none;
-        cursor: pointer;
-    }
-
-    .mobile-menu {
-        display: none;
-        position: fixed;
-        top: 0;
         left: 0;
-        width: 250px;
-        height: 100%;
-        background: #1e1e1e;
-        z-index: 999;
-        padding-top: 70px;
-        transform: translateX(-100%);
-        transition: transform 0.3s ease;
     }
 
-    .mobile-menu.active {
-        transform: translateX(0);
-    }
-
-    .mobile-menu .nav-link {
-        display: block;
-        padding: 15px 20px;
-        color: white;
-        text-decoration: none;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .mobile-menu .nav-link i {
-        margin-right: 10px;
-    }
-
-    .main-nav .nav {
+    .nav {
         display: none;
-        position: absolute;
+    }
+
+    .nav.active {
+        display: block;
+        position: fixed;
         top: 70px;
         left: 0;
         width: 100%;
-        background: #fff;
+        background: rgba(20, 20, 20, 0.95);
         padding: 20px 0;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
 
-    .main-nav .nav.active {
-        display: block;
-    }
-
-    .main-nav .nav li {
-        padding: 10px 20px;
-        border-bottom: 1px solid #eee;
-    }
-
-    .main-nav .nav li:last-child {
-        border-bottom: none;
+    .header-area .logo {
+        max-width: 120px; /* Even smaller on mobile */
     }
 }
 
@@ -457,6 +335,8 @@
 /* Add this to ensure side nav stays on top */
 body {
     position: relative;
+    background-color: #0a0a0a;
+    color: #fff;
 }
 
 .side-nav {
