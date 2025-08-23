@@ -24,74 +24,73 @@ function handleWithdrawal() {
 function loadProducts() {
     const productContainer = document.getElementById('productContainer');
     if (!productContainer) return;
-    
-    // Clear existing products
+
+    // Sample product data - replace with your actual API call
+    const products = [
+        {
+            id: 1,
+            name: "Product 1",
+            price: "100",
+            image: "assets/images/market-01.jpg",
+            category: "EMI"
+        },
+        {
+            id: 2,
+            name: "Product 2",
+            price: "200",
+            image: "assets/images/market-02.jpg",
+            category: "Deposit"
+        }
+        // Add more products as needed
+    ];
+
+    // Clear existing content
     productContainer.innerHTML = '';
-    
-    // Get products from localStorage or API
-    let products = JSON.parse(localStorage.getItem('products') || '[]');
-    
-    // If no products in localStorage, add sample products
-    if (products.length === 0) {
-        products = [
-            {
-                id: 1001,
-                image: 'assets/images/featured-01.jpg',
-                name: 'Tester Plan',
-                category: 'iPhone',
-                price: '30',
-                total: '100',
-                categoryClass: 'msc',
-                Plans: 'Tester Plan'
-            },
-            {
-                id: 1002,
-                image: 'assets/images/featured-02.jpg',
-                name: 'VIP 1 Plan',
-                category: 'Smartwatch',
-                price: '20000',
-                total: '55000',
-                categoryClass: 'dig',
-                Plans: 'VIP 1 Plan'
-            }
-        ];
-        localStorage.setItem('products', JSON.stringify(products));
-    }
-    
-    // Display products
+
+    // Create product cards
     products.forEach(product => {
-        const productCard = document.createElement('div');
-        productCard.className = 'col-lg-6 col-md-6';
-        productCard.innerHTML = `
-            <div class="item">
-                <div class="left-image">
-                    <img src="${product.image}" alt="${product.name}" style="border-radius: 20px; min-width: 195px;">
-                </div>
-                <div class="right-content">
-                    <h4>${product.name}</h4>
-                    <div class="price">
-                        <span>Investment: ₹${product.price}</span>
-                        <span>Returns: ₹${product.total}</span>
+        const productCard = `
+            <div class="col-lg-4 col-md-6">
+                <div class="item">
+                    <div class="item-image">
+                        <img src="${product.image}" alt="${product.name}">
                     </div>
-                    <div class="info">
-                        <span>Category: ${product.category}</span>
-                    </div>
-                    <div class="text-center">
-                        <button class="btn btn-primary buy-now" data-product-id="${product.id}">Buy Now</button>
+                    <div class="item-info">
+                        <h4>${product.name}</h4>
+                        <span class="price">₹${product.price}</span>
+                        <div class="category">${product.category}</div>
+                        <button class="main-button" onclick="handleProduct(${product.id})">
+                            View Details
+                        </button>
                     </div>
                 </div>
             </div>
         `;
-        productContainer.appendChild(productCard);
+        productContainer.innerHTML += productCard;
     });
+}
+
+// Add event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize menu functionality
+    const menuTrigger = document.querySelector('.menu-trigger');
+    const sideNav = document.querySelector('.side-nav');
     
-    // Add event listeners to Buy Now buttons
-    document.querySelectorAll('.buy-now').forEach(button => {
-        button.addEventListener('click', function() {
-            const productId = this.getAttribute('data-product-id');
-            handleProductPurchase(productId);
+    if (menuTrigger && sideNav) {
+        menuTrigger.addEventListener('click', () => {
+            sideNav.classList.toggle('active');
+            menuTrigger.classList.toggle('active');
         });
-    });
+    }
+
+    // Load products
+    loadProducts();
+});
+
+// Handle product interaction
+function handleProduct(productId) {
+    // Add your product handling logic here
+    console.log('Product clicked:', productId);
 }
 
 // Handle product purchase
