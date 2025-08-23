@@ -140,18 +140,89 @@ document.addEventListener('click', function(event) {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    const userEmail = localStorage.getItem('userEmail');
+    const avatarBtn = document.getElementById('avatarBtn');
+    const userDropdown = document.getElementById('userDropdown');
     const userSection = document.getElementById('userSection');
     const authButtons = document.getElementById('authButtons');
+    const userName = document.getElementById('userName');
+    const userBalance = document.getElementById('userBalance');
+    const logoutBtn = document.getElementById('logoutBtn');
 
-    if (isLoggedIn && userEmail) {
+    // Check if user is logged in
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const userToken = localStorage.getItem('userToken');
+
+    if (isLoggedIn && userToken) {
         userSection.style.display = 'block';
-        document.getElementById('userEmail').textContent = userEmail;
         authButtons.style.display = 'none';
+        
+        // Fetch user data
+        fetchUserData();
+        // Start balance update interval
+        setInterval(fetchUserBalance, 30000); // Update every 30 seconds
     } else {
         userSection.style.display = 'none';
         authButtons.style.display = 'block';
+    }
+
+    // Toggle dropdown
+    avatarBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        userDropdown.classList.toggle('show');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!avatarBtn.contains(e.target)) {
+            userDropdown.classList.remove('show');
+        }
+    });
+
+    // Handle logout
+    logoutBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        logout();
+    });
+
+    // Fetch user data from API
+    async function fetchUserData() {
+        try {
+            const response = await fetch('/api/auth/user', {
+                headers: {
+                    'Authorization': `Bearer ${userToken}`
+                }
+            });
+            const data = await response.json();
+            
+            userName.textContent = data.name;
+            if (data.avatar) {
+                document.getElementById('userAvatar').src = data.avatar;
+            }
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+        }
+    }
+
+    // Fetch user balance
+    async function fetchUserBalance() {
+        try {
+            const response = await fetch('/api/transactions/balance', {
+                headers: {
+                    'Authorization': `Bearer ${userToken}`
+                }
+            });
+            const data = await response.json();
+            userBalance.textContent = `₹${data.balance.toFixed(2)}`;
+        } catch (error) {
+            console.error('Error fetching balance:', error);
+        }
+    }
+
+    // Handle logout
+    function logout() {
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('userToken');
+        window.location.href = 'login.html';
     }
 });
 
