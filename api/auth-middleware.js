@@ -1,48 +1,23 @@
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'change_this_secret';
+const authMiddleware = (req, res, next) => {
+    try {
+        // Get token from header
+        const token = req.header('Authorization')?.replace('Bearer ', '');
+        
+        if (!token) {
+            return res.status(401).json({ message: 'No token, authorization denied' });
+        }
 
-// Strict auth middleware - returns error if not authenticated
-const requireAuth = function (req, res, next) {
-  try {
-    const authHeader = req.headers.authorization || '';
-    const tokenFromHeader = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
-    const token = req.cookies?.token || tokenFromHeader || req.body?.token || req.query?.token;
-    if (!token) return res.status(401).json({ error: 'Unauthorized: no token' });
-
-    const payload = jwt.verify(token, JWT_SECRET);
-    // attach basic user info for downstream handlers
-    req.user = payload;
-    return next();
-  } catch (err) {
-    console.error('Auth middleware error:', err.message);
-    return res.status(401).json({ error: 'Invalid or expired token' });
-  }
-};
-
-// Optional auth middleware - continues even if not authenticated
-const optionalAuth = function (req, res, next) {
-  try {
-    const authHeader = req.headers.authorization || '';
-    const tokenFromHeader = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
-    const token = req.cookies?.token || tokenFromHeader || req.body?.token || req.query?.token;
-    
-    if (!token) {
-      req.user = null;
-      return next();
+        // Verify token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        
+        // Add user from payload
+        req.user = decoded;
+        next();
+    } catch (error) {
+        res.status(401).json({ message: 'Token is not valid' });
     }
-
-    const payload = jwt.verify(token, JWT_SECRET);
-    req.user = payload;
-    return next();
-  } catch (err) {
-    // If token verification fails, continue without user info
-    req.user = null;
-    return next();
-  }
 };
 
-module.exports = {
-  requireAuth,
-  optionalAuth
-};
+module.exports = authMiddleware;  // Export the function directly, not as an object
