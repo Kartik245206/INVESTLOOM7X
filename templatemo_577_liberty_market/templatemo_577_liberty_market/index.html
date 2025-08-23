@@ -12,10 +12,37 @@
     <link href="assets/css/templatemo-liberty-market.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/navigation.css">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
+    <nav class="side-nav">
+        <a href="index.html" class="nav-link active">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="profile.html" class="nav-link">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </a>
+        <a href="details.html" class="nav-link">
+            <i class="fas fa-info-circle"></i>
+            <span>Details</span>
+        </a>
+        <a href="Host-WEB/admin_Login_page.html" class="nav-link">
+            <i class="fas fa-user-shield"></i>
+            <span>Admin</span>
+        </a>
+        <a href="login.html" class="nav-link">
+            <i class="fas fa-sign-in-alt"></i>
+            <span>Login</span>
+        </a>
+        <a href="signup.html" class="nav-link">
+            <i class="fas fa-user-plus"></i>
+            <span>Create Account</span>
+        </a>
+    </nav>
+    
 
     <!-- ***** Preloader Start ***** -->
     <div id="js-preloader" class="js-preloader">
@@ -27,14 +54,6 @@
                 <span></span>
             </div>
         </div>
-    </div>
-    <div class="side-nav">
-        <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="profile.html">Profile</a></li>
-            <li><a href="Host-WEB/admin_Login_page.html">Admin</a></li>
-            <li><a href="#" id="logoutBtn">Logout</a></li>
-        </ul>
     </div>
 
     <!-- User Account Info -->
@@ -1342,6 +1361,22 @@
     <!-- All scripts should be here -->
     <script src="assets/js/navigation.js"></script>
     <script src="assets/js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get current page path
+            const currentPath = window.location.pathname;
+            const pageName = currentPath.split('/').pop() || 'index.html';
+            
+            // Update active state
+            document.querySelectorAll('.side-nav .nav-link').forEach(link => {
+                if (link.getAttribute('href') === pageName) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
 

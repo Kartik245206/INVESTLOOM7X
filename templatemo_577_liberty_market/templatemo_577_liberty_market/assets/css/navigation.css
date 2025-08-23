@@ -57,7 +57,7 @@
     backdrop-filter: blur(10px);
     padding: 20px 10px;
     border-radius: 0 10px 10px 0;
-    z-index: 99;
+    z-index: 9999;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
 }
 
@@ -419,6 +419,39 @@
 
     .mobile-menu-button {
         display: none;
+    }
+}
+
+/* Add this to ensure side nav stays on top */
+body {
+    position: relative;
+}
+
+.side-nav {
+    z-index: 9999;
+}
+
+/* Fix for mobile devices */
+@media (max-width: 768px) {
+    .side-nav {
+        bottom: 0;
+        top: auto;
+        left: 0;
+        right: 0;
+        transform: none;
+        border-radius: 15px 15px 0 0;
+        display: flex;
+        justify-content: space-around;
+        padding: 15px;
+    }
+
+    .side-nav .nav-link {
+        margin: 0;
+        padding: 10px;
+    }
+
+    .side-nav .nav-link:hover {
+        transform: translateY(-5px);
     }
 }
 

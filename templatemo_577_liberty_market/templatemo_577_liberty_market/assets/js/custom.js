@@ -630,3 +630,14 @@ async function loadProducts() {
 
 // Load products when page loads
 document.addEventListener('DOMContentLoaded', loadProducts);
+
+// Preloader
+window.addEventListener('load', function() {
+    const preloader = document.getElementById('js-preloader');
+    setTimeout(() => {
+        preloader.classList.add('loaded');
+        setTimeout(() => {
+            preloader.style.display = 'none';
+        }, 300);
+    }, 1000);
+});
