@@ -128,7 +128,7 @@
 
     .amount-per-day {
         font-size: 24px;
-        color: #7453fc;
+        color: #f8f7fa;
         margin: 15px 0;
     }
 
@@ -140,7 +140,13 @@
     .days-remaining {
         margin-top: 15px;
         font-size: 16px;
-        color: #fff;
+        color: #ffffff;
+    }
+
+    .amount-per-day {
+        font-size: 24px;
+        color: #f8f7fa;
+        margin: 15px 0;
     }
 
     /* View Details Button */

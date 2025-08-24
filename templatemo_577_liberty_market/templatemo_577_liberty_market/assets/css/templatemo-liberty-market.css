@@ -943,12 +943,12 @@ body {
 /* Adjust main content margin */
 .main-banner,
 .container {
-    margin-left: 80px;
+    margin-left: 10px;
 }
 
 .currently-market {
     padding: 30px 0;
-    margin-left: 80px; /* Account for side nav */
+    margin-left: 10px; /* Account for side nav */
 }
 
 .currently-market-item {

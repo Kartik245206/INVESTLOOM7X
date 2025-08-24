@@ -1,3 +1,69 @@
+/* Header styling */
+.header-area {
+    background: rgb(1, 11, 44);
+    height: 80px; /* Increased header height */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.header-area .container {
+    height: 100%;
+    padding: 0 30px;
+}
+
+.main-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+}
+
+/* Logo styling */
+.main-nav .logo {
+    flex: 0 0 auto;
+    width: 120px; /* Fixed width for logo */
+    height: 40px; /* Fixed height for logo */
+    display: flex;
+    align-items: center;
+}
+
+.main-nav .logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Menu trigger button */
+.menu-trigger {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    margin-left: auto;
+}
+
+.menu-trigger span {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: #fff;
+    transition: 0.3s;
+}
+
+/* Content spacing */
+body {
+    padding-top: 80px; /* Match header height */
+}
+
 /* Navigation Styles */
 .header-area {
     position: fixed;
