@@ -88,13 +88,6 @@ Pre-loader Style
   border-radius: 10px;
 }
 
-/* Logo Styles */
-.logo img {
-  width: 80px;
-  height: auto;
-  max-width: 100%;
-  margin: 0 auto;
-}
 
 /* User Account Info Styling */
 .user-profile-pic {
@@ -146,13 +139,6 @@ Pre-loader Style
     align-items: center;
     gap: 10px;
     padding: 10px 15px;
-  }
-
-  .logo-container {
-    position: relative;
-    text-align: center;
-    z-index: 1;
-    transform: none;
   }
 
   .nav {
@@ -253,14 +239,6 @@ body {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Logo Styles */
-.logo-container {
-    position: relative;
-    left: 50%;
-    transform: translateX(-50%);
-    text-align: center;
-    z-index: 1;
-}
 
 /* Profile Styles */
 .profile-container {
@@ -807,11 +785,6 @@ body {
     padding: 4px 0;
   }
   
-  .logo-container {
-    order: 1;
-    margin-bottom: 10px;
-  }
-  
   .user-account-info {
     order: 2;
     transform: scale(1);
@@ -820,11 +793,6 @@ body {
     border: 1px solid rgba(102, 230, 121, 0.3);
     margin: 0 auto 15px auto;
     width: fit-content;
-  }
-  
-  .logo img {
-    width: 80px;
-    margin-bottom: 5px;
   }
 }
 
@@ -838,11 +806,8 @@ body {
     padding: 6px 12px;
   }
 
-  .logo img {
-    width: 40px;
-  }
-}
 
+}
 /* Modal Styles */
 .modal-content {
   background: #282b2f;
