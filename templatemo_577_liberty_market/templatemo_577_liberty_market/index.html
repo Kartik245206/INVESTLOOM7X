@@ -70,6 +70,9 @@
             <span>Create Account</span>
         </a>
     </nav>
+    <div class="side-nav-toggle" id="sideNavToggle">
+        <i class="fas fa-arrow-right"></i>
+    </div>
 
 
     <div class="categories-collections">
@@ -246,8 +249,8 @@
                     
                     <!-- Four Buttons Section -->
                     <div class="row mt-4">
-                        <div class="col-lg-3 col-md-6 mb-3">
-                            <div class="item">
+                        <div class="col-3 mb-2">
+                            <div class="item small-item">
                                 <div class="icon">
                                     <img src="assets/images/icon-01.png" alt="EMI">
                                 </div>
@@ -257,8 +260,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-3 col-md-6 mb-3">
-                            <div class="item">
+                        <div class="col-3 mb-2">
+                            <div class="item small-item">
                                 <div class="icon">
                                     <img src="assets/images/icon-02.png" alt="Deposit">
                                 </div>
@@ -268,8 +271,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-3 col-md-6 mb-3">
-                            <div class="item">
+                        <div class="col-3 mb-2">
+                            <div class="item small-item">
                                 <div class="icon">
                                     <img src="assets/images/icon-03.png" alt="Withdraw">
                                 </div>
@@ -279,8 +282,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-3 col-md-6 mb-3">
-                            <div class="item">
+                        <div class="col-3 mb-2">
+                            <div class="item small-item">
                                 <div class="icon">
                                     <img src="assets/images/icon-05.png" alt="Balance">
                                 </div>
@@ -402,19 +405,45 @@
         }
 
         /* Side Navigation Styles */
+        /* SideNav Hidden by default */
         .side-nav {
             position: fixed;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(1, 11, 44, 0.8);
-            backdrop-filter: blur(10px);
-            padding: 20px 10px;
+            top: 0;
+            left: -250px; /* hidden outside screen */
+            width: 220px;
+            height: 100%;
+            background: rgba(1, 11, 44, 0.95);
+            padding: 20px 15px;
+            transition: left 0.3s ease;
+            z-index: 2000;
             border-radius: 0 10px 10px 0;
-            z-index: 99;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            }
+
+        /* When active, slide in */
+        .side-nav.active {
+            left: 0;
+        }
+
+        /* Arrow Toggle Button */
+        .side-nav-toggle {
+            position: fixed;
+            top: 20px;
+            left: 10px;
+            font-size: 22px;
+            color: white;
+            background: rgba(1, 11, 44, 0.9);
+            padding: 8px 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 2100;
             transition: all 0.3s ease;
         }
+
+        .side-nav-toggle:hover {
+            background: #7453fc;
+            color: #fff;
+        }
+
 
         .side-nav-item {
             padding: 15px 10px;
@@ -485,6 +514,17 @@
             line-height: 1.6;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
         }
+
+        .item.small-item {
+            padding: 15px 10px;   /* smaller box */
+        }
+        .item.small-item img {
+            max-width: 40px;     /* smaller icons */
+        }
+        .item.small-item h4 {
+            font-size: 14px;     /* smaller text */
+        }
+
 
         /* User Account Info Styles */
         .user-account-info {
@@ -705,7 +745,7 @@
             }
 
             .side-nav {
-                display: none;
+                display: block !important;
             }
         }
     </style>
@@ -1362,6 +1402,25 @@
             </div>
         </div>
     </div>
+    <script>
+        const sideNav = document.querySelector('.side-nav');
+        const sideNavToggle = document.getElementById('sideNavToggle');
+        const toggleIcon = sideNavToggle.querySelector('i');
+
+        sideNavToggle.addEventListener('click', () => {
+            sideNav.classList.toggle('active');
+
+            // Change arrow direction
+            if (sideNav.classList.contains('active')) {
+            toggleIcon.classList.remove('fa-arrow-right');
+            toggleIcon.classList.add('fa-arrow-left');
+            } else {
+            toggleIcon.classList.remove('fa-arrow-left');
+            toggleIcon.classList.add('fa-arrow-right');
+            }
+        });
+        </script>
+
 
     <!-- All scripts should be here -->
     <script src="vendor/jquery/jquery.min.js"></script>

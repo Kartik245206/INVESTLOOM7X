@@ -40,7 +40,7 @@ body {
     background: rgba(116, 83, 252, 0.1);
     padding: 15px 30px;
     border-radius: 15px;
-    border: 0px solid rgba(116, 83, 252, 0.3);
+    border: 0px solid rgba(83, 243, 252, 0.3);
     transition: all 0.3s ease;
     cursor: pointer;
 }
