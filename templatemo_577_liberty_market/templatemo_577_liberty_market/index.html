@@ -773,7 +773,7 @@
         </div>
     </div>
 
-    <!-- ***** Real-time Updates Info End ***** -->
+    <!-- ***** Real-time Updates Info End *****
 
 
     <!-- ***** Currently Market Area End ***** -->
@@ -795,12 +795,21 @@
              <script>
                 async function loadProducts() {
                     try {
-                        const response = await fetch('/api/products');
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
+                        // First try loading from local storage as fallback
+                        let products = JSON.parse(localStorage.getItem('products') || '[]');
+                        
+                        try {
+                            const response = await fetch('/api/products');
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! status: ${response.status}`);
+                            }
+                            const data = await response.json();
+                            products = data.products; // Update with fresh data if available
+                            
+                        } catch (fetchError) {
+                            console.warn('Failed to fetch from API, using cached data:', fetchError);
+                            // Continue with localStorage data
                         }
-                        const data = await response.json();
-                        console.log('Products data:', data); // Debug log
                         
                         const productContainer = document.getElementById('productContainer');
                         if (!productContainer) {
@@ -808,8 +817,8 @@
                             return;
                         }
                         
-                        if (data.products && data.products.length > 0) {
-                            const productsHTML = data.products.map(product => `
+                        if (products && products.length > 0) {
+                            const productsHTML = products.map(product => `
                                 <div class="col-lg-4 mb-4">
                                     <div class="item">
                                         <div class="card h-100">
@@ -842,14 +851,15 @@
                                 </div>`;
                         }
                     } catch (error) {
-                        console.error('Error loading products:', error);
+                        console.error('Error in loadProducts:', error);
                         const productContainer = document.getElementById('productContainer');
                         if (productContainer) {
                             productContainer.innerHTML = `
                                 <div class="col-12 text-center">
-                                    <div class="alert alert-danger">
-                                        <h3>Error loading products</h3>
-                                        <p>Please try refreshing the page</p>
+                                    <div class="alert alert-warning">
+                                        <h3>Temporarily unable to load products</h3>
+                                        <p>Please try again in a few moments</p>
+                                        <button class="btn btn-primary mt-3" onclick="loadProducts()">Retry</button>
                                     </div>
                                 </div>`;
                         }
