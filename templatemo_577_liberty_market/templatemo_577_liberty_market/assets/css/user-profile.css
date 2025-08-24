@@ -1,10 +1,11 @@
 .user-info-box {
   background: rgba(116, 83, 252, 0.1);
   padding: 8px 12px;
-  border-radius: 8px;
+  border-radius: 12px;
   display: inline-block;
-  font-size: 14px;
+  font-size: 18px;
   color: #fff;
+  text-align: center;
 }
 
 .site-logo {

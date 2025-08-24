@@ -65,18 +65,17 @@ body {
         /* SideNav Hidden by default */
         .side-nav {
             position: fixed;
-            top: 70px; /* Adjusted to be below header */
+            top: 60px;
             left: -180px;
             height: 100vh;
             width: 200px;
             background: rgba(1, 11, 44, 0.95);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            padding: 20px 15px;
-            transition: left 0.3s ease;
+            padding: 80px 0 20px 0;
+            transition: all 0.3s ease;
             z-index: 2000;
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
-            }
+            display: flex !important;
+            flex-direction: column !important;
+        }
 
         .side-nav::before {
             content: "";
@@ -92,6 +91,37 @@ body {
         /* When active, slide in */
         .side-nav.active {
             left: 0;
+        }
+
+        .side-nav .nav-link {
+            display: flex !important;
+            align-items: center !important;
+            padding: 15px 20px !important;
+            color: #fff !important;
+            text-decoration: none !important;
+            margin: 5px 0 !important;
+            transition: all 0.3s ease !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+
+        .side-nav .nav-link i {
+            font-size: 20px !important;
+            margin-right: 10px !important;
+            width: 25px !important;
+            text-align: center !important;
+        }
+
+        .side-nav .nav-link span {
+            font-size: 16px !important;
+            white-space: nowrap !important;
+            opacity: 1 !important;
+        }
+
+        .side-nav .nav-link:hover,
+        .side-nav .nav-link.active {
+            background: rgba(116, 83, 252, 0.3) !important;
+            border-left: 3px solid #7453fc !important;
         }
 
         /* Arrow Toggle Button */
@@ -420,12 +450,11 @@ body {
     height: 100vh;
     width: 200px;
     background: rgba(1, 11, 44, 0.95);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    padding: 20px 15px;
-    transition: left 0.3s ease;
+    padding: 80px 0 20px 0;
+    transition: all 0.3s ease;
     z-index: 2000;
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex !important;
+    flex-direction: column !important;
 }
 
 /* Main content container adjustment */

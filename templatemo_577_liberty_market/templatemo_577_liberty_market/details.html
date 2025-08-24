@@ -2,36 +2,44 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <!-- Change viewport meta to force desktop view -->
-    <meta name="viewport" content="width=360">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
     <title>Product Details - InvestLoom7x</title>
     
     <!-- CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets/css/fontawesome.css" rel="stylesheet">
     <link href="assets/css/templatemo-liberty-market.css" rel="stylesheet">
     <link href="assets/css/owl.css" rel="stylesheet">
+    <link href="assets/css/navigation.css" rel="stylesheet">
     <link href="assets/css/animate.css" rel="stylesheet">
+    <link href="assets/css/utils/animate.css" rel="stylesheet">
+    <link href="assets/css/utils/responsive.css" rel="stylesheet">
     <link href="https://unpkg.com/swiper@7/swiper-bundle.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/css/navigation.css">
-    <script src="../assets/js/navigation.js" defer></script>
+    <script src="assets/js/navigation.js" defer></script>
 </head>
 <body>
+    <header class="main-nav">
+        <a href="index.html" class="logo">
+            <img src="assets/images/logo.png" alt="INVESTLOOM7X">
+        </a>
 
+        </header>
 
     <!-- ***** Preloader Start ***** -->
     <div id="js-preloader" class="js-preloader">
         <div class="preloader-inner">
             <span class="dot"></span>
-            <div class="dots"><span></span><span></span><span></span></div>
+            <div class="dots"><span></span>
+                <span></span>
+                <span></span>
+            </div>
         </div>
     </div>
     
     <!-- ***** Preloader End ***** -->
-     <div class="side-nav-toggle" id="sideNavToggle"></div>
-        <i class="fas fa-arrow-right"></i>
-    </div>
-    <nav class="side-nav">
+     <nav class="side-nav">
         <a href="index.html" class="nav-link active">
             <i class="fas fa-home"></i>
             <span>Home</span>
@@ -57,12 +65,15 @@
             <span>Create Account</span>
         </a>
     </nav>
+    <div class="side-nav-toggle" id="sideNavToggle">
+            <i class="fas fa-arrow-right"></i>
+        </div>
     <!-- ***** Header Area End ***** -->
 
     <div class="item-details-page">
         <div class="container">
             <div class="row">
-                <div class="col-lg-7">
+                <div class="col-4 col-md-4 col-lg-3 mb-3">
                     <div class="left-image">
                         <img src="" alt="" id="productImage">
                     </div>
@@ -492,9 +503,12 @@
     }
     </style>
     
-    <script src="assets/js/navigation.js"></script>
     <script src="assets/js/payment-handler.js"></script>
     <script src="assets/js/auth.js"></script>
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="assets/js/navigation.js"></script>
+
+    <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
 </body>
 </html>
 

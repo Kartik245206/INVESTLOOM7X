@@ -197,32 +197,6 @@
     </script>
     <!-- ***** Preloader End ***** -->
 
-    <script>
-    function updateNavigation() {
-        const authNav = document.getElementById('authNav');
-        const currentUser = localStorage.getItem('currentUser');
-
-        if (currentUser) {
-            authNav.innerHTML = `
-                <a href="#" id="Profile" class="nav-link">
-                    <i class="fas fa-user"></i>
-                    <span>Profile</span>
-                </a>
-                <a href="#" id="Admin" class="nav-link">
-                    <i class="fas fa-cog"></i>
-                    <span>Admin</span>
-                </a>
-                <a href="#" onclick="logout()" class="nav-link">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Logout</span>
-                </a>
-            `;
-        } else {}
-    }
-
-    // Update navigation when page loads
-    document.addEventListener('DOMContentLoaded', updateNavigation);
-    </script>
 
 
     <!-- ***** Main Banner Area Start ***** -->
@@ -953,62 +927,14 @@
             </div>
         </div>
     </div>
-    <script>
-        const sideNav = document.querySelector('.side-nav');
-        const sideNavToggle = document.getElementById('sideNavToggle');
-        const sideNavOverlay = document.getElementById('sideNavOverlay');
-        const toggleIcon = sideNavToggle.querySelector('i');
-
-        function toggleSideNav(forceClose = false) {
-            if (forceClose) {
-                sideNav.classList.remove('active');
-                sideNavOverlay.style.display = 'none';
-                toggleIcon.classList.remove('fa-arrow-left');
-                toggleIcon.classList.add('fa-arrow-right');
-                return;
-            }
-
-            sideNav.classList.toggle('active');
-            sideNavOverlay.style.display = sideNav.classList.contains('active') ? 'block' : 'none';
-
-            if (sideNav.classList.contains('active')) {
-                toggleIcon.classList.remove('fa-arrow-right');
-                toggleIcon.classList.add('fa-arrow-left');
-            } else {
-                toggleIcon.classList.remove('fa-arrow-left');
-                toggleIcon.classList.add('fa-arrow-right');
-            }
-        }
-
-        sideNavToggle.addEventListener('click', () => toggleSideNav());
-        sideNavOverlay.addEventListener('click', () => toggleSideNav(true));
-        </script>
+    
 
 
     <!-- All scripts should be here -->
     <script src="vendor/jquery/jquery.min.js"></script>
     <script src="assets/js/navigation.js"></script>
     <script src="assets/js/auth.js"></script>
-    <script>
-        // Navigation toggle using navHandle
-        const navHandle = document.getElementById('navHandle');
-        
-        if (navHandle) {
-            navHandle.addEventListener('click', () => {
-                const sideNavElement = document.querySelector('.side-nav');
-                if (sideNavElement) {
-                    sideNavElement.classList.toggle('active');
     
-                    // Change arrow
-                    if (sideNavElement.classList.contains('active')) {
-                        navHandle.textContent = "{{"; // open ho gaya
-                    } else {
-                        navHandle.textContent = "}}"; // close ho gaya
-                    }
-                }
-            });
-        }
-    </script>
 
 
     <script src="vendor/bootstrap/js/bootstrap.min.js"></script>

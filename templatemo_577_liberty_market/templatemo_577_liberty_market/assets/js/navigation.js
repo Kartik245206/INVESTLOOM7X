@@ -321,7 +321,93 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// Side navigation functionality
+const sideNav = document.querySelector('.side-nav');
+const sideNavToggle = document.getElementById('sideNavToggle');
+const sideNavOverlay = document.getElementById('sideNavOverlay');
+const toggleIcon = sideNavToggle?.querySelector('i');
+
+function toggleSideNav(forceClose = false) {
+    if (forceClose) {
+        sideNav?.classList.remove('active');
+        sideNavOverlay.style.display = 'none';
+        toggleIcon?.classList.remove('fa-arrow-left');
+        toggleIcon?.classList.add('fa-arrow-right');
+        return;
+    }
+
+    sideNav?.classList.toggle('active');
+    sideNavOverlay.style.display = sideNav.classList.contains('active') ? 'block' : 'none';
+
+
+    if (sideNav.classList.contains('active')) {
+        toggleIcon.classList.remove('fa-arrow-right');
+        toggleIcon.classList.add('fa-arrow-left');
+    } else {
+        toggleIcon.classList.remove('fa-arrow-left');
+         toggleIcon.classList.add('fa-arrow-right');
+    }
+}
+
+sideNavToggle?.addEventListener('click', () => toggleSideNav());
+sideNavOverlay?.addEventListener('click', () => toggleSideNav(true));
+    // Navigation toggle using navHandle
+const navHandle = document.getElementById('navHandle');
+    
+if (navHandle) {
+    navHandle.addEventListener('click', () => {
+        const sideNavElement = document.querySelector('.side-nav');
+        if (sideNavElement) {
+            sideNavElement.classList.toggle('active');
+    
+                // Change arrow
+            if (sideNavElement.classList.contains('active')) {
+                navHandle.textContent = "{{"; // open ho gaya
+            } else {
+                navHandle.textContent = "}}"; // close ho gaya
+            }
+        }
+    });
+}
+    
     // Add padding to body to account for fixed header
     document.body.style.paddingTop = document.querySelector('.header-area').offsetHeight + 'px';
+
+document.addEventListener('DOMContentLoaded', function() {
+    const sideNav = document.querySelector('.side-nav');
+    const sideNavToggle = document.getElementById('sideNavToggle');
+    
+    if (sideNavToggle) {
+        sideNavToggle.addEventListener('click', function() {
+            sideNav.classList.toggle('active');
+            
+            // Update toggle icon
+            const icon = this.querySelector('i');
+            if (sideNav.classList.contains('active')) {
+                icon.classList.remove('fa-arrow-right');
+                icon.classList.add('fa-arrow-left');
+                sideNav.style.left = '0';
+            } else {
+                icon.classList.remove('fa-arrow-left');
+                icon.classList.add('fa-arrow-right');
+                sideNav.style.left = '-180px';
+            }
+        });
+    }
+
+    // Add click handlers to nav links
+    document.querySelectorAll('.side-nav .nav-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            // Remove active class from all links
+            document.querySelectorAll('.side-nav .nav-link').forEach(l => {
+                l.classList.remove('active');
+            });
+            // Add active class to clicked link
+            this.classList.add('active');
+        });
+    });
+});
+
+
 
 
