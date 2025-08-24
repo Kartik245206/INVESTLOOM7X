@@ -84,50 +84,7 @@
                                     <h2>Browse Through Our <em>Categories</em> Here.</h2>
                                 </div>
                             </div>
-                            <div class="col-lg-3">
-                                <div class="item">
-                                    <div class="icon">
-                                        <img src="assets/images/icon-01.png" alt="EMI">
-                                    </div>
-                                    <h4>EMI</h4>
-                                    <div class="icon-button">
-                                        <a href="#" onclick="showEMICalculator()"><i class="fa fa-angle-right"></i></a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-lg-3">
-                                <div class="item">
-                                    <div class="icon">
-                                        <img src="assets/images/icon-02.png" alt="Deposit">
-                                    </div>
-                                    <h4>Deposit</h4>
-                                    <div class="icon-button">
-                                        <a href="#" onclick="showDepositModal()"><i class="fa fa-angle-right"></i></a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-lg-3">
-                                <div class="item">
-                                    <div class="icon">
-                                        <img src="assets/images/icon-03.png" alt="Withdraw">
-                                    </div>
-                                    <h4>Withdraw</h4>
-                                    <div class="icon-button">
-                                        <a href="javascript:void(0)" onclick="handleWithdrawal()"><i class="fa fa-angle-right"></i></a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-lg-3">
-                                <div class="item">
-                                    <div class="icon">
-                                        <img src="assets/images/icon-05.png" alt="Balance">
-                                    </div>
-                                    <h4>Balance</h4>
-                                    <div class="icon-button">
-                                        <a href="#" onclick="showBalance()"><i class="fa fa-angle-right"></i></a>
-                                    </div>
-                                </div>
-                            </div>
+                            
                         </div>
                     </div>
                 </div>
@@ -280,99 +237,83 @@
     <!-- ***** Main Banner Area Start ***** -->
     <div class="main-banner">
         <div class="container">
-            <div class="row" id="productContainer">
-                <!-- Products will be loaded here dynamically -->
-            </div>
-            <script>
-            async function loadProducts() {
-                try {
-                    const response = await fetch('/api/products');
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    const data = await response.json();
-                    console.log('Products data:', data); // Debug log
-                    
-                    const productContainer = document.getElementById('productContainer');
-                    if (!productContainer) {
-                        console.error('Product container not found!');
-                        return;
-                    }
-                    
-                    if (data.products && data.products.length > 0) {
-                        const productsHTML = data.products.map(product => `
-                            <div class="col-lg-4 mb-4">
-                                <div class="item">
-                                    <div class="card h-100">
-                                        <img src="${product.image || 'assets/images/default-product.jpg'}" 
-                                             alt="${product.name}" 
-                                             class="card-img-top">
-                                        <div class="card-body">
-                                            <h4 class="card-title">${product.name}</h4>
-                                            <p class="card-text">${product.description || ''}</p>
-                                            <div class="price mb-3">
-                                                <span class="amount">₹${product.price}</span>
-                                            </div>
-                                            <button class="btn btn-primary w-100" 
-                                                    onclick="handlePurchase('${product._id}')">
-                                                Buy Now
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        `).join('');
-                        productContainer.innerHTML = productsHTML;
-                    } else {
-                        productContainer.innerHTML = `
-                            <div class="col-12 text-center">
-                                <div class="alert alert-info">
-                                    <h3>No products available at the moment</h3>
-                                    <p>Please check back later for new products</p>
-                                </div>
-                            </div>`;
-                    }
-                } catch (error) {
-                    console.error('Error loading products:', error);
-                    const productContainer = document.getElementById('productContainer');
-                    if (productContainer) {
-                        productContainer.innerHTML = `
-                            <div class="col-12 text-center">
-                                <div class="alert alert-danger">
-                                    <h3>Error loading products</h3>
-                                    <p>Please try refreshing the page</p>
-                                </div>
-                            </div>`;
-                    }
-                }
-            }
-
-            // Function to handle purchase
-            function handlePurchase(productId) {
-                if (!localStorage.getItem('currentUser')) {
-                    window.location.href = 'login.html';
-                    return;
-                }
-                // Implement purchase logic here
-                console.log('Purchase initiated for product:', productId);
-            }
-
-            // Load products when page loads
-            document.addEventListener('DOMContentLoaded', () => {
-                console.log('DOM loaded, fetching products...'); // Debug log
-                loadProducts();
-            });
-            </script>
-                <div class="col-lg-4 align-self-center">
+            <div class="row">
+                <div class="col-lg-12">
                     <div class="header-text">
                         <h1>TRADING in INVESTLOOM7X</h1>
-                        <p> <h4>investloom7x can be freely downloaded and supportive.</h4></p>
+                        <p><h4>investloom7x can be freely downloaded and supportive.</h4></p>
+                    </div>
+                    
+                    <!-- Four Buttons Section -->
+                    <div class="row mt-4">
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="item">
+                                <div class="icon">
+                                    <img src="assets/images/icon-01.png" alt="EMI">
+                                </div>
+                                <h4>EMI</h4>
+                                <div class="icon-button">
+                                    <a href="#" onclick="showEMICalculator()"><i class="fa fa-angle-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="item">
+                                <div class="icon">
+                                    <img src="assets/images/icon-02.png" alt="Deposit">
+                                </div>
+                                <h4>Deposit</h4>
+                                <div class="icon-button">
+                                    <a href="#" onclick="showDepositModal()"><i class="fa fa-angle-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="item">
+                                <div class="icon">
+                                    <img src="assets/images/icon-03.png" alt="Withdraw">
+                                </div>
+                                <h4>Withdraw</h4>
+                                <div class="icon-button">
+                                    <a href="#" onclick="handleWithdrawal()"><i class="fa fa-angle-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="item">
+                                <div class="icon">
+                                    <img src="assets/images/icon-05.png" alt="Balance">
+                                </div>
+                                <h4>Balance</h4>
+                                <div class="icon-button">
+                                    <a href="#" onclick="showBalance()"><i class="fa fa-angle-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <!-- ***** Main Banner Area End ***** -->
+
+    <!-- ***** Market Products Area Start ***** -->
+    <div class="currently-market">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="section-heading">
+                        <div class="line-dec"></div>
+                        <h2>Market <em>Products</em></h2>
+                    </div>
+                </div>
+                <div class="row currently-market-items" id="productContainer">
+                    <!-- Products will be loaded here dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ***** Market Products Area End ***** -->
 
     <style>
         .header-area {
@@ -847,10 +788,90 @@
                         <h2>Market <em>Products</em></h2>
                     </div>
                 </div>
-                <div class="row currently-market-items" id="productContainer">
-                    <!-- Products will be loaded here dynamically -->
-                </div>
+                    <div class="row currently-market-items" id="productContainer">
+                        <!-- Products will be loaded here dynamically -->
+                    </div>
             </div>
+             <script>
+                async function loadProducts() {
+                    try {
+                        const response = await fetch('/api/products');
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        const data = await response.json();
+                        console.log('Products data:', data); // Debug log
+                        
+                        const productContainer = document.getElementById('productContainer');
+                        if (!productContainer) {
+                            console.error('Product container not found!');
+                            return;
+                        }
+                        
+                        if (data.products && data.products.length > 0) {
+                            const productsHTML = data.products.map(product => `
+                                <div class="col-lg-4 mb-4">
+                                    <div class="item">
+                                        <div class="card h-100">
+                                            <img src="${product.image || 'assets/images/default-product.jpg'}" 
+                                                alt="${product.name}" 
+                                                class="card-img-top">
+                                            <div class="card-body">
+                                                <h4 class="card-title">${product.name}</h4>
+                                                <p class="card-text">${product.description || ''}</p>
+                                                <div class="price mb-3">
+                                                    <span class="amount">₹${product.price}</span>
+                                                </div>
+                                                <button class="btn btn-primary w-100" 
+                                                        onclick="handlePurchase('${product._id}')">
+                                                    Buy Now
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('');
+                            productContainer.innerHTML = productsHTML;
+                        } else {
+                            productContainer.innerHTML = `
+                                <div class="col-12 text-center">
+                                    <div class="alert alert-info">
+                                        <h3>No products available at the moment</h3>
+                                        <p>Please check back later for new products</p>
+                                    </div>
+                                </div>`;
+                        }
+                    } catch (error) {
+                        console.error('Error loading products:', error);
+                        const productContainer = document.getElementById('productContainer');
+                        if (productContainer) {
+                            productContainer.innerHTML = `
+                                <div class="col-12 text-center">
+                                    <div class="alert alert-danger">
+                                        <h3>Error loading products</h3>
+                                        <p>Please try refreshing the page</p>
+                                    </div>
+                                </div>`;
+                        }
+                    }
+                }
+
+                // Function to handle purchase
+                function handlePurchase(productId) {
+                    if (!localStorage.getItem('currentUser')) {
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    // Implement purchase logic here
+                    console.log('Purchase initiated for product:', productId);
+                }
+
+                // Load products when page loads
+                document.addEventListener('DOMContentLoaded', () => {
+                    console.log('DOM loaded, fetching products...'); // Debug log
+                    loadProducts();
+                });
+            </script>
         </div>
     </div>
 
