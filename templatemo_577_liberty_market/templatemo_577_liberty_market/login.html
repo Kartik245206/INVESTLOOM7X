@@ -67,7 +67,7 @@
         <form id="loginForm">
             <div class="mb-3">
                 <label class="form-label">Email Address</label>
-                <input type="email" class="form-control" id="username" required>
+                <input type="email" class="form-control" id="email" required>
             </div>
             <div class="mb-3">
                 <label class="form-label">Password</label>
@@ -88,7 +88,8 @@
 
           form.addEventListener('submit', async function (e) {
             e.preventDefault();
-            const email = document.getElementById('username')?.value?.trim();
+            const email = document.getElementById('email')?.value?.trim();
+
             const password = document.getElementById('password')?.value;
 
             if (!email || !password) {

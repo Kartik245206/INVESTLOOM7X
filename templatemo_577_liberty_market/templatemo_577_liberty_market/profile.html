@@ -2,64 +2,107 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=1024">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>User Profile - Liberty Market</title>
     <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/fontawesome.css">
     <link rel="stylesheet" href="assets/css/templatemo-liberty-market.css">
     <link rel="stylesheet" href="assets/css/desktop-only.css">
+    <link href="assets/css/utils/variables.css" rel="stylesheet">
+    <link href="assets/css/navigation.css" rel="stylesheet">
+    <link href="assets/css/components/modals.css" rel="stylesheet">
+    <link href="assets/css/components/cards.css" rel="stylesheet">
+    <link href="assets/css/components/forms.css" rel="stylesheet">
+
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="assets/js/common.js"></script>
+    <style>
+        /* Additional styles to fix layout issues */
+        .profile-container {
+            padding: 20px 15px;
+        }
+        .profile-card {
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        @media (max-width: 576px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
     </head>
 <body>
+    <header class="main-nav">
+        <a href="index.html" class="logo">
+            <img src="assets/images/logo.png" alt="INVESTLOOM7X">
+        </a>
 
-    <nav>
-        <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="profile.html">Profile</a></li>
-            <li><a href="Host-WEB/admin_dashboard.html">Admin</a></li>
-            <li><a href="#" id="logoutBtn">Logout</a></li>
-        </ul>
+        </header>
+
+    <nav class="side-nav">
+        <a href="index.html" class="nav-link active">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="profile.html" class="nav-link">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </a>
+        <a href="details.html" class="nav-link">
+            <i class="fas fa-info-circle"></i>
+            <span>Details</span>
+        </a>
+        <a href="Host-WEB/admin_Login_page.html" class="nav-link">
+            <i class="fas fa-user-shield"></i>
+            <span>Admin</span>
+        </a>
+        <a href="login.html" class="nav-link">
+            <i class="fas fa-sign-in-alt"></i>
+            <span>Login</span>
+        </a>
+        <a href="signup.html" class="nav-link">
+            <i class="fas fa-user-plus"></i>
+            <span>Create Account</span>
+        </a>
     </nav>
-    <header class="header-area">
-        <div class="container">
-            <nav class="main-nav">
-                <a href="index.html" class="logo">
-                    <img src="assets/images/logo.png" alt="INVESTLOOM7X">
-                </a>
-                <ul class="nav">
-                    <li><a href="index.html">Dashboard</a></li>
-                    <li><a href="profile.html" class="active">Profile</a></li>
-                    <li><a href="javascript:void(0)" onclick="showWithdrawModal()">Withdrawal</a></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
+    <div class="side-nav-toggle" id="sideNavToggle">
+            <i class="fas fa-arrow-right"></i>
+        </div> 
 
     <div class="profile-container">
         <div class="container">
-            <div class="row">
+            <div class="row g-3">
+
                 <!-- Profile Header -->
-                <div class="col-12">
+                <div class="col-12 col-lg-12">
                     <div class="profile-card">
-                        <div class="profile-header">
+                        <div class="profile-header" >
                             <div class="profile-pic">
-                                <img id="userProfilePic" src="assets/images/default-avatar.png" alt="Profile Picture">
+                                <img id="userProfilePic" src="assets/images/default-avatar.png" alt="Profile Picture" class="img-fluid rounded-circle">
                                 <div class="edit-pic" onclick="document.getElementById('profilePicInput').click()">
                                     <i class="fa fa-camera"></i>
                                 </div>
                                 <input type="file" id="profilePicInput" hidden accept="image/*" onchange="updateProfilePic(this)">
                             </div>
                             <div class="profile-info">
-                                <h2 href="signup.html">{username}</h2>
-
-                                <p id="userEmail" class="text-muted">Loading...</p>
+                                <h2 class="mb-2" id="username"></h2>
                                 
-                                <div class="profile-balance">
-                                    <div class="balance-title">Total Balance</div>
-                                    <div class="balance-amount" id="totalBalanceDisplay">₹0</div>
-                                    <div class="withdrawal-available" id="withdrawalAvailable">Available for withdrawal: ₹0</div>
+                                <div class="profile-balance p-3 rounded">
+                                    <div class="balance-title h5 mb-2">Total Balance</div>
+                                    <div class="balance-amount h3 mb-2" id="totalBalanceDisplay">₹0</div>
                                 </div>
                             </div>
                         </div>
@@ -67,38 +110,35 @@
                 </div>
 
                 <!-- Stats Cards -->
-                <div class="col-md-4">
+                <div class="col-6 col-md-3">
                     <div class="stats-card">
-                        <h4>Current Balance</h4>
-                        <h2 id="currentBalance">₹{userBalance}</h2>
-
-                        
+                        <h4 class="h6 mb-2">Current Balance</h4>
+                        <h2 class="h4 mb-0" id="currentBalance">₹{userBalance}</h2>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-6 col-md-3">
                     <div class="stats-card">
-                        <h4>Daily Earnings</h4>
-                        <h2 id="dailyEarnings">₹0/day</h2>
+                        <h4 class="h6 mb-2">Daily Earnings</h4>
+                        <h2 class="h4 mb-0" id="dailyEarnings">₹0/day</h2>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-6 col-md-3">
                     <div class="stats-card">
-                        <h4>Total Withdrawn</h4>
-                        <h2 id="totalWithdrawn">₹0</h2>
+                        <h4 class="h6 mb-2">Total Withdrawn</h4>
+                        <h2 class="h4 mb-0" id="totalWithdrawn">₹0</h2>
                     </div>
                 </div>
-
-                <!-- Add in balance section -->
-                <div class="col-md-4">
+                <div class="col-6 col-md-3">
                     <div class="stats-card">
-                        <h4>Available for Withdrawal</h4>
-                        <h2 id="availableForWithdrawal">₹0</h2>
-                        <small class="text-muted">Min. withdrawal: ₹500</small>
+                        <h4 class="h6 mb-2">Available for Withdrawal</h4>
+                        <h2 class="h4 mb-0" id="availableForWithdrawal"></h2>
+                        <small class="text-muted d-block mt-2">Min. withdrawal: ₹500</small>
                     </div>
                 </div>
 
                 <!-- Main Content -->
-                <div class="col-12 mt-4">
+                <div class="col-6 col-md-3">
+
                     <div class="profile-card">
                         <ul class="nav nav-pills mb-4" role="tablist">
                             <li class="nav-item">
