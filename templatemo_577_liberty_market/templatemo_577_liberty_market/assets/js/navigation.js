@@ -13,26 +13,7 @@ function toggleMobileMenu() {
 document.addEventListener('DOMContentLoaded', function() {
     // Get current page path
     const currentPath = window.location.pathname;
-    const pageName = currentPath.split('/').pop() || 'index.html';
-
-    // Update side navigation HTML with active states
-    const sideNav = document.querySelector('.side-nav');
-    if (sideNav) {
-        sideNav.innerHTML = `
-            <a href="index.html" class="nav-link ${pageName === 'index.html' ? 'active' : ''}">
-                <i class="fas fa-home"></i>
-                <span>Home</span>
-            </a>
-            <a href="profile.html" class="nav-link ${pageName === 'profile.html' ? 'active' : ''}">
-                <i class="fas fa-user"></i>
-                <span>Profile</span>
-            </a>
-            <a href="details.html" class="nav-link ${pageName === 'details.html' ? 'active' : ''}">
-                <i class="fas fa-info-circle"></i>
-                <span>Details</span>
-            </a>
-        `;
-    }
+    
 
     const navLinks = document.querySelectorAll('.nav li a');
     navLinks.forEach(link => {
@@ -104,8 +85,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Add click handlers for all navigation items
+    // Remove any existing click handlers before adding new ones
     document.querySelectorAll('.side-nav a').forEach(link => {
+        link.removeEventListener('click', handleNavigation);
         link.addEventListener('click', handleNavigation);
     });
 });
@@ -129,6 +111,12 @@ function handleNavigation(e) {
             } else {
                 window.location.href = 'Host-WEB/admin_dashboard.html';
             }
+            break;
+        case 'Login':
+            window.location.href = 'login.html';
+            break;
+        case 'Signup':
+            window.location.href = 'signup.html';
             break;
         case 'Logout':
             handleLogout();
@@ -273,52 +261,42 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-document.addEventListener('DOMContentLoaded', function() {
-    const menuTrigger = document.querySelector('.menu-trigger');
-    const sideNav = document.querySelector('.side-nav');
-    const nav = document.querySelector('.nav');
-    let touchStart = 0;
-    let touchEnd = 0;
+document.addEventListener('DOMContentLoaded', function() { 
+    const sideNav = document.querySelector('.side-nav'); 
+    const navHandle = document.getElementById('navHandle'); 
+    const sideNavOverlay = document.getElementById('sideNavOverlay'); 
 
-    // Menu button click handler
-    menuTrigger?.addEventListener('click', function() {
-        this.classList.toggle('active');
-        sideNav.classList.toggle('active');
-        nav.classList.toggle('active');
-    });
+    let touchStart = 0; 
+    let touchEnd = 0; 
 
-    // Click outside to close
-    document.addEventListener('click', function(e) {
-        if (!sideNav.contains(e.target) && 
-            !menuTrigger.contains(e.target)) {
-            sideNav.classList.remove('active');
-            nav.classList.remove('active');
-            menuTrigger.classList.remove('active');
-        }
-    });
+    // Swipe only works on overlay (not whole document) 
+    if (sideNavOverlay) { 
+        sideNavOverlay.addEventListener('touchstart', e => { 
+            touchStart = e.changedTouches[0].screenX; 
+        }); 
 
-    // Touch events for mobile swipe
-    document.addEventListener('touchstart', e => {
-        touchStart = e.changedTouches[0].screenX;
-    });
+        sideNavOverlay.addEventListener('touchend', e => { 
+            touchEnd = e.changedTouches[0].screenX; 
+            handleSwipe(); 
+        }); 
+    } 
 
-    document.addEventListener('touchend', e => {
-        touchEnd = e.changedTouches[0].screenX;
-        handleSwipe();
-    });
+    function handleSwipe() { 
+        const swipeLength = touchEnd - touchStart; 
+        if (Math.abs(swipeLength) > 50) { 
+            if (swipeLength < 0) { 
+                // Swipe left → close menu 
+                sideNav.classList.remove('active'); 
+                sideNavOverlay.style.display = 'none'; 
+            } 
+        } 
+    } 
 
-    function handleSwipe() {
-        const swipeLength = touchEnd - touchStart;
-        if (Math.abs(swipeLength) > 50) {
-            if (swipeLength > 0) {
-                // Swipe right - open menu
-                sideNav.classList.add('active');
-            } else {
-                // Swipe left - close menu
-                sideNav.classList.remove('active');
-            }
-        }
-    }
+    // Arrow button toggles menu 
+    navHandle?.addEventListener('click', () => { 
+        sideNav.classList.toggle('active'); 
+        sideNavOverlay.style.display = sideNav.classList.contains('active') ? 'block' : 'none'; 
+    }); 
 });
 
 // Side navigation functionality
@@ -328,11 +306,12 @@ const sideNavOverlay = document.getElementById('sideNavOverlay');
 const toggleIcon = sideNavToggle?.querySelector('i');
 
 function toggleSideNav(forceClose = false) {
+    
     if (forceClose) {
         sideNav?.classList.remove('active');
         sideNavOverlay.style.display = 'none';
-        toggleIcon?.classList.remove('fa-arrow-left');
-        toggleIcon?.classList.add('fa-arrow-right');
+        toggleIcon?.classList.remove('{{');
+        toggleIcon?.classList.add('}}');
         return;
     }
 
@@ -341,11 +320,11 @@ function toggleSideNav(forceClose = false) {
 
 
     if (sideNav.classList.contains('active')) {
-        toggleIcon.classList.remove('fa-arrow-right');
-        toggleIcon.classList.add('fa-arrow-left');
+        toggleIcon.classList.remove('{{');
+        toggleIcon.classList.add('}}');
     } else {
-        toggleIcon.classList.remove('fa-arrow-left');
-         toggleIcon.classList.add('fa-arrow-right');
+        toggleIcon.classList.remove('}}');
+         toggleIcon.classList.add('{{');
     }
 }
 
@@ -384,12 +363,12 @@ document.addEventListener('DOMContentLoaded', function() {
             // Update toggle icon
             const icon = this.querySelector('i');
             if (sideNav.classList.contains('active')) {
-                icon.classList.remove('fa-arrow-right');
-                icon.classList.add('fa-arrow-left');
+                icon.classList.remove('{{');
+                icon.classList.add('}}');
                 sideNav.style.left = '0';
             } else {
-                icon.classList.remove('fa-arrow-left');
-                icon.classList.add('fa-arrow-right');
+                icon.classList.remove('}}');
+                icon.classList.add('{{');
                 sideNav.style.left = '-180px';
             }
         });

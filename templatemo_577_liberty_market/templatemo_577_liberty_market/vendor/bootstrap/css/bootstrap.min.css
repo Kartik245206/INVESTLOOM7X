@@ -294,6 +294,7 @@ figure {
 img,
 svg {
   vertical-align: middle;
+  width: 400px;
 }
 
 table {

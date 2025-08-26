@@ -17,7 +17,7 @@ router.post('/deposit', async (req, res) => {
     user.deposits.push({ amount, txnRef, method, status: 'completed', createdAt: new Date() });
 
     await user.save();
-    res.json({ success: true, balance: user.balance });
+    res.json({ success: true, balance: user.balance, dailyEarnings: user.dailyEarnings });
   } catch (err) {
     console.error('Deposit error', err);
     res.status(500).json({ error: 'Deposit failed' });

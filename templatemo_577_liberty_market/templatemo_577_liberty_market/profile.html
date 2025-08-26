@@ -368,6 +368,25 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.requires-auth').forEach(el => el.style.display = 'none');
     }
 });
+
+
+function updateUserData() {
+  fetch('/api/users/profile', {
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    }
+  })
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById('userBalance').textContent = `₹${data.balance}`;
+    document.getElementById('dailyEarnings').textContent = `₹${data.dailyEarnings}/day`;
+    document.getElementById('totalWithdrawn').textContent = `₹${data.totalWithdrawn}`;
+    document.getElementById('availableForWithdrawal').textContent = `₹${data.availableForWithdrawal}`;
+  });
+}
+
+// Update every minute
+setInterval(updateUserData, 60000);
 </script>
 </body>
 </html>
