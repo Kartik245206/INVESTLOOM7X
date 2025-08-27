@@ -7,13 +7,12 @@
     <title>Product Details - InvestLoom7x</title>
     
     <!-- CSS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets/css/fontawesome.css" rel="stylesheet">
     <link href="assets/css/templatemo-liberty-market.css" rel="stylesheet">
     <link href="assets/css/owl.css" rel="stylesheet">
     <link href="assets/css/navigation.css" rel="stylesheet">
-    <link href="assets/css/animate.css" rel="stylesheet">
     <link href="assets/css/utils/animate.css" rel="stylesheet">
     <link href="assets/css/utils/responsive.css" rel="stylesheet">
     <link href="https://unpkg.com/swiper@7/swiper-bundle.min.css" rel="stylesheet">
@@ -40,7 +39,7 @@
     
     <!-- ***** Preloader End ***** -->
      <nav class="side-nav">
-        <a href="index.html" class="nav-link active">
+        <a href="index.html" class="nav-link">
             <i class="fas fa-home"></i>
             <span>Home</span>
         </a>
@@ -48,7 +47,7 @@
             <i class="fas fa-user"></i>
             <span>Profile</span>
         </a>
-        <a href="details.html" class="nav-link">
+        <a href="details.html" class="nav-link active">
             <i class="fas fa-info-circle"></i>
             <span>Details</span>
         </a>
@@ -65,9 +64,10 @@
             <span>Create Account</span>
         </a>
     </nav>
-    <div class="side-nav-toggle" id="sideNavToggle">
-            <i class="fas fa-arrow-right"></i>
-        </div>
+    <div class="side-nav-toggle" id="navHandle">
+        <i class="fas fa-bars"></i>
+    </div>
+    <div id="sideNavOverlay" class="side-nav-overlay"></div>
     <!-- ***** Header Area End ***** -->
 
     <div class="item-details-page">
@@ -114,7 +114,61 @@
     <script src="assets/js/custom.js"></script>
     
     <script>
+    // Navigation Script
     document.addEventListener('DOMContentLoaded', function() {
+        const sideNav = document.querySelector('.side-nav');
+        const navHandle = document.getElementById('navHandle');
+        const sideNavOverlay = document.getElementById('sideNavOverlay');
+        const navIcon = navHandle.querySelector('i');
+
+        // Function to toggle side nav
+        function toggleSideNav(forceClose = false) {
+            const isActive = sideNav.classList.contains('active');
+
+            if (forceClose || isActive) {
+                sideNav.classList.remove('active');
+                sideNavOverlay.classList.remove('active');
+                navHandle.classList.remove('active');
+                sideNavOverlay.style.display = 'none';
+                navIcon.classList.remove('fa-times');
+                navIcon.classList.add('fa-bars');
+            } else {
+                sideNav.classList.add('active');
+                sideNavOverlay.classList.add('active');
+                navHandle.classList.add('active');
+                sideNavOverlay.style.display = 'block';
+                navIcon.classList.remove('fa-bars');
+                navIcon.classList.add('fa-times');
+            }
+        }
+
+        // Click on toggle button
+        navHandle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleSideNav();
+        });
+
+        // Click on overlay to close
+        sideNavOverlay.addEventListener('click', () => {
+            toggleSideNav(true);
+        });
+
+        // Close nav when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!sideNav.contains(e.target) && !navHandle.contains(e.target)) {
+                toggleSideNav(true);
+            }
+        });
+
+        // Add active class to current page link
+        const currentPage = window.location.pathname.split('/').pop();
+        document.querySelectorAll('.side-nav .nav-link').forEach(link => {
+            const href = link.getAttribute('href');
+            if (href === currentPage || (currentPage === '' && href === 'index.html')) {
+                link.classList.add('active');
+            }
+        });
+
         // Get product ID from URL
         const urlParams = new URLSearchParams(window.location.search);
         const productId = urlParams.get('id');
@@ -511,4 +565,3 @@
     <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
 </body>
 </html>
-

@@ -62,23 +62,40 @@ router.post('/admin/login', async (req, res) => {
 // Signup
 router.post('/signup', async (req, res) => {
   try {
-    const { name = '', email = '', password = '' } = req.body || {};
-    if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
+    const { 
+      name = '', 
+      email = '', 
+      password = '', 
+      username = '', 
+      phone = '', 
+      upiId = '' 
+    } = req.body || {};
+    
+    if (!email || !password || !username) {
+      return res.status(400).json({ error: 'Email, username and password are required' });
+    }
 
     const normalizedEmail = String(email).trim().toLowerCase();
+    const normalizedUsername = String(username).trim().toLowerCase();
 
-    console.log('[auth.signup] checking existing user for', normalizedEmail);
-    // Use a try-catch block specifically for the findOne operation to handle potential errors
+    console.log('[auth.signup] checking existing user for email:', normalizedEmail, 'username:', normalizedUsername);
+    
     try {
-      const existing = await User.findOne({ email: normalizedEmail }).lean();
-      if (existing) {
+      // Check for existing email
+      const existingEmail = await User.findOne({ email: normalizedEmail }).lean();
+      if (existingEmail) {
         console.log('[auth.signup] email already exists');
         return res.status(409).json({ error: 'Email already registered' });
       }
+
+      // Check for existing username
+      const existingUsername = await User.findOne({ username: normalizedUsername }).lean();
+      if (existingUsername) {
+        console.log('[auth.signup] username already exists');
+        return res.status(409).json({ error: 'Username already exists' });
+      }
     } catch (findError) {
       console.error('[auth.signup] error checking existing user:', findError);
-      // Continue with signup process even if there was an error checking for existing user
-      // This prevents the duplicate key error from blocking legitimate signups
     }
 
     const hash = await bcrypt.hash(password, 12);
@@ -86,6 +103,9 @@ router.post('/signup', async (req, res) => {
     const user = new User({
       name: String(name).trim(),
       email: normalizedEmail,
+      username: normalizedUsername,
+      phone: String(phone).trim(),
+      upiId: String(upiId).trim(),
       passwordHash: hash,
       balance: 0,
       createdAt: new Date()
@@ -106,22 +126,31 @@ router.post('/signup', async (req, res) => {
 
       return res.json({
         success: true,
-        user: { id: user._id, name: user.name, email: user.email, balance: user.balance }
+        user: { 
+          id: user._id, 
+          name: user.name, 
+          email: user.email, 
+          username: user.username,
+          balance: user.balance 
+        }
       });
     } catch (saveError) {
-      // Handle duplicate key error specifically
-      if (saveError.code === 11000 && saveError.keyPattern && saveError.keyPattern.email) {
-        console.log('[auth.signup] duplicate email detected during save');
-        return res.status(409).json({ error: 'This email is already registered. Please use a different email or login instead.' });
+      // Handle duplicate key errors
+      if (saveError.code === 11000) {
+        if (saveError.keyPattern && saveError.keyPattern.email) {
+          console.log('[auth.signup] duplicate email detected during save');
+          return res.status(409).json({ error: 'This email is already registered. Please use a different email or login instead.' });
+        }
+        if (saveError.keyPattern && saveError.keyPattern.username) {
+          console.log('[auth.signup] duplicate username detected during save');
+          return res.status(409).json({ error: 'This username is already taken. Please choose a different username.' });
+        }
+        return res.status(409).json({ error: 'User already exists with this information' });
       }
-      throw saveError; // Re-throw other errors to be caught by the outer catch block
+      throw saveError;
     }
   } catch (err) {
     console.error('[auth.signup] error:', err && err.stack ? err.stack : err);
-    if (err && err.code === 11000) {
-      return res.status(409).json({ error: 'Email already registered (duplicate key)' });
-    }
-    // temporarily return the error message to help debugging (remove in production)
     return res.status(500).json({ error: err && err.message ? err.message : 'Internal Server Error' });
   }
 });
@@ -129,15 +158,34 @@ router.post('/signup', async (req, res) => {
 // Login
 router.post('/login', async (req, res) => {
   try {
-    const { email = '', password = '' } = req.body || {};
-    if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
+    const { email, username, password } = req.body;
+    
+    if (!password) {
+      return res.status(400).json({ error: 'Password is required' });
+    }
 
-    const normalizedEmail = String(email).trim().toLowerCase();
-    const user = await User.findOne({ email: normalizedEmail });
-    if (!user) return res.status(401).json({ error: 'Invalid credentials' });
+    if (!email && !username) {
+      return res.status(400).json({ error: 'Email or username is required' });
+    }
 
-    const ok = await bcrypt.compare(password, user.passwordHash || '');
-    if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
+    // Find user by email or username
+    let query = {};
+    if (email) {
+      query.email = String(email).trim().toLowerCase();
+    } else if (username) {
+      query.username = String(username).trim().toLowerCase();
+    }
+
+    const user = await User.findOne(query);
+    
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const isValidPassword = await user.comparePassword(password);
+    if (!isValidPassword) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
 
     const token = makeToken(user);
     res.cookie('token', token, {
@@ -147,9 +195,20 @@ router.post('/login', async (req, res) => {
       maxAge: 1000 * 60 * 60 * 24 * 7
     });
 
-    return res.json({ success: true, user: { id: user._id, name: user.name, email: user.email, balance: user.balance } });
-  } catch (err) {
-    console.error('[auth.login] error:', err && err.stack ? err.stack : err);
+    return res.json({
+      success: true,
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        username: user.username,
+        balance: user.balance,
+        profilePic: user.profilePic
+      }
+    });
+  } catch (error) {
+    console.error('[auth.login] error:', error);
     return res.status(500).json({ error: 'Internal Server Error' });
   }
 });

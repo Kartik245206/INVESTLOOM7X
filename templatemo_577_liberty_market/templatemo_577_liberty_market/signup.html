@@ -79,76 +79,91 @@
 
     <!-- Scripts -->
     <script src="vendor/jquery/jquery.min.js"></script>
-        <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const signupForm = document.getElementById('signupForm');
+    <script src="assets/js/auth.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const signupForm = document.getElementById('signupForm');
 
-            signupForm.addEventListener('submit', function(event) {
-                event.preventDefault();
-                
-                const userData = {
-                    fullName: document.getElementById('fullName').value.trim(),
-                    email: document.getElementById('email').value.trim(),
-                    username: document.getElementById('username').value.trim(),
-                    password: document.getElementById('password').value,
-                    phone: document.getElementById('phone').value.trim(),
-                    upiId: document.getElementById('upiId').value.trim()
-                };
-
-                const result = auth.signup(userData);
-
-                if (result.success) {
-                    alert('Signup successful! Redirecting to login...');
-                    window.location.href = 'login.html';
-                } else {
-                    alert(result.message || 'Signup failed. Please try again.');
-                }
-            });
-        });
-
-        document.getElementById('signupForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        signupForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
             
-            const username = document.getElementById('username').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+            // Clear any existing alerts
+            hideAlert();
             
-            // Create new user object
-            const newUser = {
-                id: 'USER_' + Date.now(),
-                username: username,
-                email: email,
-                password: password, // In production, this should be hashed
-                balance: 0,
-                createdAt: new Date().toISOString(),
-                profilePic: 'assets/images/author.jpg'
+            const userData = {
+                name: document.getElementById('fullName').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                password: document.getElementById('password').value,
+                username: document.getElementById('username').value.trim(),
+                phone: document.getElementById('phone').value.trim(),
+                upiId: document.getElementById('upiId').value.trim()
             };
-            
-            // Get existing users or initialize empty array
-            let users = JSON.parse(localStorage.getItem('users') || '[]');
-            
-            // Check if username or email already exists
-            if (users.some(user => user.username === username)) {
-                alert('Username already exists');
+
+            // Basic validation
+            if (!userData.name || !userData.email || !userData.username || !userData.password) {
+                showAlert('Please fill in all required fields.', 'danger');
                 return;
             }
-            
-            if (users.some(user => user.email === email)) {
-                alert('Email already exists');
+
+            if (userData.password.length < 6) {
+                showAlert('Password must be at least 6 characters long.', 'danger');
                 return;
             }
-            
-            // Add new user
-            users.push(newUser);
-            localStorage.setItem('users', JSON.stringify(users));
-            
-            // Auto login after signup
-            localStorage.setItem('currentUser', JSON.stringify(newUser));
-            localStorage.setItem('token', 'TOKEN_' + Date.now());
-            
-            alert('Account created successfully!');
-            window.location.href = 'index.html';
+
+            try {
+                showAlert('Creating account...', 'info');
+                
+                const response = await fetch('/api/auth/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(userData),
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    showAlert('Account created successfully! Redirecting to login...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
+                } else {
+                    // Show specific error messages
+                    if (data.error.includes('Email already registered')) {
+                        showAlert('This email is already registered. Please use a different email or login instead.', 'danger');
+                    } else if (data.error.includes('Username already exists')) {
+                        showAlert('This username is already taken. Please choose a different username.', 'danger');
+                    } else {
+                        showAlert(data.error || 'Signup failed. Please try again.', 'danger');
+                    }
+                }
+            } catch (error) {
+                console.error('Signup error:', error);
+                showAlert('Network error. Please check your connection and try again.', 'danger');
+            }
         });
+    });
+
+    function showAlert(message, type) {
+        const alertDiv = document.getElementById('alertMessage');
+        alertDiv.className = `alert alert-${type}`;
+        alertDiv.textContent = message;
+        alertDiv.style.display = 'block';
+        
+        // Auto-hide success and info messages
+        if (type === 'success' || type === 'info') {
+            setTimeout(() => {
+                hideAlert();
+            }, 5000);
+        }
+    }
+
+    function hideAlert() {
+        const alertDiv = document.getElementById('alertMessage');
+        alertDiv.style.display = 'none';
+    }
     </script>
 </body>
 </html>
