@@ -1,13 +1,15 @@
 const ADMIN_CREDENTIALS = {
-    phone: '7417915397',
+    username: 'bhadana',
     password: 'Kartik904541'
 };
 
 async function handleAdminLogin(event) {
     event.preventDefault();
     
-    const phone = document.getElementById('adminPhone').value;
+    const username = document.getElementById('adminPhone').value; // यह element का name phone है लेकिन value username है
     const password = document.getElementById('adminPassword').value;
+
+    console.log('Sending login data:', { username, password }); // Debug के लिए
 
     try {
         const response = await fetch('/api/auth/admin/login', {
@@ -15,23 +17,31 @@ async function handleAdminLogin(event) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ phone, password })
+            body: JSON.stringify({ 
+                username: username, // username field भेजें
+                password: password 
+            })
         });
 
+        const data = await response.json();
+        console.log('Server response:', data); // Debug के लिए
+        
         if (!response.ok) {
-            throw new Error('Invalid credentials');
+            throw new Error(data.error || 'Invalid credentials');
         }
 
-        const data = await response.json();
-        
-        // Store admin auth data
-        localStorage.setItem('adminLoggedIn', 'true');
-        localStorage.setItem('adminToken', data.token);
-        localStorage.setItem('adminPhone', phone);
+        if (data.success && data.token && data.adminSecret) {
+            localStorage.setItem('adminLoggedIn', 'true');
+            localStorage.setItem('adminToken', data.token);
+            localStorage.setItem('ADMIN_SECRET', data.adminSecret);
+            localStorage.setItem('adminUsername', username);
 
-        // Redirect to dashboard
-        window.location.href = 'admin_dashboard.html';
+            window.location.href = 'admin_dashboard.html';
+        } else {
+            throw new Error('Invalid response from server');
+        }
     } catch (error) {
+        console.error('Login error:', error);
         alert('Login failed: ' + error.message);
     }
 }

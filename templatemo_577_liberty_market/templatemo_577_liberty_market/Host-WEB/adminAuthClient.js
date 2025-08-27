@@ -1,73 +1,141 @@
 // Client-side Admin Authentication Functions
-const adminAuth = {
+class AdminAuth {
+    constructor() {
+        this.adminToken = 'admin_session_token';
+        this.adminCredentials = {
+            username: 'admin',
+            password: 'admin123' // Change this to a secure password
+        };
+    }
+
+    // Check if admin is authenticated
     checkAdminAuth() {
-        const isLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
-        const adminToken = localStorage.getItem('adminToken');
-        const adminSecret = localStorage.getItem('ADMIN_SECRET');
+        const isAuthenticated = localStorage.getItem('adminAuthenticated');
+        const sessionExpiry = localStorage.getItem('adminSessionExpiry');
         
-        // Check all required credentials
-        if (!isLoggedIn || !adminToken || !adminSecret) {
-            this.clearAdminSession();
+        if (!isAuthenticated || !sessionExpiry) {
+            this.redirectToLogin();
             return false;
         }
+
+        // Check if session has expired
+        if (new Date().getTime() > parseInt(sessionExpiry)) {
+            this.logout();
+            return false;
+        }
+
         return true;
-    },
+    }
 
-    clearAdminSession() {
-        localStorage.removeItem('adminLoggedIn');
-        localStorage.removeItem('adminToken');
-        localStorage.removeItem('ADMIN_SECRET');
-        localStorage.removeItem('adminPhone');
-        window.location.replace('./admin_Login_page.html');
-    },
+    // Login function
+    login(username, password) {
+        if (username === this.adminCredentials.username && 
+            password === this.adminCredentials.password) {
+            
+            // Set authentication state
+            localStorage.setItem('adminAuthenticated', 'true');
+            localStorage.setItem('adminUsername', username);
+            
+            // Set session expiry (24 hours from now)
+            const expiryTime = new Date().getTime() + (24 * 60 * 60 * 1000);
+            localStorage.setItem('adminSessionExpiry', expiryTime.toString());
+            
+            return true;
+        }
+        return false;
+    }
 
+    // Logout function
     logout() {
-        this.clearAdminSession();
+        localStorage.removeItem('adminAuthenticated');
+        localStorage.removeItem('adminUsername');
+        localStorage.removeItem('adminSessionExpiry');
+        this.redirectToLogin();
+    }
+
+    // Redirect to login page
+    redirectToLogin() {
+        if (window.location.pathname !== '/Host-WEB/admin_Login_page.html' && 
+            !window.location.pathname.includes('admin_Login_page.html')) {
+            window.location.replace('./admin_Login_page.html');
+        }
+    }
+
+    // Redirect to dashboard
+    redirectToDashboard() {
+        window.location.replace('./admin_dashboard.html');
+    }
+
+    // Get admin info
+    getAdminInfo() {
+        return {
+            username: localStorage.getItem('adminUsername'),
+            isAuthenticated: this.checkAdminAuth()
+        };
+    }
+}
+
+// Create global instance
+const adminAuth = {
+    // Check admin credentials
+    login(username, password) {
+        // Check against environment variables or hardcoded values
+        const validUsername = username === 'bhadana';
+        const validPassword = password === 'Kartik904541';
+        
+        if (validUsername && validPassword) {
+            // Store admin session
+            localStorage.setItem('adminLoggedIn', 'true');
+            localStorage.setItem('adminPhone', username);
+            localStorage.setItem('ADMIN_SECRET', 'Kartik7417');
+            localStorage.setItem('adminToken', 'ADMIN_TOKEN_' + Date.now());
+            return true;
+        }
+        return false;
+    },
+
+    // Check if admin is authenticated
+    checkAdminAuth() {
+        return localStorage.getItem('adminLoggedIn') === 'true' && 
+               localStorage.getItem('adminPhone') === 'bhadana' &&
+               localStorage.getItem('ADMIN_SECRET');
+    },
+
+    // Redirect to dashboard
+    redirectToDashboard() {
+        window.location.href = './admin_dashboard.html';
+    },
+
+    // Logout admin
+    logout() {
+        localStorage.removeItem('adminLoggedIn');
+        localStorage.removeItem('adminPhone');
+        localStorage.removeItem('ADMIN_SECRET');
+        localStorage.removeItem('adminToken');
+        window.location.href = './admin_Login_page.html';
     }
 };
 
-async function handleAdminLogin(event) {
+function handleAdminLogin(event) {
     event.preventDefault();
     
-    const phone = document.getElementById('adminPhone').value;
-    const password = document.getElementById('adminPassword').value;
-
-    // Basic validation
-    if (!phone || !password) {
-        alert('Please enter both phone number and password');
-        return;
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+    
+    if (adminAuth.login(username, password)) {
+        return true;
+    } else {
+        return false;
     }
+}
 
-    try {
-        const response = await fetch('/api/admin/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ 
-                phone,
-                password 
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error('Invalid credentials');
-        }
-
-        const data = await response.json();
-        
-        // Store auth data
-        localStorage.setItem('adminLoggedIn', 'true');
-        localStorage.setItem('adminToken', data.token);
-        localStorage.setItem('ADMIN_SECRET', data.adminSecret);
-        localStorage.setItem('adminPhone', phone);
-
-        // Redirect to dashboard
-        window.location.href = 'admin_dashboard.html';
-    } catch (error) {
-        console.error('Login error:', error);
-        alert('Login failed: ' + error.message);
-    }
+function showError(message) {
+    const errorDiv = document.getElementById('errorMessage');
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+    setTimeout(() => {
+        errorDiv.style.display = 'none';
+    }, 3000);
 }
 
 // Add event listener for logout button

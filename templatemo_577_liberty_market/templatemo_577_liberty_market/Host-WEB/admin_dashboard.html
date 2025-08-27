@@ -3,965 +3,545 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https:; img-src 'self' data: https:;">
-    <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
-    <title>Admin Dashboard - Market Control Panel</title>
-    
-    <!-- Add these CSS/JS files with SRI hashes for security -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" 
-          rel="stylesheet" 
-          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" 
-          crossorigin="anonymous">
-    <link rel="stylesheet" href="../assets/css/dashboard-common.css">
-    <link rel="stylesheet" href="../assets/css/navigation.css">
+    <title>Admin Dashboard - InvestLoom7x</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
     <link rel="stylesheet" href="../assets/css/fontawesome.css">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" 
-            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" 
-            crossorigin="anonymous"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-    
-    <!-- Add DataTables for better table management -->
-    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js" 
-            integrity="sha384-vtXRMe3mGCbOeY7l30aIg8H9p3GdeSe4IFlP6G8JMa7o7lXvnz3GFKzPxzJdPfGK" 
-            crossorigin="anonymous"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
-    
-    <!-- Navigation and Authentication Scripts -->
-    <script src="../assets/js/navigation.js"></script>
-    <script src="./adminAuthClient.js"></script>
-    <script>
-        // Check authentication when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            if (!adminAuth.checkAdminAuth()) {
-                window.location.replace('./admin_Login_page.html');
-                return;
-            }
-            // Load navigation
-            fetch('../common/navigation.html')
-                .then(response => response.text())
-                .then(html => {
-                    document.body.insertAdjacentHTML('afterbegin', html);
-                });
-        });
-
-        window.onerror = function(msg, url, lineNo, columnNo, error) {
-            console.error('Error: ' + msg + '\nURL: ' + url + '\nLine: ' + lineNo + '\nColumn: ' + columnNo + '\nError object: ' + JSON.stringify(error));
-            return false;
-        };
-        
-        /* ---- Removed older/simple product CRUD functions (loadProducts, addProduct, editProduct,
-               deleteProduct, showAlert) and the DOMContentLoaded form wiring that conflicted
-               with richer implementations later in this file. ---- */
-    </script>
     <style>
-        .sidebar {
-            height: 100vh;
-            background: #7453fc;
-            color: white;
-            position: fixed;
-            width: 250px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .content {
-            margin-left: 250px;
-            padding: 20px;
-            background-color: #f8f9fa;
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
+            padding-bottom: 80px; /* Space for bottom nav */
         }
-        .nav-link {
-            color: white;
-            padding: 12px 20px;
-            margin: 5px 0;
-            border-radius: 8px;
-            transition: all 0.3s;
+
+        .admin-container {
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
         }
-        .nav-link:hover {
-            background: #8a70fd;
-            transform: translateX(5px);
-        }
-        
-        .table img {
-            border-radius: 8px;
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border: 2px solid #7453fc;
-        }
-        
-        .modal-lg {
-            max-width: 800px;
-        }
-        
-        .left-image img {
-            width: 100%;
-            height: 250px;
-            object-fit: cover;
+
+        .admin-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
             border-radius: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        
-        #imagePreview {
-            max-width: 200px;
-            max-height: 200px;
-            object-fit: contain;
-            margin-top: 10px;
-            border-radius: 10px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-        }
-        
-        .form-control, .form-select {
-            background-color: #f8f9fa;
-            border: 1px solid #e0e0e0;
-            padding: 12px 15px;
-            border-radius: 10px;
-            transition: all 0.3s;
-        }
-        
-        .form-control:focus, .form-select:focus {
-            border-color: #7453fc;
-            box-shadow: 0 0 0 0.25rem rgba(116, 83, 252, 0.25);
-        }
-        
-        .form-label {
-            font-weight: 500;
-            margin-bottom: 8px;
-            color: #444;
-        }
-        
-        .btn-primary {
-            background-color: #7453fc;
-            border-color: #7453fc;
-            padding: 10px 20px;
-            border-radius: 8px;
-            transition: all 0.3s;
-        }
-        
-        .btn-primary:hover {
-            background-color: #5d3fd7;
-            border-color: #5d3fd7;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(116, 83, 252, 0.3);
-        }
-        
-        .modal-content {
-            border-radius: 15px;
-            overflow: hidden;
+            padding: 2rem;
+            margin-bottom: 2rem;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
         }
-        
-        .modal-header {
-            background-color: #7453fc;
+
+        .admin-header h1 {
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .admin-header p {
+            color: #666;
+            margin: 0;
+        }
+
+        .dashboard-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            min-height: 500px;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 0;
+            z-index: 1000;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: #666;
+            min-width: 80px;
+        }
+
+        .nav-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 15px 20px;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
-        
-        .modal-title {
+
+        .nav-item i {
+            font-size: 1.5rem;
+            margin-bottom: 4px;
+        }
+
+        .nav-item span {
+            font-size: 0.8rem;
             font-weight: 600;
         }
-        
-        .modal-body {
-            padding: 20px;
-        }
 
-        .products-management {
+        /* Product Management Styles */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
             margin-top: 20px;
         }
 
-        .products-management h2 {
-            font-size: 24px;
-            margin-bottom: 20px;
+        .product-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
         }
 
-        .table-responsive {
-            margin-bottom: 20px;
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
         }
 
-        .modal-header {
-            background-color: #007bff;
-            color: #fff;
+        .product-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 15px;
         }
 
-        .modal-title {
-            font-size: 18px;
-            font-weight: 500;
+        .btn-action {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 2px;
         }
 
-        .close {
-            color: #fff;
-            opacity: 0.8;
+        .btn-add {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
         }
 
-        .close:hover {
-            opacity: 1;
+        .btn-edit {
+            background: linear-gradient(135deg, #ffa726 0%, #fb8c00 100%);
+            color: white;
         }
 
-        /* Ensure side-nav visible / toggleable on mobile */
-@media (max-width: 992px) {
-  .side-nav {
-    position: fixed;
-    top: 60px; /* adjust if header height differs */
-    right: 0;
-    left: auto;
-    width: 320px;
-    max-width: 85%;
-    height: calc(100% - 60px);
-    background: #fff;
-    box-shadow: -4px 0 16px rgba(0,0,0,0.15);
-    transform: translateX(0); /* visible by default, toggle via a class if you prefer */
-    z-index: 1200;
-    overflow-y: auto;
-    display: block;
-  }
-  .side-nav.active {
-    left: 0;
-  }
+        .btn-delete {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
 
-  .side-nav-item { display: flex; align-items: center; padding: 12px 16px; }
-  .side-nav .side-nav-text { display: inline-block; margin-left: 12px; color: #222; }
+        /* Payment History Styles */
+        .payment-item {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-  /* hidden state for toggling */
-  .side-nav.hidden { transform: translateX(100%); transition: transform .25s ease; }
-}
+        .payment-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
 
-/* Product Management Styles */
-.product-management {
-    background: var(--card-bg);
-    border-radius: 15px;
-    padding: 20px;
-    margin-bottom: 30px;
-}
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
 
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
 
-.products-table {
-    overflow-x: auto;
-}
+        .status-failed {
+            background: #f8d7da;
+            color: #721c24;
+        }
 
-.table {
-    width: 100%;
-    margin-bottom: 0;
-}
+        /* Settings Styles */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
 
-.table img {
-    width: 50px;
-    height: 50px;
-    object-fit: cover;
-    border-radius: 5px;
-}
+        .settings-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
 
-.table td, .table th {
-    vertical-align: middle;
-}
+        .color-picker {
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
 
-.badge {
-    padding: 5px 10px;
-    border-radius: 20px;
-    font-weight: normal;
-}
+        .form-control {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 12px 15px;
+            transition: all 0.3s ease;
+        }
 
-/* Modal Styles */
-.modal-content {
-    background: var(--card-bg);
-    color: var(--text-color);
-}
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
 
-.modal-header {
-    border-bottom-color: var(--border-color);
-}
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-.modal-footer {
-    border-top-color: var(--border-color);
-}
+        @media (max-width: 768px) {
+            .admin-container {
+                padding: 10px;
+            }
+
+            .nav-item span {
+                font-size: 0.7rem;
+            }
+
+            .nav-item i {
+                font-size: 1.2rem;
+            }
+        }
     </style>
 </head>
+
 <body>
-    <!-- Add this at the start of your body tag -->
-<script src="./admin.js"></script>
-<script>
-    // Check admin authentication when page loads
-    document.addEventListener('DOMContentLoaded', function() {
-        if (!adminAuth.checkAdminAuth()) {
-            return; // This will redirect to login if not authenticated
-        }
-        // Load products when page loads
-        loadProducts();
-    });
+    <script>
+// Add this script right after the opening <body> tag, before any other content
+(function() {
+    // Check if admin is logged in
+    const adminLoggedIn = localStorage.getItem('adminLoggedIn');
+    const adminPhone = localStorage.getItem('adminPhone');
+    
+    if (adminLoggedIn !== 'true' || adminPhone !== 'bhadana') {
+        // Redirect to admin login page
+        alert('Please login as admin first');
+        window.location.href = './admin_Login_page.html';
+        return;
+    }
+})();
 </script>
-    <div class="d-flex">
-        <!-- Sidebar -->
-        <nav class="admin-sidebar side-nav" id="adminSidebar">
-          <div class="admin-brand">
-            <img src="../assets/images/logo.png" alt="Admin">
-          </div>
-
-          <div class="admin-section">
-            <h6>Products</h6>
-            <ul class="admin-links">
-              <li><a href="#" id="addProductBtn">+ Add Product</a></li>
-              <li><a href="#" id="manageProductsBtn">Manage Products</a></li>
-            </ul>
-          </div>
-
-          <div class="admin-section">
-            <h6>Settings</h6>
-            <ul class="admin-links">
-              <li><a href="admin_store_seeting.html">Store Settings</a></li>
-            </ul>
-          </div>
-        </nav>
-
-        <div class="payment-history">
-            <h3>Payment History</h3>
-            <table id="paymentTable">
-                <thead>
-                <tr>
-                    <th>User</th>
-                    <th>Product</th>
-                    <th>Amount</th>
-                    <th>Payment Method</th>
-                    <th>Date</th>
-                </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-            </div>
-
-        <!-- Content Area -->
-        <div class="content w-100">
-            <div class="row mb-4">
-                <div class="col-md-12">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h2 class="mb-0">Product Management</h2>
-                        <div>
-                            <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#addProductModal">
-                                <i class="bi bi-plus-lg"></i> Add New Product
-                            </button>
-                            <button class="btn btn-danger" onclick="clearDatabase()">
-                                <i class="bi bi-trash"></i> Clear Database
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Product Categories -->
-            <div class="row mb-4">
-                <div class="col-md-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Product Categories</h5>
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <div class="category-card p-3 border rounded text-center">
-                                        <i class="bi bi-tag fs-1"></i>
-                                        <h6 class="mt-2">BASIC</h6>
-                                        <span class="badge bg-primary">4 Products</span>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="category-card p-3 border rounded text-center">
-                                        <i class="bi bi-star fs-1"></i>
-                                        <h6 class="mt-2">STANDARD</h6>
-                                        <span class="badge bg-primary">2 Products</span>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="category-card p-3 border rounded text-center">
-                                        <i class="bi bi-gem fs-1"></i>
-                                        <h6 class="mt-2">PREMIUM</h6>
-                                        <span class="badge bg-primary">3 Products</span>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="category-card p-3 border rounded text-center">
-                                        <i class="bi bi-infinity fs-1"></i>
-                                        <h6 class="mt-2">LIFETIME</h6>
-                                        <span class="badge bg-primary">2 Products</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Product List -->
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Product List</h5>
-                            <div class="products-management">
-                                <h2>Products Management</h2>
-                                
-                                <!-- Products Table -->
-                                <div class="table-responsive">
-                                    <table class="table">
-                                        <thead>
-                                            <tr>
-                                                <th>ID</th>
-                                                <th>Image</th>
-                                                <th>Name</th>
-                                                <th>Category</th>
-                                                <th>Price/day</th>
-                                                <th>Total Amount</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="productsTableBody">
-                                            <!-- Products will be loaded here dynamically -->
-                                        </tbody>
-                                    </table>
-                                </div>
-
-                                <!-- Add Product Modal -->
-                                <div class="modal fade" id="addProductModal">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Add New Product</h5>
-                                                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <form id="addProductForm" enctype="multipart/form-data">
-                                                    <div class="form-group">
-                                                        <label>Name</label>
-                                                        <input type="text" name="name" class="form-control" required>
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <label>Category</label>
-                                                        <select name="category" class="form-control" required>
-                                                            <option value="basic">BASIC</option>
-                                                            <option value="standard">STANDARD</option>
-                                                            <option value="premium">PREMIUM</option>
-                                                            <option value="lifetime">LIFETIME</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <label>Price/day</label>
-                                                        <input type="number" name="price" class="form-control" required>
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <label>Image</label>
-                                                        <input type="file" name="image" class="form-control" accept="image/*" required>
-                                                    </div>
-                                                    <button type="submit" class="btn btn-primary">Add Product</button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div id="mainContent">
-                <!-- Additional content will be loaded here -->
-            </div>
-        </div>
-
-        <!-- Add Product Modal (large) -->
-        <div class="modal fade" id="addProductModal" tabindex="-1">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Add New Product</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="addProductForm" enctype="multipart/form-data">
-                            <!-- Add IDs used by saveProduct() -->
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">Product Name</label>
-                                        <input id="productName" type="text" class="form-control" name="name" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Category</label>
-                                        <select id="productCategory" class="form-select" name="category" required>
-                                            <option value="investment">Investment Plan</option>
-                                            <option value="emi">EMI Plan</option>
-                                            <option value="deposit">Deposit Option</option>
-                                            <option value="withdrawal">Withdrawal Option</option>
-                                        </select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Price/Amount</label>
-                                        <input id="productPricePerDay" type="number" class="form-control" name="price" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Total Amount</label>
-                                        <input id="productTotalAmount" type="number" class="form-control" name="total">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">Duration (Days)</label>
-                                        <input id="productDuration" type="number" class="form-control" name="duration">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Description</label>
-                                        <textarea id="productDescription" class="form-control" name="description" rows="4"></textarea>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Status</label>
-                                        <select id="productStatus" class="form-select" name="status" required>
-                                            <option value="active">Active</option>
-                                            <option value="inactive">Inactive</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Image</label>
-                                <input id="productImage" type="file" class="form-control" name="image" accept="image/*" required>
-                                <img id="imagePreview" class="mt-2 d-none" style="max-width:200px;">
-                            </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary" onclick="saveProduct()">Save Product</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- EDIT Product Modal -->
-        <div class="modal fade" id="editProductModal" tabindex="-1">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Edit Product</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <form id="editProductForm">
-              <input type="hidden" id="editProductId">
-              <input type="hidden" id="editExistingImage">
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="mb-3">
-                    <label class="form-label">Name</label>
-                    <input id="editProductName" type="text" class="form-control" required>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Category</label>
-                    <input id="editProductCategory" type="text" class="form-control">
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Price</label>
-                    <input id="editProductPrice" type="number" class="form-control">
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Total</label>
-                    <input id="editProductTotal" type="number" class="form-control">
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="mb-3">
-                    <label class="form-label">Plans</label>
-                    <input id="editProductPlans" type="text" class="form-control">
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Earn</label>
-                    <input id="editProductEarn" type="number" class="form-control">
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Image</label>
-                    <input id="editProductImage" type="file" class="form-control" accept="image/*">
-                    <img id="editImagePreview" class="mt-2" style="max-width:200px;display:none;">
-                  </div>
-                </div>
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button class="btn btn-primary" onclick="updateProduct()">Save Changes</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Add this in the right side content area -->
-<div class="content-section">
-    <div class="product-management">
-        <div class="section-header">
-            <h2>Product Management</h2>
-            <button class="btn btn-primary" onclick="showAddProductModal()">
-                <i class="fas fa-plus"></i> Add New Product
-            </button>
-        </div>
-
-        <div class="products-table">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Image</th>
-                        <th>Name</th>
-                        <th>Price</th>
-                        <th>Daily Earning</th>
-                        <th>Category</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="productsTableBody">
-                    <!-- Products will be loaded here -->
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<!-- Add Product Modal -->
-<div class="modal fade" id="productModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="productModalTitle">Add New Product</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="productForm">
-                    <input type="hidden" id="productId">
-                    <div class="mb-3">
-                        <label class="form-label">Product Image</label>
-                        <input type="file" class="form-control" id="productImage" accept="image/*" required>
-                        <div id="imagePreview" class="mt-2"></div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Product Name</label>
-                        <input type="text" class="form-control" id="productName" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Price (₹)</label>
-                        <input type="number" class="form-control" id="productPrice" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Daily Earning (₹)</label>
-                        <input type="number" class="form-control" id="productEarning" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Category</label>
-                        <select class="form-control" id="productCategory" required>
-                            <option value="basic">Basic</option>
-                            <option value="standard">Standard</option>
-                            <option value="premium">Premium</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Description</label>
-                        <textarea class="form-control" id="productDescription" rows="3" required></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Status</label>
-                        <select class="form-control" id="productStatus">
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
-                        </select>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" onclick="saveProduct()">Save Product</button>
-            </div>
-        </div>
-    </div>
-</div>
-
     <script>
-        // Removed old DataTables/init + simple CRUD functions.
-        // On load, ensure dashboard and product list load using the richer functions defined later.
-        document.addEventListener('DOMContentLoaded', function() {
-            // Load default section and attempt to refresh products once
-            loadSection('dashboard');
-            setTimeout(() => {
-                try { loadProductsFromServer(); } catch(e){ /* ignore if not yet defined */ }
-            }, 200);
-        });
+// Add this right after the opening <body> tag
+document.addEventListener('DOMContentLoaded', function() {
+    // Check admin authentication
+    const adminLoggedIn = localStorage.getItem('adminLoggedIn');
+    const adminPhone = localStorage.getItem('adminPhone');
+    const adminSecret = localStorage.getItem('ADMIN_SECRET');
+    
+    if (adminLoggedIn !== 'true' || adminPhone !== 'bhadana' || !adminSecret) {
+        // Redirect to login page if not authenticated
+        window.location.href = './admin_Login_page.html';
+        return;
+    }
+    
+    // If authenticated, initialize the dashboard
+    initializeDashboard();
+});
 
-        // Populate payments table using API_BASE / ADMIN_SECRET (if available)
-        (function loadPayments() {
-            try {
-                const SECRET = localStorage.getItem('ADMIN_SECRET') || '';
-                if (!window.API_BASE) return; // API_BASE defined later in file; guard to avoid errors
-                fetch((typeof API_BASE !== 'undefined' ? API_BASE : '') + '/api/admin/payments', {
-                    headers: { 'x-admin-secret': SECRET }
-                })
-                .then(res => {
-                    if (!res.ok) return [];
-                    return res.json();
-                })
-                .then(data => {
-                    const tbody = document.querySelector('#paymentTable tbody');
-                    if(!tbody) return;
-                    const list = Array.isArray(data) ? data : (data.payments || []);
-                    tbody.innerHTML = (list || []).map(payment => `
-                        <tr>
-                            <td>${payment.user_name || payment.user || ''}</td>
-                            <td>${payment.product_name || payment.product || ''}</td>
-                            <td>₹${payment.amount || 0}</td>
-                            <td>${payment.payment_method || ''}</td>
-                            <td>${payment.transaction_date ? new Date(payment.transaction_date).toLocaleString() : (payment.date ? new Date(payment.date).toLocaleString() : '')}</td>
-                        </tr>
-                    `).join('');
-                })
-                .catch(()=>{ /* ignore payment load errors */ });
-            } catch(e) { /* ignore */ }
-        })();
-    </script>
-
-
-    <script>
-        function checkAuth() {
-            if (!localStorage.getItem('adminLoggedIn')) {
-                window.location.href = 'admin_Login_page.html';
-            }
+function initializeDashboard() {
+    // Load initial data
+    loadProductsFromServer();
+    loadDashboardStats();
+    
+    // Set up logout functionality
+    document.getElementById('adminLogoutBtn').addEventListener('click', function() {
+        if (confirm('Are you sure you want to logout?')) {
+            localStorage.removeItem('adminLoggedIn');
+            localStorage.removeItem('adminPhone');
+            localStorage.removeItem('ADMIN_SECRET');
+            localStorage.removeItem('adminToken');
+            window.location.href = './admin_Login_page.html';
         }
-        checkAuth();
-
-        // Update API base URL based on environment
-        const API_BASE = window.location.hostname === 'localhost' 
-            ? 'http://localhost:3000'
-            : 'https://liberty-market.onrender.com';
-
-        // Add this function for better error logging
-        // Add mobile menu toggle
-function toggleSidebar() {
-    const sidebar = document.getElementById('adminSidebar');
-    sidebar.classList.toggle('active');
+    });
 }
 
-// Add clear database function
-async function clearDatabase() {
-    if (confirm('Are you sure you want to clear the database? This action cannot be undone.')) {
+// Add these functions to load data
+async function loadProductsFromServer() {
+    try {
+        // Try to load from server first
+        let products = [];
+        
         try {
-            const adminSecret = ensureAdminSecret();
-            const response = await fetch(`${API_BASE}/api/admin/clear-database`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${adminSecret}`
-                }
-            });
-            
+            const response = await fetch('/api/products');
             if (response.ok) {
-                alert('Database cleared successfully!');
-                location.reload();
+                products = await response.json();
+                console.log('Loaded products from server:', products);
             } else {
-                throw new Error('Failed to clear database');
+                throw new Error('Server not available');
             }
-        } catch (error) {
-            logError(error);
-            alert('Failed to clear database. Please try again.');
+        } catch (serverError) {
+            console.log('Server not available, loading from localStorage');
+            // Fallback to localStorage
+            products = JSON.parse(localStorage.getItem('products') || '[]');
         }
+
+        renderProductsTable(products);
+        updateProductStats(products);
+
+    } catch (error) {
+        console.error('Error loading products:', error);
+        // Show empty state
+        renderProductsTable([]);
+        updateProductStats([]);
     }
 }
 
-function logError(error) {
-            console.error('Error details:', {
-                message: error.message,
-                stack: error.stack,
-                response: error.response
+function updateProductStats(products) {
+    document.getElementById('totalProducts').textContent = products.length;
+    document.getElementById('activeProducts').textContent = products.filter(p => p.status === 'active').length;
+}
+
+function renderProductsTable(products) {
+    const tableBody = document.getElementById('productsTableBody');
+    if (!tableBody) return;
+
+    if (products.length === 0) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="7" class="text-center">
+                    <p class="mb-0">No products found. Add your first product!</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tableBody.innerHTML = products.map(product => {
+        const encodedProduct = encodeURIComponent(JSON.stringify(product));
+        return `
+            <tr>
+                <td>${product._id || product.id}</td>
+                <td>
+                    <img src="${product.image || product.imageUrl || 'assets/images/placeholder.jpg'}" 
+                         alt="${product.name}" 
+                         style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;"
+                         onerror="this.src='assets/images/placeholder.jpg'">
+                </td>
+                <td>${product.name}</td>
+                <td>${product.category}</td>
+                <td>₹${product.price}</td>
+                <td>₹${product.dailyEarning || 0}</td>
+                <td>
+                    <button class="btn btn-sm btn-warning me-1" onclick="openEditModal('${encodedProduct}')">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteProduct('${product._id || product.id}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+async function loadDashboardStats() {
+    // Set default values
+    document.getElementById('totalUsers').textContent = '0';
+    document.getElementById('totalRevenue').textContent = '₹0';
+    document.getElementById('pendingWithdrawals').textContent = '0';
+    document.getElementById('activeSubscriptions').textContent = '0';
+}
+
+async function deleteProduct(productId) {
+    if (!confirm('Are you sure you want to delete this product?')) return;
+
+    try {
+        // Try to delete from server first
+        try {
+            const response = await fetch(`/api/products/${productId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('adminToken') || 'admin-token'}`
+                }
             });
-        }
 
-        function ensureAdminSecret(){
-            let s = localStorage.getItem('ADMIN_SECRET');
-            if(!s){
-                s = prompt('Enter Admin Secret');
-                if(s) localStorage.setItem('ADMIN_SECRET', s);
+            if (response.ok) {
+                alert('Product deleted successfully from server!');
+            } else {
+                throw new Error('Server not available');
             }
-            return s;
-        }
-
-        function loadSection(section) {
-            const content = document.getElementById('mainContent');
+        } catch (serverError) {
+            console.log('Server not available, deleting locally');
             
-            switch(section) {
-                case 'dashboard':
-                    content.innerHTML = getDashboardContent();
-                    setTimeout(populateDashboard, 0);
-                    break;
-                case 'appearance':
-                    content.innerHTML = getAppearanceContent();
-                    break;
-                case 'products':
-                    content.innerHTML = getProductsContent();
-                    // Ask for admin secret if missing
-                    ensureAdminSecret();
-                    setTimeout(loadProductsFromServer, 100); // Load products when section is opened
-                    break;
-                case 'settings':
-                    content.innerHTML = getSettingsContent();
-                    break;
-            }
+            // Delete from localStorage
+            const existingProducts = JSON.parse(localStorage.getItem('products') || '[]');
+            const updatedProducts = existingProducts.filter(p => (p._id || p.id) !== productId);
+            localStorage.setItem('products', JSON.stringify(updatedProducts));
+            
+            alert('Product deleted locally!');
         }
 
-        // Load dashboard by default
-        loadSection('dashboard');
+        // Refresh the product list
+        loadProductsFromServer();
 
-        function getDashboardContent() {
-            return `
-                <h2>Dashboard</h2>
-                <div class="row mt-4">
-                    <div class="col-md-3">
-                        <div class="card bg-primary text-white">
+    } catch (error) {
+        console.error('Error deleting product:', error);
+        alert('Failed to delete product: ' + error.message);
+    }
+}
+
+// Image preview functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Load products when page loads
+    loadProductsFromServer();
+    
+    // Setup image preview for add product
+    document.getElementById('productImage').addEventListener('change', function(e) {
+        const preview = document.getElementById('imagePreview');
+        if (e.target.files && e.target.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                preview.src = event.target.result;
+                preview.style.display = 'block';
+            }
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    });
+    
+    // Setup image preview for edit product
+    document.getElementById('editProductImage').addEventListener('change', function(e) {
+        const preview = document.getElementById('editImagePreview');
+        if (e.target.files && e.target.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                preview.src = event.target.result;
+                preview.style.display = 'block';
+            }
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    });
+
+    // Setup logout functionality
+    document.getElementById('adminLogoutBtn').addEventListener('click', function() {
+        if (confirm('Are you sure you want to logout?')) {
+            localStorage.removeItem('adminLoggedIn');
+            localStorage.removeItem('adminPhone');
+            localStorage.removeItem('adminToken');
+            window.location.href = './admin_Login_page.html';
+        }
+    });
+});
+</script>
+    <div class="admin-container">
+        <!-- Header -->
+        <div class="admin-header">
+            <h1><i class="fas fa-crown"></i> Admin Dashboard</h1>
+            <p>Manage your InvestLoom7x platform</p>
+            <button id="adminLogoutBtn" class="btn btn-danger mt-2">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="dashboard-content">
+            <!-- Product Management Section -->
+            <div id="products-section" class="content-section active">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3><i class="fas fa-box"></i> Product Management</h3>
+                    <button class="btn-action btn-add" onclick="openAddProductModal()">
+                        <i class="fas fa-plus"></i> Add Product
+                    </button>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
                             <div class="card-body">
                                 <h5>Total Products</h5>
-                                <h3>150</h3>
+                                <h2 id="totalProducts">0</h2>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="card bg-success text-white">
+                    <div class="col-md-6">
+                        <div class="card">
                             <div class="card-body">
-                                <h5>Users (DB)</h5>
-                                <h3 id="statUsers">-</h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card bg-warning text-dark">
-                            <div class="card-body">
-                                <h5>Orders</h5>
-                                <h3 id="statOrders">-</h3>
+                                <h5>Active Products</h5>
+                                <h2 id="activeProducts">0</h2>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="mt-4">
-                    <h4>Recent Orders</h4>
-                    <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Order ID</th><th>User</th><th>Product</th><th>Amount</th><th>Status</th><th>Created</th>
-                                </tr>
-                            </thead>
-                            <tbody id="ordersTable"></tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <h4>Users</h4>
-                    <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Name</th><th>Email</th><th>Balance</th><th>Daily</th><th>Last Accrual</th>
-                                </tr>
-                            </thead>
-                            <tbody id="usersTable"></tbody>
-                        </table>
-                    </div>
-                </div>
-            `;
-        }
 
-        function populateDashboard() {
-          const SECRET = localStorage.getItem('ADMIN_SECRET') || '';
-          fetch(API_BASE + '/api/admin/orders', { headers: { 'x-admin-secret': SECRET }})
-            .then(r=>r.json()).then(d=>{
-              const list = d.orders || [];
-              const elOrders = document.getElementById('statOrders'); if(elOrders) elOrders.textContent = list.length;
-              const tbody = document.getElementById('ordersTable'); if(!tbody) return;
-              tbody.innerHTML = list.map(function(o){
-                return '<tr>'+
-                  '<td>'+ (o.orderId||'') +'</td>'+
-                  '<td>'+ (o.userId||'-') +'</td>'+
-                  '<td>'+ (o.productId||'-') +'</td>'+
-                  '<td>₹'+ ((o.amount||0)/100) +'</td>'+
-                  '<td>'+ (o.status||'') +'</td>'+
-                  '<td>'+ (o.createdAt ? new Date(o.createdAt).toLocaleString() : '-') +'</td>'+
-                '</tr>';
-              }).join('');
-            }).catch(()=>{});
-          fetch(API_BASE + '/api/admin/users', { headers: { 'x-admin-secret': SECRET }})
-            .then(r=>r.json()).then(d=>{
-              const list = d.users || [];
-              const elUsers = document.getElementById('statUsers'); if(elUsers) elUsers.textContent = list.length;
-              const tbody = document.getElementById('usersTable'); if(!tbody) return;
-              tbody.innerHTML = list.map(function(u){
-                return '<tr>'+
-                  '<td>'+ (u.fullName||'-') +'</td>'+
-                  '<td>'+ (u.email||'-') +'</td>'+
-                  '<td>₹'+ (u.balance||0) +'</td>'+
-                  '<td>₹'+ (u.dailyEarnings||0) +'</td>'+
-                  '<td>'+ (u.lastAccrualAt ? new Date(u.lastAccrualAt).toLocaleString() : '-') +'</td>'+
-                '</tr>';
-              }).join('');
-            }).catch(()=>{});
-        }
-
-        function getAppearanceContent() {
-            return `
-                <h2>Appearance Settings</h2>
-                <div class="mt-4">
-                    <div class="mb-3">
-                        <label class="form-label">Site Title</label>
-                        <input type="text" class="form-control" id="siteTitle" placeholder="Liberty Market">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Logo Image</label>
-                        <input type="file" class="form-control" id="logoImage" accept="image/*">
-                        <img id="logoPreview" class="mt-2" style="max-width: 200px; display: none;">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Primary Color</label>
-                        <input type="color" class="form-control" id="primaryColor">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Font Family</label>
-                        <input type="text" class="form-control" id="fontFamily" placeholder="Roboto, sans-serif">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Homepage Hero Title</label>
-                        <input type="text" class="form-control" id="heroTitle" placeholder="DISCOVER, AND COLLECT DIGITAL ART NFTS">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Homepage Hero Subtitle</label>
-                        <input type="text" class="form-control" id="heroSubtitle" placeholder="Digital marketplace for crypto collectibles and non-fungible tokens (NFTs). Buy, sell, and discover exclusive digital assets.">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Footer Text</label>
-                        <textarea class="form-control" id="footerText" rows="3"></textarea>
-                    </div>
-                    <button class="btn btn-primary" onclick="saveAppearanceSettings()">Save Settings</button>
-                </div>
-            `;
-        }
-
-        function getProductsContent() {
-            return `
-                <h2>Products Management</h2>
-                
-                <!-- Products Table -->
                 <div class="table-responsive">
-                    <table class="table">
+                    <table class="table table-hover">
                         <thead>
                             <tr>
                                 <th>ID</th>
                                 <th>Image</th>
                                 <th>Name</th>
                                 <th>Category</th>
-                                <th>Price/day</th>
-                                <th>Total Amount</th>
+                                <th>Price</th>
+                                <th>Daily Earning</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -970,23 +550,266 @@ function logError(error) {
                         </tbody>
                     </table>
                 </div>
+            </div>
 
-                <!-- NOTE: single Add Product Modal is kept below (global), removed the duplicate small modal here -->
-            `;
+            <!-- Payment & Users Section -->
+            <div id="payments-section" class="content-section">
+                <h3><i class="fas fa-credit-card"></i> Payment History & Users</h3>
+                
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h5>Total Users</h5>
+                                <h2 id="totalUsers">0</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h5>Total Revenue</h5>
+                                <h2 id="totalRevenue">₹0</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h5>Pending Withdrawals</h5>
+                                <h2 id="pendingWithdrawals">0</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h5>Active Subscriptions</h5>
+                                <h2 id="activeSubscriptions">0</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="payment-history">
+                    <h4>Recent Payments</h4>
+                    <div id="paymentList">
+                        <!-- Payment items will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Section -->
+            <div id="settings-section" class="content-section">
+                <h3><i class="fas fa-cog"></i> Platform Settings</h3>
+                
+                <div class="settings-grid">
+                    <div class="settings-card">
+                        <h4>General Settings</h4>
+                        <div class="mb-3">
+                            <label class="form-label">Site Name</label>
+                            <input type="text" class="form-control" id="siteName" value="InvestLoom7x">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Currency</label>
+                            <select class="form-select" id="currency">
+                                <option>INR</option>
+                                <option>USD</option>
+                                <option>EUR</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="settings-card">
+                        <h4>Theme Settings</h4>
+                        <div class="mb-3">
+                            <label class="form-label">Primary Color</label>
+                            <input type="color" class="color-picker" value="#667eea">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Secondary Color</label>
+                            <input type="color" class="color-picker" value="#764ba2">
+                        </div>
+                    </div>
+
+                    <div class="settings-card">
+                        <h4>Notification Settings</h4>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+                            <label class="form-check-label" for="emailNotifications">Email Notifications</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="smsNotifications" checked>
+                            <label class="form-check-label" for="smsNotifications">SMS Notifications</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="pushNotifications">
+                            <label class="form-check-label" for="pushNotifications">Push Notifications</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div class="modal fade" id="addProductModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Product</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="productForm">
+                        <div class="mb-3">
+                            <label class="form-label">Product Name *</label>
+                            <input type="text" class="form-control" id="productName" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Category *</label>
+                            <input type="text" class="form-control" id="productCategory" name="category" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Price *</label>
+                            <input type="number" class="form-control" id="productPrice" name="price" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Daily Earning *</label>
+                            <input type="number" class="form-control" id="productEarning" name="dailyEarning" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Image *</label>
+                            <input type="file" class="form-control" id="productImage" name="image" accept="image/*" required>
+                            <img id="imagePreview" class="mt-2" style="display:none; max-width: 100%; height: auto;">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" id="productStatus" name="status">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" id="productDescription" name="description" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="saveProduct()">Save Product</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Product Modal -->
+    <div class="modal fade" id="editProductModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Product</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editProductForm">
+                        <input type="hidden" id="editProductId" name="id">
+                        <div class="mb-3">
+                            <label class="form-label">Product Name *</label>
+                            <input type="text" class="form-control" id="editProductName" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Category *</label>
+                            <input type="text" class="form-control" id="editProductCategory" name="category" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Price *</label>
+                            <input type="number" class="form-control" id="editProductPrice" name="price" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Daily Earning *</label>
+                            <input type="number" class="form-control" id="editProductDailyEarning" name="dailyEarning" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Image</label>
+                            <input type="file" class="form-control" id="editProductImage" name="image" accept="image/*">
+                            <img id="editImagePreview" class="mt-2" style="display:none; max-width: 100%; height: auto;">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" id="editProductStatus" name="status">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" id="editProductDescription" name="description" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="updateProduct()">Update Product</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <div class="nav-container">
+            <a href="#" class="nav-item active" onclick="showSection('products-section')">
+                <i class="fas fa-box"></i>
+                <span>Products</span>
+            </a>
+            <a href="#" class="nav-item" onclick="showSection('payments-section')">
+                <i class="fas fa-credit-card"></i>
+                <span>Payments</span>
+            </a>
+            <a href="#" class="nav-item" onclick="showSection('settings-section')">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+        </div>
+    </nav>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Navigation functionality
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Update active nav item
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.closest('.nav-item').classList.add('active');
         }
-        
 
         // Add these JavaScript functions
         function openAddProductModal() {
+            // Reset form for new product entry
+            document.getElementById('productForm').reset();
+            document.getElementById('imagePreview').src = '';
+            document.getElementById('imagePreview').style.display = 'none';
+            
             const modal = new bootstrap.Modal(document.getElementById('addProductModal'));
             modal.show();
         }
 
         function openEditModal(product) {
-            // Parse product if it's a string
+            // Parse product if it's a string from onclick attribute
             if (typeof product === 'string') {
                 try {
-                    product = JSON.parse(product);
+                    product = JSON.parse(decodeURIComponent(product));
                 } catch (e) {
                     console.error('Failed to parse product:', e);
                     return;
@@ -994,379 +817,176 @@ function logError(error) {
             }
 
             const modal = new bootstrap.Modal(document.getElementById('editProductModal'));
-            document.getElementById('editProductId').value = product.id;
+            
+            // Fill form fields
+            document.getElementById('editProductId').value = product._id;
             document.getElementById('editProductName').value = product.name || '';
-            document.getElementById('editProductPlans').value = product.Plans || product.plans || '';
-            document.getElementById('editProductEarn').value = product.Earn || product.earn || '';
             document.getElementById('editProductCategory').value = product.category || '';
             document.getElementById('editProductPrice').value = product.price || '';
-            document.getElementById('editProductTotal').value = product.total || '';
+            document.getElementById('editProductDailyEarning').value = product.dailyEarning || '';
             
             // Show current image
             const preview = document.getElementById('editImagePreview');
             if (preview && product.image) {
                 preview.src = product.image;
                 preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
             }
             
             modal.show();
         }
 
         async function saveProduct() {
-    const form = document.getElementById('productForm');
-    const formData = new FormData();
-
-    // Get all form values
-    const name = document.getElementById('productName').value;
+    // Get form values by ID
+    const name = document.getElementById('productName').value.trim();
+    const category = document.getElementById('productCategory').value.trim();
     const price = document.getElementById('productPrice').value;
-    const category = document.getElementById('productCategory').value;
-    const description = document.getElementById('productDescription').value;
+    const dailyEarning = document.getElementById('productEarning').value;
     const imageFile = document.getElementById('productImage').files[0];
     const status = document.getElementById('productStatus').value;
-    const earning = document.getElementById('productEarning').value;
+    const description = document.getElementById('productDescription').value.trim();
 
     // Validate required fields
-    if (!name || !price || !category || !imageFile) {
-        alert('Please fill all required fields');
+    if (!name || !category || !price || !dailyEarning || !imageFile) {
+        alert('Please fill all required fields and select an image.');
         return;
     }
 
-    // Create product data
-    formData.append('name', name);
-    formData.append('price', price);
-    formData.append('category', category);
-    formData.append('description', description);
-    formData.append('image', imageFile);
-    formData.append('status', status);
-    formData.append('dailyEarning', earning);
-
     try {
-        const response = await fetch('/api/admin/products', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
-                'x-admin-secret': process.env.ADMIN_SECRET
-            },
-            body: formData
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to save product');
-        }
-
-        alert('Product saved successfully!');
-        $('#productModal').modal('hide');
-        loadProductsFromServer(); // Refresh product list
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Failed to save product: ' + error.message);
-    }
-}
-        async function deleteProduct(id) {
-    if (!confirm('Are you sure you want to delete this product?')) return;
-
-    try {
-        const response = await fetch(`/api/admin/products/${id}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                'x-admin-secret': localStorage.getItem('ADMIN_SECRET')
-            }
-        });
-
-        if (!response.ok) throw new Error('Failed to delete product');
-
-        await loadProductsFromServer();
-        alert('Product deleted successfully!');
-
-    } catch (error) {
-        console.error('Error deleting product:', error);
-        alert('Failed to delete product: ' + error.message);
-    }
-}
-
-function openEditModal(product) {
-    const modal = new bootstrap.Modal(document.getElementById('editProductModal'));
-    
-    // Fill form fields
-    document.getElementById('editProductId').value = product.id;
-    document.getElementById('editProductName').value = product.name;
-    document.getElementById('editProductCategory').value = product.category;
-    document.getElementById('editProductPrice').value = product.price;
-    document.getElementById('editProductTotal').value = product.total;
-    document.getElementById('editProductPlans').value = product.Plans;
-    
-    // Show current image
-    const preview = document.getElementById('editImagePreview');
-    if (preview && product.image) {
-        preview.src = product.image;
-        preview.style.display = 'block';
-    }
-
-    modal.show();
-}
-
-async function updateProduct() {
-    const productId = document.getElementById('editProductId').value;
-    const formData = new FormData(document.getElementById('editProductForm'));
-    const imageFile = document.getElementById('editProductImage').files[0];
-
-    const productData = {
-        name: formData.get('name'),
-        category: formData.get('category'),
-        price: Number(formData.get('price')),
-        total: Number(formData.get('total')),
-        Plans: formData.get('plans')
-    };
-
-    if (imageFile) {
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-            productData.image = e.target.result;
-            await sendUpdateRequest(productId, productData);
+        // Convert image to base64
+        const imageBase64 = await convertImageToBase64(imageFile);
+        
+        // Create product data object
+        const productData = {
+            name: name,
+            category: category,
+            price: parseFloat(price),
+            dailyEarning: parseFloat(dailyEarning),
+            status: status,
+            description: description,
+            image: imageBase64,
+            imageUrl: imageBase64 // For compatibility
         };
-        reader.readAsDataURL(imageFile);
-    } else {
-        await sendUpdateRequest(productId, productData);
-    }
-}
 
-async function sendUpdateRequest(productId, data) {
-    try {
-        const response = await fetch(`/api/admin/products/${productId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                'x-admin-secret': localStorage.getItem('ADMIN_SECRET')
-            },
-            body: JSON.stringify(data)
-        });
+        // Try to save to backend first, if it fails, save locally
+        try {
+            const response = await fetch('/api/products', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('adminToken') || 'admin-token'}`
+                },
+                body: JSON.stringify(productData)
+            });
 
-        if (!response.ok) throw new Error('Failed to update product');
-
-        bootstrap.Modal.getInstance(document.getElementById('editProductModal')).hide();
-        await loadProductsFromServer();
-        alert('Product updated successfully!');
-
-    } catch (error) {
-        console.error('Error updating product:', error);
-        alert('Failed to update product: ' + error.message);
-    }
-}
-
-async function loadProductsFromServer() {
-    try {
-        const response = await fetch('/api/admin/products', {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                'x-admin-secret': localStorage.getItem('ADMIN_SECRET')
+            if (response.ok) {
+                const result = await response.json();
+                alert('Product saved successfully to server!');
+            } else {
+                throw new Error('Server not available');
             }
-        });
-
-        if (!response.ok) throw new Error('Failed to load products');
-
-        const data = await response.json();
-        renderProductsTable(data.products || []);
-
-    } catch (error) {
-        console.error('Error loading products:', error);
-        alert('Failed to load products: ' + error.message);
-    }
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    loadProductsFromServer();
-    setupEventListeners();
-});
-
-function setupEventListeners() {
-    // Add Product Button
-    document.querySelector('[data-bs-target="#addProductModal"]').addEventListener('click', function() {
-        resetAddProductForm();
-        const modal = new bootstrap.Modal(document.getElementById('addProductModal'));
-        modal.show();
-    });
-
-    // Image Preview for Add Product
-    document.getElementById('productImage').addEventListener('change', function(e) {
-        const preview = document.getElementById('imagePreview');
-        if (e.target.files && e.target.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                preview.src = event.target.result;
-                preview.classList.remove('d-none');
-            }
-            reader.readAsDataURL(e.target.files[0]);
-        }
-    });
-}
-
-async function saveProduct() {
-    const form = document.getElementById('addProductForm');
-    const formData = new FormData();
-
-    // Get all form values
-    const name = document.getElementById('productName').value;
-    const price = document.getElementById('productPrice').value;
-    const category = document.getElementById('productCategory').value;
-    const description = document.getElementById('productDescription').value;
-    const imageFile = document.getElementById('productImage').files[0];
-    const status = document.getElementById('productStatus').value;
-    const earning = document.getElementById('productEarning').value;
-
-    // Validate required fields
-    if (!name || !price || !category || !imageFile) {
-        alert('Please fill all required fields');
-        return;
-    }
-
-    // Create product data
-    formData.append('name', name);
-    formData.append('price', price);
-    formData.append('category', category);
-    formData.append('description', description);
-    formData.append('image', imageFile);
-    formData.append('status', status);
-    formData.append('dailyEarning', earning);
-
-    try {
-        const response = await fetch('/api/admin/products', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
-                'x-admin-secret': process.env.ADMIN_SECRET
-            },
-            body: formData
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to save product');
+        } catch (serverError) {
+            console.log('Server not available, saving locally:', serverError);
+            
+            // Save to localStorage as fallback
+            const existingProducts = JSON.parse(localStorage.getItem('products') || '[]');
+            productData.id = Date.now().toString(); // Generate unique ID
+            productData._id = productData.id;
+            existingProducts.push(productData);
+            localStorage.setItem('products', JSON.stringify(existingProducts));
+            
+            alert('Product saved locally! (Server not available)');
         }
 
-        alert('Product saved successfully!');
-        $('#productModal').modal('hide');
-        loadProductsFromServer(); // Refresh product list
+        // Close modal and refresh
+        bootstrap.Modal.getInstance(document.getElementById('addProductModal')).hide();
+        loadProductsFromServer();
+        
+        // Reset form
+        document.getElementById('productForm').reset();
+        document.getElementById('imagePreview').style.display = 'none';
+        
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error saving product:', error);
         alert('Failed to save product: ' + error.message);
     }
 }
 
-async function deleteProduct(id) {
-    if (!confirm('Are you sure you want to delete this product?')) return;
-
-    try {
-        const response = await fetch(`/api/admin/products/${id}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                'x-admin-secret': localStorage.getItem('ADMIN_SECRET')
-            }
-        });
-
-        if (!response.ok) throw new Error('Failed to delete product');
-
-        await loadProductsFromServer();
-        alert('Product deleted successfully!');
-
-    } catch (error) {
-        console.error('Error deleting product:', error);
-        alert('Failed to delete product: ' + error.message);
-    }
-}
-
-function openEditModal(product) {
-    const modal = new bootstrap.Modal(document.getElementById('editProductModal'));
-    
-    // Fill form fields
-    document.getElementById('editProductId').value = product.id;
-    document.getElementById('editProductName').value = product.name;
-    document.getElementById('editProductCategory').value = product.category;
-    document.getElementById('editProductPrice').value = product.price;
-    document.getElementById('editProductTotal').value = product.total;
-    document.getElementById('editProductPlans').value = product.Plans;
-    
-    // Show current image
-    const preview = document.getElementById('editImagePreview');
-    if (preview && product.image) {
-        preview.src = product.image;
-        preview.style.display = 'block';
-    }
-
-    modal.show();
-}
-
-async function updateProduct() {
-    const productId = document.getElementById('editProductId').value;
-    const formData = new FormData(document.getElementById('editProductForm'));
-    const imageFile = document.getElementById('editProductImage').files[0];
-
-    const productData = {
-        name: formData.get('name'),
-        category: formData.get('category'),
-        price: Number(formData.get('price')),
-        total: Number(formData.get('total')),
-        Plans: formData.get('plans')
-    };
-
-    if (imageFile) {
+// Helper function to convert image to base64
+function convertImageToBase64(file) {
+    return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.onload = async (e) => {
-            productData.image = e.target.result;
-            await sendUpdateRequest(productId, productData);
-        };
-        reader.readAsDataURL(imageFile);
-    } else {
-        await sendUpdateRequest(productId, productData);
-    }
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
 }
 
-async function sendUpdateRequest(productId, data) {
-    try {
-        const response = await fetch(`/api/admin/products/${productId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                'x-admin-secret': localStorage.getItem('ADMIN_SECRET')
-            },
-            body: JSON.stringify(data)
-        });
+        async function updateProduct() {
+            const productId = document.getElementById('editProductId').value;
+            const form = document.getElementById('editProductForm');
+            const formData = new FormData(form);
+            const imageFile = document.getElementById('editProductImage').files[0];
 
-        if (!response.ok) throw new Error('Failed to update product');
+            const productData = {
+                name: formData.get('name'),
+                category: formData.get('category'),
+                price: Number(formData.get('price')),
+                dailyEarning: Number(formData.get('dailyEarning')),
+                description: formData.get('description'),
+                status: formData.get('status')
+            };
 
-        bootstrap.Modal.getInstance(document.getElementById('editProductModal')).hide();
-        await loadProductsFromServer();
-        alert('Product updated successfully!');
-
-    } catch (error) {
-        console.error('Error updating product:', error);
-        alert('Failed to update product: ' + error.message);
-    }
-}
-
-async function loadProductsFromServer() {
-    try {
-        const response = await fetch('/api/admin/products', {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                'x-admin-secret': localStorage.getItem('ADMIN_SECRET')
+            if (imageFile) {
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    productData.image = e.target.result;
+                    await sendUpdateRequest(productId, productData);
+                };
+                reader.readAsDataURL(imageFile);
+            } else {
+                await sendUpdateRequest(productId, productData);
             }
+        }
+
+        async function sendUpdateRequest(productId, data) {
+            try {
+                const response = await fetch(`/api/admin/products/${productId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
+                        'x-admin-secret': localStorage.getItem('ADMIN_SECRET') || 'Kartik7417'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to update product');
+                }
+                
+                bootstrap.Modal.getInstance(document.getElementById('editProductModal')).hide();
+                await loadProductsFromServer();
+                alert('Product updated successfully!');
+
+            } catch (error) {
+                console.error('Error updating product:', error);
+                alert('Failed to update product: ' + error.message);
+            }
+        }
+
+        // Initialize the dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProductsFromServer();
         });
 
-        if (!response.ok) throw new Error('Failed to load products');
-
-        const data = await response.json();
-        renderProductsTable(data.products || []);
-
-    } catch (error) {
-        console.error('Error loading products:', error);
-        alert('Failed to load products: ' + error.message);
-    }
-}
-</script>
-<script src="admin.js"></script>
-<button id="adminLogoutBtn" class="btn btn-danger">Logout</button>
+        // Logout functionality
+        document.getElementById('adminLogoutBtn').addEventListener('click', function() {
+            localStorage.removeItem('adminToken');
+            window.location.href = '/login';
+        });
+    </script>
 </body>
 </html>

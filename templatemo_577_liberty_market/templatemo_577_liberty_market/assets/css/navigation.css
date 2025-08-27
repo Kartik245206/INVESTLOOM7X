@@ -128,23 +128,30 @@ body {
         .side-nav-toggle {
         position: fixed;
         left: 0;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 20px !important;
-        height: 50px !important;
+        top: 80px; /* Adjust this value to position vertically */
+        width: 25px;
+        height: 50px;
         background: #7453fc;
         color: #fff;
-        border-radius: 0 50% 50% 0;
+        border-radius: 0 5px 5px 0;
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
         z-index: 2001;
         transition: all 0.3s ease;
+        border: none;
+        padding: 0;
+        }
+
+        .side-nav-toggle.active {
+            left: 200px; /* Should match the width of the side-nav */
         }
 
         .side-nav-toggle i {
-            font-size: 44px; /* Increased icon size */
+            font-size: 24px; /* Adjusted icon size */
+            line-height: 1;
+            transition: transform 0.3s ease;
         }
 
         .side-nav-toggle:hover {

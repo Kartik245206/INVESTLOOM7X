@@ -16,6 +16,14 @@ require('./models/Transaction');
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
+// Debug: Check if admin credentials are loaded
+console.log('Admin credentials loaded:', {
+    ADMIN_SECRET: process.env.ADMIN_SECRET ? '✓' : '✗',
+    JWT_SECRET: process.env.JWT_SECRET ? '✓' : '✗',
+    ADMIN_USERNAME: process.env.ADMIN_USERNAME ? '✓' : '✗',
+    ADMIN_PASSWORD: process.env.ADMIN_PASSWORD ? '✓' : '✗'
+});
+
 const app = express();
 
 // Single database connection function with retries
@@ -63,7 +71,8 @@ console.log('Directory exists:', require('fs').existsSync(VIEWS_DIR));
         app.use(cookieParser());
 
         // Serve static files from the template directory
-        app.use(express.static(path.join(__dirname, 'templatemo_577_liberty_market', 'templatemo_577_liberty_market')));
+        app.use('/', express.static(path.join(__dirname, 'templatemo_577_liberty_market', 'templatemo_577_liberty_market')));
+        app.use('/Host-WEB', express.static(path.join(__dirname, 'templatemo_577_liberty_market', 'templatemo_577_liberty_market', 'Host-WEB')));
 
         // Add route for root path
         app.get('/', (req, res) => {

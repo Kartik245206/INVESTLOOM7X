@@ -2,9 +2,12 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('./models/User'); // ensure this model exists and exports mongoose model
+const User = require('../models/User'); // Updated path to User model
 
 const JWT_SECRET = process.env.JWT_SECRET || 'change_this_secret';
+const ADMIN_SECRET = process.env.ADMIN_SECRET;
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 const TOKEN_EXPIRES = '7d';
 
 function makeToken(user) {
@@ -13,6 +16,48 @@ function makeToken(user) {
 
 // Health/check route
 router.get('/ping', (req, res) => res.json({ ok: true }));
+
+// Admin Login
+router.post('/admin/login', async (req, res) => {
+  try {
+    const { username, phone, password } = req.body;
+    
+    console.log('Received login data:', { username, phone, password }); // Debug
+    console.log('Environment variables:', { 
+      ADMIN_USERNAME: process.env.ADMIN_USERNAME, 
+      ADMIN_PASSWORD: process.env.ADMIN_PASSWORD 
+    }); // Debug
+    
+    const loginField = username || phone;
+    
+    const validUsername = loginField === 'bhadana' || loginField === process.env.ADMIN_USERNAME;
+    const validPhone = loginField === '7417915397';
+    const validPassword = password === 'Kartik904541' || password === process.env.ADMIN_PASSWORD;
+    
+    console.log('Validation results:', { validUsername, validPhone, validPassword }); // Debug
+    
+    if (!(validUsername || validPhone) || !validPassword) {
+      return res.status(401).json({ error: 'Invalid admin credentials' });
+    }
+
+    // Generate admin token
+    const token = jwt.sign(
+      { isAdmin: true },
+      process.env.JWT_SECRET || 'Kartik7078212686@',
+      { expiresIn: '24h' }
+    );
+
+    // Send response with token and admin secret
+    res.json({
+      success: true,
+      token,
+      adminSecret: process.env.ADMIN_SECRET || 'Kartik7417'
+    });
+  } catch (error) {
+    console.error('[auth.adminLogin] error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 // Signup
 router.post('/signup', async (req, res) => {
