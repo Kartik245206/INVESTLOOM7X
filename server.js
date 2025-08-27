@@ -79,12 +79,18 @@ console.log('Directory exists:', require('fs').existsSync(VIEWS_DIR));
             res.sendFile(path.join(VIEWS_DIR, 'index.html'));
         });
 
+        // Add route for admin path
+        app.get('/admin', (req, res) => {
+            res.sendFile(path.join(VIEWS_DIR, 'Host-WEB', 'admin_dashboard.html'));
+        });
+
         // API routes
         app.use('/api/auth', require('./api/auth'));
         app.use('/api/products', require('./api/products'));
         app.use('/api/purchase', require('./api/purchase'));
         app.use('/api/transactions', require('./api/transactions'));
         app.use('/api/withdraw', require('./api/withdraw'));
+        app.use('/api/admin', require('./api/admin')); // Add this line
 
         // Handle 404 for API routes
         app.use('/api/*', (req, res) => {
