@@ -107,7 +107,7 @@ function handleNavigation(e) {
             // Check if adminAuth is available
             if (typeof adminAuth !== 'undefined') {
                 if (adminAuth.checkAdminAuth()) {
-                    window.location.href = 'Host-WEB/admin_dashboard.html';
+                    window.location.href = 'Host-WEB/admin_Login_page.html';
                 } else {
                     window.location.href = 'Host-WEB/admin_Login_page.html';
                 }
@@ -115,7 +115,7 @@ function handleNavigation(e) {
                 // Fallback if adminAuth is not loaded
                 const isAdminAuthenticated = localStorage.getItem('adminAuthenticated');
                 if (isAdminAuthenticated === 'true') {
-                    window.location.href = 'Host-WEB/admin_dashboard.html';
+                    window.location.href = 'Host-WEB/admin_Login_page.html';
                 } else {
                     window.location.href = 'Host-WEB/admin_Login_page.html';
                 }

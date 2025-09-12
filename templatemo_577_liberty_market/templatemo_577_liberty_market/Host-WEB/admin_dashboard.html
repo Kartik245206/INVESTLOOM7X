@@ -334,8 +334,8 @@ async function loadProductsFromServer() {
         try {
             const response = await fetch('/api/admin/products', {
                 headers: {
-                    'Authorization': `Bearer admin-token`,
-                    'x-admin-secret': 'admin123'
+                    'Authorization': `Bearer ${localStorage.getItem('adminToken') || 'admin-token'}`,
+                    'x-admin-secret': localStorage.getItem('ADMIN_SECRET') || 'admin123'
                 }
             });
             
@@ -429,7 +429,7 @@ async function deleteProduct(productId) {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken') || 'admin-token'}`,
-                    'x-admin-secret': 'admin123'
+                    'x-admin-secret': localStorage.getItem('ADMIN_SECRET') || 'admin123'
                 }
             });
 
@@ -845,7 +845,7 @@ document.addEventListener('DOMContentLoaded', function() {
             modal.show();
         }
 
-        // Replace the existing saveProduct function with this updated version:
+        // Update the saveProduct function:
         async function saveProduct() {
             // Get form values by ID
             const name = document.getElementById('productName').value.trim();
@@ -873,19 +873,56 @@ document.addEventListener('DOMContentLoaded', function() {
                 formData.append('description', description);
                 formData.append('image', imageFile);
 
-                const response = await fetch('/api/admin/products', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer admin-token`,
-                        'x-admin-secret': 'admin123'
-                    },
-                    body: formData
-                });
+                // First try to save to server
+                let savedProduct = null;
+                try {
+                    const response = await fetch('/api/admin/products', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('adminToken') || 'admin-token'}`,
+                            'x-admin-secret': localStorage.getItem('ADMIN_SECRET') || 'admin123'
+                        },
+                        body: formData
+                    });
 
-                const result = await response.json();
+                    if (!response.ok) {
+                        throw new Error('Server error');
+                    }
 
-                if (!response.ok) {
-                    throw new Error(result.message || 'Failed to save product');
+                    const result = await response.json();
+                    savedProduct = result.product;
+                    
+                } catch (serverError) {
+                    console.error('Server error, saving locally:', serverError);
+                    
+                    // Convert image to base64 for local storage
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const base64Image = e.target.result;
+                        
+                        // Create local product object
+                        savedProduct = {
+                            id: 'local_' + Date.now(),
+                            name: name,
+                            category: category,
+                            price: Number(price),
+                            dailyEarning: Number(dailyEarning),
+                            status: status,
+                            description: description,
+                            image: base64Image
+                        };
+                        
+                        // Save to localStorage
+                        const existingProducts = JSON.parse(localStorage.getItem('products') || '[]');
+                        existingProducts.push(savedProduct);
+                        localStorage.setItem('products', JSON.stringify(existingProducts));
+                        
+                        alert('Product saved locally!');
+                        bootstrap.Modal.getInstance(document.getElementById('addProductModal')).hide();
+                        loadProductsFromServer();
+                    };
+                    reader.readAsDataURL(imageFile);
+                    return; // Exit early as we're handling this asynchronously
                 }
 
                 alert('Product saved successfully!');

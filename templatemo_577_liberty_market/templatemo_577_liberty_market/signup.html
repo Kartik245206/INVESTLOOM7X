@@ -14,6 +14,8 @@
             window.location.href = 'index.html';
         }
     </script>
+
+    
     <style>
         .signup-container {
             max-width: 500px;
@@ -28,6 +30,12 @@
             border: 1px solid #404245;
             color: rgb(246, 243, 243);
         }
+        .form-control:focus {
+            background-color: #37393c;
+            border-color: #7453fc;
+            color: rgb(246, 243, 243);
+            box-shadow: 0 0 0 0.2rem rgba(116, 83, 252, 0.25);
+        }
         .btn-primary {
             background: #7453fc;
             border: none;
@@ -36,12 +44,26 @@
         .btn-primary:hover {
             background: #5b42c7;
         }
+        .btn-primary:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        .alert {
+            border-radius: 10px;
+        }
     </style>
+
+
 </head>
 <body>
     <div class="signup-container">
         <h2 class="text-center mb-4">Create Account</h2>
-        <form id="signupForm" onsubmit="handleSignup(event)">
+        
+        <!-- Alert Message -->
+        <div id="alertMessage" class="alert" style="display: none; margin-bottom: 20px;">
+        </div>
+        
+        <form id="signupForm">
             <div class="mb-3">
                 <label class="form-label">Full Name</label>
                 <input type="text" class="form-control" id="fullName" required>
@@ -51,41 +73,41 @@
                 <input type="email" class="form-control" id="email" required>
             </div>
             <div class="mb-3">
-                <label id= "username" class="form-label">Username</label>
+                <label class="form-label">Username</label>
                 <input type="text" class="form-control" id="username" required>
             </div>
             <div class="mb-3">
                 <label class="form-label">Password</label>
-                <input type="password" class="form-control" id="password" required>
+                <input type="password" class="form-control" id="password" required minlength="6">
             </div>
             <div class="mb-3">
                 <label class="form-label">Phone Number</label>
                 <input type="tel" class="form-control" id="phone" required>
             </div>
-            <div class="form-group">
-                <label for="upiId">UPI ID (Optional)</label>
+            <div class="mb-3">
+                <label class="form-label">UPI ID (Optional)</label>
                 <input type="text" class="form-control" id="upiId" placeholder="yourname@upi">
             </div>
-            <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+            <button type="submit" class="btn btn-primary w-100" id="submitBtn">Sign Up</button>
             <p class="text-center mt-3">
-                Already have an account? <a href="login.html">Login here</a>
+                Already have an account? <a href="login.html" style="color: #7453fc;">Login here</a>
             </p>
         </form>
     </div>
 
-    <!-- Alert Message -->
-    <div id="alertMessage" class="alert" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 10000; padding: 15px 30px; border-radius: 5px;">
-    </div>
-
     <!-- Scripts -->
     <script src="vendor/jquery/jquery.min.js"></script>
-    <script src="assets/js/auth.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         const signupForm = document.getElementById('signupForm');
+        const submitBtn = document.getElementById('submitBtn');
 
         signupForm.addEventListener('submit', async function(event) {
             event.preventDefault();
+            
+            // Disable submit button to prevent double submission
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Creating Account...';
             
             // Clear any existing alerts
             hideAlert();
@@ -102,16 +124,26 @@
             // Basic validation
             if (!userData.name || !userData.email || !userData.username || !userData.password) {
                 showAlert('Please fill in all required fields.', 'danger');
+                resetSubmitButton();
                 return;
             }
 
             if (userData.password.length < 6) {
                 showAlert('Password must be at least 6 characters long.', 'danger');
+                resetSubmitButton();
+                return;
+            }
+
+            // Email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(userData.email)) {
+                showAlert('Please enter a valid email address.', 'danger');
+                resetSubmitButton();
                 return;
             }
 
             try {
-                showAlert('Creating account...', 'info');
+                console.log('Sending signup request with data:', userData);
                 
                 const response = await fetch('/api/auth/signup', {
                     method: 'POST',
@@ -122,28 +154,39 @@
                     credentials: 'include'
                 });
 
+                console.log('Response status:', response.status);
                 const data = await response.json();
+                console.log('Response data:', data);
 
                 if (response.ok && data.success) {
                     showAlert('Account created successfully! Redirecting to login...', 'success');
                     setTimeout(() => {
                         window.location.href = 'login.html';
-                    }, 2000);
+                    }, 2000);584
                 } else {
                     // Show specific error messages
-                    if (data.error.includes('Email already registered')) {
-                        showAlert('This email is already registered. Please use a different email or login instead.', 'danger');
-                    } else if (data.error.includes('Username already exists')) {
-                        showAlert('This username is already taken. Please choose a different username.', 'danger');
-                    } else {
-                        showAlert(data.error || 'Signup failed. Please try again.', 'danger');
+                    let errorMessage = data.error || 'Signup failed. Please try again.';
+                    
+                    if (errorMessage.includes('Email already registered')) {
+                        errorMessage = 'This email is already registered. Please use a different email or login instead.';
+                    } else if (errorMessage.includes('Username already exists')) {
+                        errorMessage = 'This username is already taken. Please choose a different username.';
                     }
+                    
+                    showAlert(errorMessage, 'danger');
+                    resetSubmitButton();
                 }
             } catch (error) {
                 console.error('Signup error:', error);
                 showAlert('Network error. Please check your connection and try again.', 'danger');
+                resetSubmitButton();
             }
         });
+
+        function resetSubmitButton() {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Sign Up';
+        }
     });
 
     function showAlert(message, type) {

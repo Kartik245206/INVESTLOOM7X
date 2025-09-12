@@ -68,4 +68,25 @@ router.delete('/products/:id', auth, async (req, res) => {
     }
 });
 
+// Ensure this endpoint returns the same data as the admin endpoint
+
+router.get('/', async (req, res) => {
+    try {
+        // Fetch products from database
+        const products = await Product.find({ status: 'active' });
+        
+        // Return the same structure as admin endpoint
+        return res.json({
+            success: true,
+            products: products
+        });
+    } catch (error) {
+        console.error('Error fetching products:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to fetch products'
+        });
+    }
+});
+
 module.exports = router;

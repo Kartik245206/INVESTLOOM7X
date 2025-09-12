@@ -17,6 +17,11 @@ function makeToken(user) {
 // Health/check route
 router.get('/ping', (req, res) => res.json({ ok: true }));
 
+// Test route
+router.get('/test', (req, res) => {
+  res.json({ message: 'Auth API is working', timestamp: new Date() });
+});
+
 // Admin Login
 router.post('/admin/login', async (req, res) => {
   try {
@@ -210,6 +215,22 @@ router.post('/login', async (req, res) => {
   } catch (error) {
     console.error('[auth.login] error:', error);
     return res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// Add this route temporarily for development only
+router.delete('/clear-users', async (req, res) => {
+  try {
+    if (process.env.NODE_ENV === 'production') {
+      return res.status(403).json({ error: 'Not allowed in production' });
+    }
+    
+    const result = await User.deleteMany({});
+    console.log('Deleted users:', result.deletedCount);
+    res.json({ message: `Deleted ${result.deletedCount} users` });
+  } catch (error) {
+    console.error('Error clearing users:', error);
+    res.status(500).json({ error: 'Failed to clear users' });
   }
 });
 
