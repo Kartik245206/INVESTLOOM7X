@@ -4,6 +4,7 @@ body {
     color: #efe0e0;
     padding-left: 20px !important; /* Added padding to prevent collision */
     transition: padding 0.3s ease;
+    
 }
 
 .header-area {
