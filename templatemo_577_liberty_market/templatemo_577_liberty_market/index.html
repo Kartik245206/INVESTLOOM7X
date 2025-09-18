@@ -376,8 +376,8 @@ async function loadProducts() {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             
-            const data = await response.json();
-            products = data.products || [];
+            // The API returns products directly as an array
+            products = await response.json();
             
             // Store in localStorage as fallback for next time
             localStorage.setItem('products', JSON.stringify(products));
@@ -398,6 +398,16 @@ async function loadProducts() {
             const productsHTML = products.map(product => `
                 <div class="col-6 col-md-4 col-lg-3 mb-3">
                     <div class="item">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">${product.name}</h5>
+                                <p class="card-text">${product.description || ''}</p>
+                                <div class="price">₹${product.price}</div>
+                                <button class="btn btn-primary mt-3" onclick="viewProductDetails('${product._id}')">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
                         <div class="card h-100">
                             <img src="${product.image || 'assets/images/default-product.jpg'}" 
                                 alt="${product.name}" 

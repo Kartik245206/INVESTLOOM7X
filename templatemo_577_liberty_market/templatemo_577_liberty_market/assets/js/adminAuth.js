@@ -1,8 +1,3 @@
-const ADMIN_CREDENTIALS = {
-    username: 'bhadana',
-    password: 'Kartik904541'
-};
-
 async function handleAdminLogin(event) {
     event.preventDefault();
     
