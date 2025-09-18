@@ -1,37 +1,33 @@
 // Navigation Functions
-function toggleMobileMenu() {
-    const menuTrigger = document.querySelector('.menu-trigger');
+document.addEventListener('DOMContentLoaded', function() {
+    // Side Navigation Toggle
+    const navHandle = document.getElementById('navHandle');
     const sideNav = document.querySelector('.side-nav');
+    const sideNavOverlay = document.getElementById('sideNavOverlay');
     const body = document.body;
 
-    menuTrigger.classList.toggle('active');
-    sideNav.classList.toggle('active');
-    body.classList.toggle('menu-active');
-}
+    if (navHandle) {
+        navHandle.addEventListener('click', function() {
+            sideNav.classList.toggle('active');
+            navHandle.classList.toggle('active');
+            body.classList.toggle('nav-expanded');
+            if (sideNavOverlay) {
+                sideNavOverlay.style.display = sideNav.classList.contains('active') ? 'block' : 'none';
+            }
+        });
+    }
 
-// Add active class to current page in navigation
-document.addEventListener('DOMContentLoaded', function() {
-    // Get current page path
-    const currentPath = window.location.pathname;
-    
+    if (sideNavOverlay) {
+        sideNavOverlay.addEventListener('click', function() {
+            sideNav.classList.remove('active');
+            navHandle.classList.remove('active');
+            body.classList.remove('nav-expanded');
+            sideNavOverlay.style.display = 'none';
+        });
+    }
 
-    const navLinks = document.querySelectorAll('.nav li a');
-    navLinks.forEach(link => {
-        if (link.getAttribute('href').includes(filename)) {
-            link.classList.add('active');
-        }
-    });
-
-    // Update side navigation
-    const sideNavItems = document.querySelectorAll('.side-nav-item');
-    sideNavItems.forEach(item => {
-        const targetPath = item.getAttribute('onclick').match(/'([^']+)'/)[1];
-        if (targetPath.includes(filename)) {
-            item.classList.add('active');
-        }
-    });
-
-    const sideNavLinks = document.querySelectorAll('.side-nav a');
+    // Navigation Links
+    const sideNavLinks = document.querySelectorAll('.side-nav .nav-link');
     
     sideNavLinks.forEach(link => {
         link.addEventListener('click', function(e) {
@@ -48,23 +44,38 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Handle navigation based on route
             switch(route) {
-                case 'dashboard':
+                case 'Home':
                     window.location.href = 'index.html';
                     break;
-                case 'profile':
+                case 'Profile':
                     window.location.href = 'profile.html';
                     break;
-                case 'admin':
+                case 'Admin':
                     window.location.href = 'Host-WEB/admin_dashboard.html';
                     break;
-                case 'logout':
-                    handleLogout();
+                case 'Login':
+                    window.location.href = 'login.html';
+                    break;
+                case 'Signup':
+                    window.location.href = 'signup.html';
                     break;
                 default:
-                    console.error('Unknown route:', route);
+                    console.log('Unknown route:', route);
             }
         });
     });
+
+    // Set active navigation based on current page
+    const currentPath = window.location.pathname;
+    const currentPage = currentPath.split('/').pop();
+
+    sideNavLinks.forEach(link => {
+        const route = link.getAttribute('data-route').toLowerCase();
+        if (currentPage.includes(route.toLowerCase())) {
+            link.classList.add('active');
+        }
+    });
+});
     
     // Logout handler
     function handleLogout() {
@@ -90,8 +101,14 @@ document.addEventListener('DOMContentLoaded', function() {
         link.removeEventListener('click', handleNavigation);
         link.addEventListener('click', handleNavigation);
     });
-});
-
+/**
+ * Handles navigation routing for side navigation menu links.
+ * Prevents default link behavior and redirects to appropriate pages based on the route.
+ * Supports admin authentication checking and logout functionality.
+ * 
+ * @param {Event} e - The click event object from the navigation link
+ * @returns {void} This function does not return a value
+ */
 function handleNavigation(e) {
     e.preventDefault();
     const route = e.currentTarget.getAttribute('data-route') || e.currentTarget.id;
@@ -134,6 +151,7 @@ function handleNavigation(e) {
             console.error('Unknown route:', route);
     }
 }
+
 
 // Add this to your logout function
 function handleLogout() {

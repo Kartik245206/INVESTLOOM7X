@@ -1,7 +1,7 @@
 /* Add black background to body */
 body {
     background-color: #222123 !important;
-    color: #ffffff;
+    color: #efe0e0;
     padding-left: 20px !important; /* Added padding to prevent collision */
     transition: padding 0.3s ease;
 }
@@ -469,8 +469,10 @@ body {
     padding-left: 15px;
     padding-right: 15px;
     width: 100%;
+    max-width: 1200px;
     margin-right: auto;
     margin-left: auto;
+    overflow: hidden;
 }
 
 /* Mobile Responsive Styles */
