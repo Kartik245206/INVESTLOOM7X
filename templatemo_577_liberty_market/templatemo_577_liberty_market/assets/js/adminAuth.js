@@ -6,8 +6,8 @@ const ADMIN_CREDENTIALS = {
 async function handleAdminLogin(event) {
     event.preventDefault();
     
-    const username = document.getElementById('adminPhone').value; // यह element का name phone है लेकिन value username है
-    const password = document.getElementById('adminPassword').value;
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
 
     console.log('Sending login data:', { username, password }); // Debug के लिए
 
