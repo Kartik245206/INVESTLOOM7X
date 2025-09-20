@@ -101,9 +101,23 @@
     document.addEventListener('DOMContentLoaded', function() {
         const signupForm = document.getElementById('signupForm');
         const submitBtn = document.getElementById('submitBtn');
+        const alertDiv = document.getElementById('alertMessage');
+        
+        function showAlert(message, type) {
+            alertDiv.textContent = message;
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.style.display = 'block';
+        }
+        
+        function hideAlert() {
+            alertDiv.style.display = 'none';
+        }
 
         signupForm.addEventListener('submit', async function(event) {
             event.preventDefault();
+            hideAlert();
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Creating Account...';
             
             // Disable submit button to prevent double submission
             submitBtn.disabled = true;
@@ -124,16 +138,45 @@
             // Basic validation
             if (!userData.name || !userData.email || !userData.username || !userData.password) {
                 showAlert('Please fill in all required fields.', 'danger');
-                resetSubmitButton();
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Sign Up';
                 return;
             }
 
             if (userData.password.length < 6) {
                 showAlert('Password must be at least 6 characters long.', 'danger');
-                resetSubmitButton();
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Sign Up';
                 return;
             }
-
+            
+            try {
+                const response = await fetch('/api/auth/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(userData),
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to create account');
+                }
+                
+                showAlert('Account created successfully! Redirecting to login...', 'success');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+                
+            } catch (error) {
+                showAlert(error.message || 'Failed to create account. Please try again.', 'danger');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Sign Up';
+            }
+            
             // Email validation
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(userData.email)) {

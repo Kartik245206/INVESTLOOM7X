@@ -1,51 +1,154 @@
 // User Authentication and Profile Management
 const auth = {
-    API_URL: '/api',  // Update this with your actual API URL
-
+    API_URL: '/api',  // Base API URL for all requests
+    
     // Initialize user session
     async initSession() {
         try {
-            // Check if we have a token in localStorage first
             const token = localStorage.getItem('token');
             const currentPage = window.location.pathname.split('/').pop();
-            
-            // Pages that don't require authentication
             const publicPages = ['index.html', 'author.html', 'login.html', 'signup.html', ''];
             
             if (!token) {
-                // If on a protected page, redirect to login
                 if (!publicPages.includes(currentPage)) {
                     sessionStorage.setItem('redirectAfterLogin', window.location.href);
                     window.location.href = 'login.html';
-                    return; // Stop execution to prevent UI updates before redirect
+                    return;
                 }
-                
-                // No token, user is not logged in
                 this.updateUIForLoggedOutUser();
                 return false;
             }
             
-            // Try to get user profile with the token
+            // Verify token and get user profile
             const response = await fetch(`${this.API_URL}/users/profile`, {
-                credentials: 'include'  // This is important for cookies
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
             });
             
-            if (response.ok) {
-                const user = await response.json();
-                this.updateUserProfile(user);
-                return true;
-            } else {
-                // Token is invalid or expired
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
-                this.updateUIForLoggedOutUser();
+            if (!response.ok) {
+                this.logout();
                 return false;
             }
+            
+            const data = await response.json();
+            this.updateUserProfile(data.user);
+            return true;
         } catch (error) {
             console.error('Session init error:', error);
-            this.updateUIForLoggedOutUser();
+            this.logout();
             return false;
         }
+    },
+    
+    // Update UI for logged out users
+    updateUIForLoggedOutUser() {
+        // Clear user data
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        
+        // Update navigation links
+        const navLinks = document.querySelector('.nav-links');
+        if (navLinks) {
+            navLinks.innerHTML = `
+                <a href="index.html" class="active">Home</a>
+                <a href="author.html">Explore</a>
+                <a href="login.html">Login</a>
+                <a href="signup.html">Sign Up</a>
+            `;
+        }
+        
+        // Hide user-specific elements
+        document.querySelectorAll('.user-only').forEach(el => el.style.display = 'none');
+        // Show guest elements
+        document.querySelectorAll('.guest-only').forEach(el => el.style.display = 'block');
+        
+        // Update user info containers
+        const userInfoContainers = document.querySelectorAll('.user-account-info');
+        userInfoContainers.forEach(container => {
+            container.innerHTML = `
+                <a href="index.html" class="logo">
+                    <img src="assets/images/logo.png" alt="INVESTLOOM7X">
+                </a>
+            `;
+        });
+    },
+    
+    // Update user profile display
+    updateUserProfile(user) {
+        if (!user) return;
+        
+        // Store current user data
+        localStorage.setItem('user', JSON.stringify(user));
+        
+        // Show user-specific elements
+        document.querySelectorAll('.user-only').forEach(el => el.style.display = 'block');
+        // Hide guest elements
+        document.querySelectorAll('.guest-only').forEach(el => el.style.display = 'none');
+        
+        // Update user information in UI
+        document.querySelectorAll('.user-account-info').forEach(container => {
+            container.innerHTML = `
+                <div class="user-profile-pic">
+                    <img src="${user.profilePic || 'assets/images/author.jpg'}" alt="${user.username}">
+                </div>
+                <div class="user-info">
+                    <div class="username">${user.username}</div>
+                    <div class="user-balance-info">
+                        <div class="balance-amount">₹${user.balance || 0}</div>
+                        <div class="balance-label">Available Balance</div>
+                    </div>
+                </div>
+            `;
+        });
+    },
+    
+    // Handle login
+    async login(email, password) {
+        try {
+            const response = await fetch(`${this.API_URL}/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password }),
+                credentials: 'include'
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error || 'Invalid credentials');
+            }
+            
+            // Store authentication data
+            this.saveAuthData(data.token, data.user);
+            
+            // Handle redirect after login
+            const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
+            if (redirectUrl) {
+                sessionStorage.removeItem('redirectAfterLogin');
+                window.location.href = redirectUrl;
+            } else {
+                window.location.href = 'index.html';
+            }
+            
+            return { success: true, user: data.user };
+        } catch (error) {
+            console.error('Login error:', error);
+            return { 
+                success: false, 
+                message: error.message || 'Login failed. Please check your credentials.'
+            };
+        }
+    },
+    
+    // Save authentication data consistently
+    saveAuthData(token, user) {
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
+        // Add a timestamp for session expiry check
+        localStorage.setItem('loginTimestamp', Date.now().toString());
     },
     
     // Update UI for logged out users
@@ -125,54 +228,43 @@ const auth = {
             console.error('Login error:', error);
             return { success: false, message: 'Login failed' };
         }
-    },
+    },  // Added comma here
 
     // Handle signup
-    signup(userData) {
+    async signup(userData) {
         try {
-            // Get existing users
-            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const response = await fetch(`${this.API_URL}/auth/signup`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(userData),
+                credentials: 'include'
+            });
+
+            const data = await response.json();
             
-            // Check if email already exists
-            if (users.some(user => user.email.toLowerCase() === userData.email.toLowerCase())) {
-                return { success: false, message: 'This email is already registered' };
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to create account');
             }
 
-            // Check if username already exists
-            if (users.some(user => user.username.toLowerCase() === userData.username.toLowerCase())) {
-                return { success: false, message: 'This username is already taken' };
+            // Store authentication data if token is provided
+            if (data.token) {
+                this.saveAuthData(data.token, data.user);
+                // Redirect to home page after successful signup
+                window.location.href = 'index.html';
             }
 
-            // Check if UPI ID already exists
-            if (users.some(user => user.upiId === userData.upiId)) {
-                return { success: false, message: 'This UPI ID is already registered' };
-            }
-
-            // Create new user with default values
-            const newUser = {
-                ...userData,
-                id: Date.now(),
-                balance: 0,
-                transactions: [],
-                emiHistory: [],
-                profilePic: 'assets/images/author.jpg',
-                createdAt: new Date().toISOString()
+            return { 
+                success: true, 
+                message: 'Account created successfully!',
+                user: data.user 
             };
-
-            // Save to users array
-            users.push(newUser);
-            localStorage.setItem('users', JSON.stringify(users));
-
-            // Set current user session
-            localStorage.setItem('currentUser', JSON.stringify(newUser));
-            localStorage.setItem('token', 'demo_token_' + Date.now()); // In real app, use JWT
-
-            return { success: true, user: newUser };
         } catch (error) {
             console.error('Signup error:', error);
             return { 
                 success: false, 
-                message: 'Failed to create account. Please try again.'
+                message: error.message || 'Failed to create account. Please try again.'
             };
         }
     },
@@ -266,38 +358,23 @@ document.addEventListener('DOMContentLoaded', function() {
     checkAuth();
 });
 
-async function handleLogin(event) {
-    event.preventDefault();
+// Initialize auth on page load
+document.addEventListener('DOMContentLoaded', () => {
+    auth.initSession();
     
-    const email = document.getElementById('emailInput').value;
-    const password = document.getElementById('passwordInput').value;
-
-    try {
-        const response = await fetch('/api/auth/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ email, password })
+    // Set up login form handler if we're on the login page
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            
+            const email = document.getElementById('emailInput').value;
+            const password = document.getElementById('passwordInput').value;
+            
+            const result = await auth.login(email, password);
+            if (!result.success) {
+                alert(result.message);
+            }
         });
-
-        if (!response.ok) {
-            throw new Error('Invalid credentials');
-        }
-
-        const data = await response.json();
-        
-        // Store auth data
-        localStorage.setItem('userToken', data.token);
-        localStorage.setItem('userEmail', email);
-        localStorage.setItem('isLoggedIn', 'true');
-
-        // Redirect to home page
-        window.location.href = 'index.html';
-    } catch (error) {
-        alert('Login failed: ' + error.message);
     }
-}
-
-// Add event listener to form
-document.getElementById('loginForm').addEventListener('submit', handleLogin);
+});

@@ -74,8 +74,42 @@
     <!-- Scripts -->
         <script>
         document.addEventListener('DOMContentLoaded', function () {
-          const form = document.getElementById('loginForm');
-          if (!form) return;
+            const form = document.getElementById('loginForm');
+            if (!form) return;
+            
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                
+                try {
+                    const response = await fetch('/api/auth/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ email, password }),
+                        credentials: 'include'
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (!response.ok) {
+                        throw new Error(data.error || 'Invalid credentials');
+                    }
+                    
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    
+                    // Redirect after successful login
+                    const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
+                    window.location.href = redirectUrl || 'index.html';
+                    
+                } catch (error) {
+                    alert(error.message || 'Login failed. Please check your credentials.');
+                }
+            });
 
           form.addEventListener('submit', async function (e) {
             e.preventDefault();

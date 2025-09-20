@@ -131,6 +131,7 @@ router.post('/signup', async (req, res) => {
 
       return res.json({
         success: true,
+        token: token,
         user: { 
           id: user._id, 
           name: user.name, 
