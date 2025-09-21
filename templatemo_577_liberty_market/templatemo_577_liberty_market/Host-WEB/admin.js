@@ -131,6 +131,59 @@ async function deleteProduct(productId) {
     }
 }
 
+// After successful product addition/edit
+async function addProduct(productData) {
+    try {
+        const response = await fetch('/api/products', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+            },
+            body: JSON.stringify(productData)
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to add product');
+        }
+
+        // Refresh product list
+        await loadAdminProducts();
+        
+        // Show success message
+        showAlert('Product added successfully', 'success');
+    } catch (error) {
+        console.error('Error adding product:', error);
+        showAlert('Failed to add product', 'error');
+    }
+}
+
+// Add this function to handle product status toggle
+async function toggleProductStatus(productId, isActive) {
+    try {
+        const response = await fetch(`/api/products/${productId}/toggle`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+            },
+            body: JSON.stringify({ isActive })
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to update product status');
+        }
+
+        // Refresh product list
+        await loadAdminProducts();
+        
+        showAlert('Product status updated successfully', 'success');
+    } catch (error) {
+        console.error('Error updating product status:', error);
+        showAlert('Failed to update product status', 'error');
+    }
+}
+
 // Helper function to convert image to base64
 function convertImageToBase64(file) {
     return new Promise((resolve, reject) => {

@@ -600,35 +600,32 @@ async function loadProducts() {
         const response = await fetch('/api/products');
         const products = await response.json();
         
-        const productsContainer = document.getElementById('products-container');
-        if (!productsContainer) return;
+        const productContainer = document.querySelector('.market-products');
+        if (!productContainer) return;
 
-        productsContainer.innerHTML = products.map(product => `
-            <div class="col-lg-4 col-md-6">
-                <div class="item">
-                    <div class="left-image">
-                        <img src="${product.imageUrl}" alt="${product.name}">
+        productContainer.innerHTML = products
+            .filter(product => product.isActive) // Only show active products
+            .map(product => `
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="${product.image}" alt="${product.name}">
                     </div>
-                    <div class="right-content">
+                    <div class="product-info">
                         <h4>${product.name}</h4>
-                        <div class="price">
-                            <span>Price: ₹${product.price}</span>
+                        <div class="price-info">
+                            <span class="price">₹${product.price}</span>
+                            <span class="daily">₹${product.dailyEarning}/day</span>
                         </div>
-                        <div class="info">
-                            <span>Category: ${product.category}</span>
-                            <span>Daily Earning: ₹${product.dailyEarning}</span>
-                        </div>
-                        <button class="btn btn-primary" onclick="purchaseProduct('${product._id}')">Purchase Now</button>
+                        <a href="details.html?id=${product._id}" class="view-details">View Details</a>
                     </div>
                 </div>
-            </div>
-        `).join('');
+            `).join('');
     } catch (error) {
         console.error('Error loading products:', error);
     }
 }
 
-// Load products when page loads
+// Call this when page loads
 document.addEventListener('DOMContentLoaded', loadProducts);
 
 // Preloader

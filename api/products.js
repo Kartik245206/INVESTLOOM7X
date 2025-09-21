@@ -92,4 +92,24 @@ router.get('/', async (req, res) => {
     }
 });
 
+router.put('/:id/toggle', auth, async (req, res) => {
+    try {
+        const { isActive } = req.body;
+        const product = await Product.findByIdAndUpdate(
+            req.params.id,
+            { isActive },
+            { new: true }
+        );
+        
+        if (!product) {
+            return res.status(404).json({ error: 'Product not found' });
+        }
+        
+        res.json(product);
+    } catch (error) {
+        console.error('Error toggling product status:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 module.exports = router;
