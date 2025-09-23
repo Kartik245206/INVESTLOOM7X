@@ -1,6 +1,7 @@
 // User Authentication and Profile Management
 const auth = {
-    API_URL: '/api',  // Base API URL for all requests
+    // Replace localhost URL with your Render URL
+    API_URL: 'https://investloom7x.onrender.com/api',
     
     // Initialize user session
     async initSession() {
