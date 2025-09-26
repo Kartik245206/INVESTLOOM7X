@@ -450,6 +450,39 @@ body {
             padding-left: 220px !important; /* 220px = side nav width (200px) + 20px gap */
         }
 
+.action-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.action-button {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.action-button:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.action-button img {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 1rem;
+}
+
+.action-button h4 {
+    color: #fff;
+    margin: 0;
+    font-size: 1.1rem;
+}
+
 /* Side Navigation adjustments */
 .side-nav {
     position: fixed;
@@ -608,4 +641,66 @@ html, body {
 .container {
     max-width: 100% !important;
     overflow-x: hidden !important;
+}
+
+.product-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    backdrop-filter: blur(5px);
+    padding: 1rem;
+    margin-bottom: 2rem;
+    transition: all 0.3s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.product-image {
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+.product-details {
+    padding: 1rem;
+}
+
+.product-price {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #4CAF50;
+}
+
+.view-details-btn {
+    width: 100%;
+    padding: 0.8rem;
+    border-radius: 8px;
+    background: linear-gradient(45deg, #2196F3, #00BCD4);
+    border: none;
+    color: white;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.loading-animation {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

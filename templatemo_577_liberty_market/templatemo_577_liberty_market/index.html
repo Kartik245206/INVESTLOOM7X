@@ -204,54 +204,57 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">
-                    <div class="header-text">
-                        <h1>TRADING in INVESTLOOM7X</h1>
-                        <p><h4>investloom7x can be freely downloaded and supportive.</h4></p>
-                    </div>
-                    
-                    <!-- Four Buttons Section -->
-                    <div class="row mt-4">
-                        <div class="col-2 mb-3">
-                            <div class="item small-item">
-                                <div class="icon">
-                                    <img src="assets/images/icon-01.png" alt="EMI">
-                                </div>
-                                <h4>EMI</h4>
-                                <div class="icon-button">
-                                    <a href="#" onclick="showEMICalculator()"><i class="fa fa-angle-right"></i></a>
+                    <div class="header-text animate__animated animate__fadeIn">
+                        <h1 class="gradient-text">TRADING in INVESTLOOM7X</h1>
+                        <p class="lead">Experience seamless trading with our advanced platform</p>
+                        <div class="cta-buttons">
+                            <a href="#market-section" class="btn btn-primary btn-lg">Explore Markets</a>
+                            <a href="signup.html" class="btn btn-outline-light btn-lg">Get Started</a>
+                        </div>
+                        <!-- Four Buttons Section -->
+                        <div class="row mt-4">
+                            <div class="col-2 mb-3">
+                                <div class="item small-item">
+                                    <div class="icon">
+                                        <img src="assets/images/icon-01.png" alt="EMI">
+                                    </div>
+                                    <h4>EMI</h4>
+                                    <div class="icon-button">
+                                        <a href="#" onclick="showEMICalculator()"><i class="fa fa-angle-right"></i></a>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-2 mb-3">
-                            <div class="item small-item">
-                                <div class="icon">
-                                    <img src="assets/images/icon-02.png" alt="Deposit">
-                                </div>
-                                <h4>Deposit</h4>
-                                <div class="icon-button">
-                                    <a href="#" onclick="showDepositModal()"><i class="fa fa-angle-right"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-2 mb-3">
-                            <div class="item small-item">
-                                <div class="icon">
-                                    <img src="assets/images/icon-03.png" alt="Withdraw">
-                                </div>
-                                <h4>Withdraw</h4>
-                                <div class="icon-button">
-                                    <a href="#" onclick="handleWithdrawal()"><i class="fa fa-angle-right"></i></a>
+                            <div class="col-2 mb-3">
+                                <div class="item small-item">
+                                    <div class="icon">
+                                        <img src="assets/images/icon-02.png" alt="Deposit">
+                                    </div>
+                                    <h4>Deposit</h4>
+                                    <div class="icon-button">
+                                        <a href="#" onclick="showDepositModal()"><i class="fa fa-angle-right"></i></a>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-2 mb-3">
-                            <div class="item small-item">
-                                <div class="icon">
-                                    <img src="assets/images/icon-05.png" alt="Balance">
+                            <div class="col-2 mb-3">
+                                <div class="item small-item">
+                                    <div class="icon">
+                                        <img src="assets/images/icon-03.png" alt="Withdraw">
+                                    </div>
+                                    <h4>Withdraw</h4>
+                                    <div class="icon-button">
+                                        <a href="#" onclick="handleWithdrawal()"><i class="fa fa-angle-right"></i></a>
+                                    </div>
                                 </div>
-                                <h4>Balance</h4>
-                                <div class="icon-button">
-                                    <a href="#" onclick="showBalance()"><i class="fa fa-angle-right"></i></a>
+                            </div>
+                            <div class="col-2 mb-3">
+                                <div class="item small-item">
+                                    <div class="icon">
+                                        <img src="assets/images/icon-05.png" alt="Balance">
+                                    </div>
+                                    <h4>Balance</h4>
+                                    <div class="icon-button">
+                                        <a href="#" onclick="showBalance()"><i class="fa fa-angle-right"></i></a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -263,18 +266,22 @@
     <!-- ***** Main Banner Area End ***** -->
 
     <!-- ***** Market Products Area Start ***** -->
-    <div class="currently-market">
+    <div class="market-products">
         <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="section-heading">
-                        <div class="line-dec"></div>
-                        <h2>____________Market_Products__________</h2>
-                    </div>
-                </div>
-                <div class="row currently-market-items" id="productContainer">
-                    <!-- Products will be loaded here dynamically -->
-                </div>
+            <div class="section-header text-center">
+                <h2 class="gradient-text">Market Products</h2>
+                <p class="lead">Choose from our premium trading packages</p>
+            </div>
+            
+            <div class="product-filters mb-4">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="vip">VIP</button>
+                <button class="filter-btn" data-filter="premium">Premium</button>
+                <button class="filter-btn" data-filter="starter">Starter</button>
+            </div>
+
+            <div class="row" id="productContainer">
+                <!-- Products will be loaded here -->
             </div>
         </div>
     </div>
