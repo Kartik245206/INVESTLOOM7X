@@ -365,89 +365,78 @@
             </div>
              <script>
                 // Single source of truth for products
-async function loadProducts() {
-    try {
-        const response = await fetch('https://investloom7x.onrender.com/api/products', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        if (!response.ok) {
-            throw new Error('Failed to fetch products');
-        }
+        async function loadProducts() {
+            try {
+                const response = await fetch('https://investloom7x.onrender.com/api/products');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch products');
+                }
 
-        const data = await response.json();
-        const products = data.products || [];
-        
-        const productContainer = document.getElementById('productContainer');
-        if (!productContainer) return;
+                const data = await response.json();
+                const products = data.products || [];
+                
+                const productContainer = document.getElementById('productContainer');
+                if (!productContainer) return;
 
-        if (products.length > 0) {
-            const productsHTML = products.map(product => `
-                <div class="col-lg-3 col-md-6">
-                    <div class="item">
-                        <div class="row">
-                            <div class="left-image">
-                                <img src="${product.imageUrl || 'assets/images/market-01.jpg'}" alt="${product.name}">
-                            </div>
-                            <div class="right-content">
-                                <h4>${product.name}</h4>
-                                <span class="author">
-                                    <h6>${product.category || ''}</h6>
-                                </span>
-                                <div class="line-dec"></div>
-                                <span class="bid">
-                                    Amount/Day<br>
-                                    <strong>₹${product.price}/day</strong><br>
-                                    <em>(₹${product.dailyEarning || 0})</em>
-                                </span>
-                                <span class="ends">
-                                    Ends In<br>
-                                    <strong>100 Days</strong>
-                                </span>
-                                <div class="text-button">
-                                    <a href="details.html?id=${product._id}">View Details</a>
+                if (products.length > 0) {
+                    const productsHTML = products.map(product => `
+                        <div class="col-lg-3 col-md-6">
+                            <div class="item">
+                                <div class="left-image">
+                                    <img src="${product.imageUrl || 'assets/images/market-01.jpg'}" alt="${product.name}">
+                                </div>
+                                <div class="right-content">
+                                    <h4>${product.name}</h4>
+                                    <span class="author">
+                                        <h6>${product.category || 'Investment'}</h6>
+                                    </span>
+                                    <div class="line-dec"></div>
+                                    <span class="bid">
+                                        Amount/Day<br>
+                                        <strong>₹${product.price}/day</strong><br>
+                                        <em>(₹${product.dailyEarning || 0})</em>
+                                    </span>
+                                    <span class="ends">
+                                        Ends In<br>
+                                        <strong>100 Days</strong>
+                                    </span>
+                                    <div class="text-button">
+                                        <a href="details.html?id=${product._id}">View Details</a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            `).join('');
-            
-            productContainer.innerHTML = productsHTML;
-        } else {
-            productContainer.innerHTML = `
-                <div class="col-12 text-center">
-                    <div class="alert alert-info">
-                        <h3>No products available at the moment</h3>
-                        <p>Please check back later for new products</p>
-                    </div>
-                </div>`;
+                    `).join('');
+                    
+                    productContainer.innerHTML = productsHTML;
+                } else {
+                    productContainer.innerHTML = `
+                        <div class="col-12 text-center">
+                            <h3>No products available</h3>
+                            <p>Check back later for new products</p>
+                        </div>`;
+                }
+            } catch (error) {
+                console.error('Error loading products:', error);
+                const productContainer = document.getElementById('productContainer');
+                if (productContainer) {
+                    productContainer.innerHTML = `
+                        <div class="col-12 text-center">
+                            <div class="alert alert-danger">
+                                <h3>Error loading products</h3>
+                                <p>Please try again later</p>
+                            </div>
+                        </div>`;
+                }
+            }
         }
-    } catch (error) {
-        console.error('Error loading products:', error);
-        const productContainer = document.getElementById('productContainer');
-        if (productContainer) {
-            productContainer.innerHTML = `
-                <div class="col-12 text-center">
-                    <div class="alert alert-danger">
-                        <h3>Error loading products</h3>
-                        <p>Please try again later</p>
-                        <button class="btn btn-primary mt-3" onclick="loadProducts()">Retry</button>
-                    </div>
-                </div>`;
-        }
-    }
-}
 
-// Initialize products on page load
-document.addEventListener('DOMContentLoaded', () => {
-    loadProducts();
-    // Refresh products every 30 seconds
-    setInterval(loadProducts, 30000);
-});
+        // Initialize products on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProducts();
+            // Refresh products every 30 seconds
+            setInterval(loadProducts, 30000);
+        });
             </script>
         </div>
     </div>
@@ -646,35 +635,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Initialize products when DOM is loaded
         document.addEventListener('DOMContentLoaded', function () {
-            // Add sample products to localStorage if none exist
-            const existingProducts = JSON.parse(localStorage.getItem('products') || '[]');
-            if (existingProducts.length === 0) {
-                const sampleProducts = [
-                    {
-                        id: 1001,
-                        image: 'assets/images/featured-01.jpg',
-                        name: 'Tester Plan',
-                        category: 'iPhone',
-                        price: '30',
-                        total: '100',
-                        categoryClass: 'msc',
-                        Plans: 'Tester Plan'
-                    },
-                    {
-                        id: 1002,
-                        image: 'assets/images/featured-02.jpg',
-                        name: 'VIP 1 Plan',
-                        category: 'Smartwatch',
-                        price: '20000',
-                        total: '55000',
-                        categoryClass: 'dig',
-                        Plans: 'VIP 1 Plan'
-                    }
-                ];
-                localStorage.setItem('products', JSON.stringify(sampleProducts));
-                console.log('Added sample products to localStorage');
-            }
-
             loadProducts();
 
             // Add responsive handling
