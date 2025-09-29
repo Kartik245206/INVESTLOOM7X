@@ -34,13 +34,6 @@
 </head>
 
 <body>
-    <header class="main-nav">
-        <a href="index.html" class="logo">
-            <img src="assets/images/logo.png" alt="INVESTLOOM7X">
-        </a>
-
-        </header>
-
     <!-- ***** Preloader Start ***** -->
     <div id="js-preloader" class="js-preloader">
         <div class="preloader-inner">
@@ -52,6 +45,42 @@
         </div>
     </div>
 
+    <!-- ***** Header Area Start ***** -->
+    <header class="main-nav">
+        <a href="index.html" class="logo">
+            <img src="assets/images/logo.png" alt="INVESTLOOM7X">
+        </a>
+        
+        <nav class="nav-menu" id="mainNavMenu">
+            <ul class="nav-links">
+                <li><a href="index.html" class="nav-button active">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a></li>
+                <li><a href="profile.html" class="nav-button">
+                    <i class="fas fa-user"></i>
+                    <span>Profile</span>
+                </a></li>
+                <li><a href="details.html" class="nav-button">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Details</span>
+                </a></li>
+                <li><a href="Host-WEB/admin_Login_page.html" class="nav-button">
+                    <i class="fas fa-user-shield"></i>
+                    <span>Admin</span>
+                </a></li>
+                <li><a href="login.html" class="nav-button">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Login</span>
+                </a></li>
+                <li><a href="signup.html" class="nav-button">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Sign Up</span>
+                </a></li>
+            </ul>
+        </nav>
+    </header>
+    <!-- ***** Header Area End ***** -->
 
     
     <nav class="side-nav">
@@ -264,6 +293,43 @@
         </div>
     </div>
     <!-- ***** Main Banner Area End ***** -->
+
+    <!-- ***** Trust Indicators Section Start ***** -->
+    <section class="trust-indicators">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-md-6">
+                    <div class="trust-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <h4>Secure Trading</h4>
+                        <p>Advanced encryption & security</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="trust-item">
+                        <i class="fas fa-clock"></i>
+                        <h4>24/7 Support</h4>
+                        <p>Round-the-clock assistance</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="trust-item">
+                        <i class="fas fa-wallet"></i>
+                        <h4>Quick Withdrawals</h4>
+                        <p>Fast & secure transactions</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="trust-item">
+                        <i class="fas fa-chart-line"></i>
+                        <h4>Market Analysis</h4>
+                        <p>Expert insights & tools</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- ***** Trust Indicators Section End ***** -->
 
     <!-- ***** Market Products Area Start ***** -->
     <div class="market-products">
@@ -894,6 +960,75 @@
             </div>
         </div>
     </div>
+
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <div class="footer-content">
+                        <div class="social-links mb-4">
+                            <a href="#" class="social-link"><i class="fab fa-facebook"></i></a>
+                            <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                            <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                            <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+                        </div>
+                        <p class="copyright-text">
+                            Copyright © 2024-25 <span class="gradient-text">INVESTLOOM7X</span> 
+                            <br>Published on <a href="#" class="gradient-text">GitHub</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Add footer styles -->
+    <style>
+    .site-footer {
+        background: rgba(1, 11, 44, 0.95);
+        padding: 40px 0;
+        margin-top: 80px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .footer-content {
+        padding: 20px;
+    }
+
+    .social-links {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .social-link {
+        color: #fff;
+        font-size: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .social-link:hover {
+        color: #7453fc;
+        transform: translateY(-3px);
+    }
+
+    .copyright-text {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 14px;
+        margin: 0;
+    }
+
+    .copyright-text a {
+        color: #7453fc;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .copyright-text a:hover {
+        color: #fff;
+    }
+    </style>
     
 
     <script>

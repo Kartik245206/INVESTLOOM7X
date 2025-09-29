@@ -58,6 +58,7 @@
     /* Main content adjustments */
     .main-banner {
         padding: 4rem 0;
+        top: auto;
     }
     
     .main-banner .header-text h1 {

@@ -412,3 +412,34 @@ if (headerArea) {
     document.body.style.paddingTop = headerArea.offsetHeight + 'px';
 }
 
+document.addEventListener('DOMContentLoaded', function() {
+    const mainNav = document.getElementById('mainNavMenu');
+    if (mainNav) {
+        mainNav.style.display = 'flex';
+        mainNav.style.opacity = '1';
+        mainNav.style.visibility = 'visible';
+    }
+
+    // Set active nav button based on current page
+    const currentPath = window.location.pathname;
+    const navButtons = document.querySelectorAll('.nav-button');
+    
+    navButtons.forEach(button => {
+        if (button.getAttribute('href') === currentPath.split('/').pop()) {
+            button.classList.add('active');
+        } else {
+            button.classList.remove('active');
+        }
+    });
+});
+
+// Prevent any accidental hiding of the menu
+window.addEventListener('load', function() {
+    const mainNav = document.getElementById('mainNavMenu');
+    if (mainNav) {
+        mainNav.style.display = 'flex';
+        mainNav.style.opacity = '1';
+        mainNav.style.visibility = 'visible';
+    }
+});
+
