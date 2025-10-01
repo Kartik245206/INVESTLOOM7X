@@ -7,19 +7,19 @@ const Product = require('../models/Product');
 router.get('/products', async (req, res) => {
     try {
         console.log('Fetching products from database...');
-        const products = await Product.find({});
+        const products = await Product.find({ status: 'active' });
         console.log('Found products:', products);
         
         res.json({
             success: true,
-            products: products
+            products: products || [] // Ensure we always return an array
         });
     } catch (error) {
-        console.error('Error fetching products:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: 'Error fetching products',
-            error: error.message
+        console.error('Error:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message,
+            products: [] // Return empty array on error
         });
     }
 });

@@ -441,23 +441,21 @@
 
                 productContainer.innerHTML = '<div class="text-center"><p>Loading products...</p></div>';
 
-                const response = await fetch('https://investloom7x.onrender.com/api/products', {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                });
-
-                console.log('API Response status:', response.status);
+                // Add error handling and logging
+                console.log('Fetching products...');
+                const response = await fetch('https://investloom7x.onrender.com/api/products');
+                console.log('Response status:', response.status);
+                
                 const data = await response.json();
-                console.log('API Response data:', data);
+                console.log('Received data:', data);
 
                 if (!response.ok) {
-                    throw new Error(data.message || 'Failed to load products');
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
-                const products = data.products || [];
-                
+                const products = Array.isArray(data.products) ? data.products : [];
+                console.log('Processed products:', products);
+
                 if (products.length === 0) {
                     productContainer.innerHTML = `
                         <div class="col-12 text-center">
@@ -473,7 +471,8 @@
                             <div class="left-image">
                                 <img src="${product.imageUrl || 'assets/images/placeholder.jpg'}" 
                                      alt="${product.name}" 
-                                     onerror="this.src='assets/images/placeholder.jpg'">
+                                     onerror="this.src='assets/images/placeholder.jpg'"
+                                     class="product-image">
                             </div>
                             <div class="right-content">
                                 <h4>${product.name}</h4>
@@ -1078,6 +1077,32 @@
     <script src="assets/js/auth.js"></script>
 
     <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+
+    <script>
+// Add this right after your body tag
+document.addEventListener('DOMContentLoaded', function() {
+    // Check product container
+    const productContainer = document.getElementById('productContainer');
+    console.log('Product Container:', productContainer);
+
+    // Check local storage
+    const localProducts = localStorage.getItem('products');
+    console.log('Local Products:', localProducts ? JSON.parse(localProducts) : 'No products in localStorage');
+
+    // Test API connection
+    fetch('https://investloom7x.onrender.com/api/products')
+        .then(response => {
+            console.log('API Response Status:', response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log('API Data:', data);
+        })
+        .catch(error => {
+            console.error('API Error:', error);
+        });
+});
+</script>
 </body>
 </html>
 
