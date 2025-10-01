@@ -433,64 +433,73 @@
                 // Single source of truth for products
         async function loadProducts() {
             try {
-                // Add loading indicator
                 const productContainer = document.getElementById('productContainer');
+                if (!productContainer) {
+                    console.error('Product container not found');
+                    return;
+                }
+
                 productContainer.innerHTML = '<div class="text-center"><p>Loading products...</p></div>';
 
-                // Log API request
-                console.log('Fetching products from:', 'https://investloom7x.onrender.com/api/products');
-                
-                const response = await fetch('https://investloom7x.onrender.com/api/products');
+                const response = await fetch('https://investloom7x.onrender.com/api/products', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                console.log('API Response status:', response.status);
                 const data = await response.json();
-                
-                // Log response data
-                console.log('API Response:', data);
+                console.log('API Response data:', data);
 
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    throw new Error(data.message || 'Failed to load products');
                 }
 
                 const products = data.products || [];
                 
-                if (products.length > 0) {
-                    const productsHTML = products.map(product => `
-                        <div class="col-lg-3 col-md-6">
-                            <div class="item">
-                                <div class="left-image">
-                                    <img src="${product.imageUrl || product.image}" alt="${product.name}" 
-                                         onerror="this.src='assets/images/placeholder.jpg'">
-                                </div>
-                                <div class="right-content">
-                                    <h4>${product.name}</h4>
-                                    <span class="author">
-                                        <h6>${product.category || 'Investment'}</h6>
-                                    </span>
-                                    <div class="line-dec"></div>
-                                    <span class="bid">
-                                        Amount/Day<br>
-                                        <strong>₹${product.price}/day</strong><br>
-                                        <em>(₹${product.dailyEarning || 0})</em>
-                                    </span>
-                                    <span class="ends">
-                                        Ends In<br>
-                                        <strong>100 Days</strong>
-                                    </span>
-                                    <div class="text-button">
-                                        <a href="details.html?id=${product._id}">View Details</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('');
-                    
-                    productContainer.innerHTML = productsHTML;
-                } else {
+                if (products.length === 0) {
                     productContainer.innerHTML = `
                         <div class="col-12 text-center">
                             <h3>No products available</h3>
-                            <p>Check back later for new products</p>
+                            <p>Please check back later for new products</p>
                         </div>`;
+                    return;
                 }
+
+                const productsHTML = products.map(product => `
+                    <div class="col-lg-3 col-md-6">
+                        <div class="item">
+                            <div class="left-image">
+                                <img src="${product.imageUrl || 'assets/images/placeholder.jpg'}" 
+                                     alt="${product.name}" 
+                                     onerror="this.src='assets/images/placeholder.jpg'">
+                            </div>
+                            <div class="right-content">
+                                <h4>${product.name}</h4>
+                                <span class="author">
+                                    <h6>${product.category || 'Investment'}</h6>
+                                </span>
+                                <div class="line-dec"></div>
+                                <span class="bid">
+                                    Amount/Day<br>
+                                    <strong>₹${product.price}/day</strong><br>
+                                    <em>(₹${product.dailyEarning || 0})</em>
+                                </span>
+                                <span class="ends">
+                                    Ends In<br>
+                                    <strong>100 Days</strong>
+                                </span>
+                                <div class="text-button">
+                                    <a href="details.html?id=${product._id}">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                productContainer.innerHTML = productsHTML;
+
             } catch (error) {
                 console.error('Error loading products:', error);
                 const productContainer = document.getElementById('productContainer');
@@ -499,19 +508,18 @@
                         <div class="alert alert-danger">
                             <h3>Error loading products</h3>
                             <p>Please try again later</p>
-                            <small>Error: ${error.message}</small>
+                            <small>${error.message}</small>
                         </div>
                     </div>`;
             }
         }
 
-        // Initialize products on page load
+        // Initialize products on page load and refresh every 30 seconds
         document.addEventListener('DOMContentLoaded', () => {
             loadProducts();
-            // Refresh products every 30 seconds
             setInterval(loadProducts, 30000);
         });
-            </script>
+    </script>
         </div>
     </div>
 
