@@ -55,7 +55,7 @@
             <ul class="nav-links">
                 <li><a href="index.html" class="nav-button active">
                     <i class="fas fa-home"></i>
-                    <span>Home</span>
+                    <span>Home</span>r
                 </a></li>
                 <li><a href="profile.html" class="nav-button">
                     <i class="fas fa-user"></i>
@@ -429,27 +429,36 @@
                     <!-- Products will be loaded here dynamically -->
                 </div>
             </div>
-             <script>
+    <script>
                 // Single source of truth for products
         async function loadProducts() {
             try {
+                // Add loading indicator
+                const productContainer = document.getElementById('productContainer');
+                productContainer.innerHTML = '<div class="text-center"><p>Loading products...</p></div>';
+
+                // Log API request
+                console.log('Fetching products from:', 'https://investloom7x.onrender.com/api/products');
+                
                 const response = await fetch('https://investloom7x.onrender.com/api/products');
+                const data = await response.json();
+                
+                // Log response data
+                console.log('API Response:', data);
+
                 if (!response.ok) {
-                    throw new Error('Failed to fetch products');
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
-                const data = await response.json();
                 const products = data.products || [];
                 
-                const productContainer = document.getElementById('productContainer');
-                if (!productContainer) return;
-
                 if (products.length > 0) {
                     const productsHTML = products.map(product => `
                         <div class="col-lg-3 col-md-6">
                             <div class="item">
                                 <div class="left-image">
-                                    <img src="${product.imageUrl || 'assets/images/market-01.jpg'}" alt="${product.name}">
+                                    <img src="${product.imageUrl || product.image}" alt="${product.name}" 
+                                         onerror="this.src='assets/images/placeholder.jpg'">
                                 </div>
                                 <div class="right-content">
                                     <h4>${product.name}</h4>
@@ -485,15 +494,14 @@
             } catch (error) {
                 console.error('Error loading products:', error);
                 const productContainer = document.getElementById('productContainer');
-                if (productContainer) {
-                    productContainer.innerHTML = `
-                        <div class="col-12 text-center">
-                            <div class="alert alert-danger">
-                                <h3>Error loading products</h3>
-                                <p>Please try again later</p>
-                            </div>
-                        </div>`;
-                }
+                productContainer.innerHTML = `
+                    <div class="col-12 text-center">
+                        <div class="alert alert-danger">
+                            <h3>Error loading products</h3>
+                            <p>Please try again later</p>
+                            <small>Error: ${error.message}</small>
+                        </div>
+                    </div>`;
             }
         }
 

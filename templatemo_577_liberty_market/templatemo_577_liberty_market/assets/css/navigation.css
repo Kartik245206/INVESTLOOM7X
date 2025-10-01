@@ -1018,3 +1018,72 @@ html, body {
     position: relative;
     z-index: 2;
 }
+
+/* Add these styles for the main navigation menu */
+.nav-menu {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    visibility: visible !important;
+    display: flex !important;
+}
+
+/* Ensure the menu is always visible on larger screens */
+@media (min-width: 769px) {
+    .nav-menu {
+        display: flex !important;
+        visibility: visible !important;
+    }
+}
+
+/* For mobile screens, respect the toggle state */
+@media (max-width: 768px) {
+    .nav-menu {
+        display: none;
+    }
+    
+    .nav-menu.active {
+        display: flex !important;
+        opacity: 1;
+    }
+}
+
+/* Remove button format from side nav links */
+.side-nav .nav-link {
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    text-align: left !important;
+    padding: 15px 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    color: #fff !important;
+    text-decoration: none !important;
+    margin: 5px 0 !important;
+    transition: all 0.3s ease !important;
+    border-radius: 0 !important;
+}
+
+.side-nav .nav-link i {
+    font-size: 20px !important;
+    margin-right: 10px !important;
+    width: 25px !important;
+    text-align: center !important;
+}
+
+.side-nav .nav-link span {
+    font-size: 16px !important;
+    white-space: nowrap !important;
+}
+
+.side-nav .nav-link:hover,
+.side-nav .nav-link.active {
+    background: rgba(116, 83, 252, 0.3) !important;
+    border-left: 3px solid #7453fc !important;
+    padding-left: 17px !important; /* Adjust padding to account for border */
+}
+
+/* Ensure no button styling is applied */
+.side-nav .nav-link:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}

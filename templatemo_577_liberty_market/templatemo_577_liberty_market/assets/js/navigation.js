@@ -6,6 +6,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const sideNavOverlay = document.getElementById('sideNavOverlay');
     const body = document.body;
 
+    // Prevent flash of navigation on page load
+    if (sideNav) {
+        // Add a class to control initial visibility
+        sideNav.classList.add('nav-initialized');
+    }
+
     if (navHandle) {
         navHandle.addEventListener('click', function() {
             sideNav.classList.toggle('active');
@@ -70,13 +76,23 @@ document.addEventListener('DOMContentLoaded', function() {
     const currentPage = currentPath.split('/').pop();
 
     sideNavLinks.forEach(link => {
-        const route = link.getAttribute('data-route').toLowerCase();
-        if (currentPage.includes(route.toLowerCase())) {
+        const route = link.getAttribute('data-route');
+        if (route && currentPage.includes(route.toLowerCase())) {
             link.classList.add('active');
         }
     });
-});
     
+    // Logout handler
+    document.getElementById('logoutButton')?.addEventListener('click', function() {
+        // Clear user session
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('token');
+        
+        // Redirect to login page
+        window.location.href = 'login.html';
+    });
+});
+
     // Logout handler
     function handleLogout() {
         // Clear user session
@@ -443,3 +459,21 @@ window.addEventListener('load', function() {
     }
 });
 
+// Main Navigation Menu Fix
+document.addEventListener('DOMContentLoaded', function() {
+    const mainNavMenu = document.getElementById('mainNavMenu');
+    
+    if (mainNavMenu) {
+        // Ensure the menu is properly displayed after DOM is loaded
+        mainNavMenu.style.opacity = '0';
+        
+        // Short timeout to ensure styles are applied
+        setTimeout(() => {
+            mainNavMenu.style.opacity = '1';
+            mainNavMenu.style.visibility = 'visible';
+            mainNavMenu.style.display = 'flex';
+        }, 50);
+    }
+    
+    // Rest of your existing navigation code...
+});
