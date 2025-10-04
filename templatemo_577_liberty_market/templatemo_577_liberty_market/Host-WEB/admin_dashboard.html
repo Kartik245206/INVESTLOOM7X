@@ -519,6 +519,21 @@ async function loadPaymentHistory() {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+// Image preview functionality
+document.getElementById('productImage').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // Update preview image
+            document.getElementById('imagePreview').src = e.target.result;
+            // Store file in form data for upload
+            document.getElementById('productImage').files = e.target.files;
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
 document.getElementById('addProductBtn').addEventListener('click', function() {
     // Clear form fields
     document.getElementById('productForm').reset();

@@ -1,98 +1,51 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('./auth-middleware');
 const Product = require('../models/Product');
 
-// Get all products
+// Get all active products (public endpoint)
 router.get('/products', async (req, res) => {
     try {
-        console.log('Fetching products from database...');
-        const products = await Product.find({ status: 'active' });
-        console.log('Found products:', products);
+        const products = await Product.find({ status: 'active' })
+            .sort({ createdAt: -1 })
+            .select('-__v');
         
         res.json({
             success: true,
-            products: products || [] // Ensure we always return an array
+            products: products,
+            count: products.length
         });
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error fetching products:', error);
         res.status(500).json({
             success: false,
-            error: error.message,
-            products: [] // Return empty array on error
+            message: 'Error fetching products',
+            products: []
         });
     }
 });
 
-// Add new product - Fix for undefined callback
-router.post('/products', auth, async (req, res) => {
+// Get single product by ID
+router.get('/products/:id', async (req, res) => {
     try {
-        const { name, description, price, imageUrl } = req.body;
+        const product = await Product.findById(req.params.id);
         
-        const product = new Product({
-            name,
-            description,
-            price,
-            imageUrl,
-            status: 'active', // Add this line
-            isActive: true    // Add this as backup
+        if (!product) {
+            return res.status(404).json({
+                success: false,
+                message: 'Product not found'
+            });
+        }
+        
+        res.json({
+            success: true,
+            product: product
         });
-
-        const savedProduct = await product.save();
-        res.status(201).json(savedProduct);
     } catch (error) {
-        console.error('Add product error:', error);
-        res.status(500).json({ message: 'Error adding product' });
-    }
-});
-
-// Update product
-router.put('/products/:id', auth, async (req, res) => {
-    try {
-        const product = await Product.findByIdAndUpdate(
-            req.params.id,
-            req.body,
-            { new: true }
-        );
-        if (!product) {
-            return res.status(404).json({ message: 'Product not found' });
-        }
-        res.json(product);
-    } catch (error) {
-        res.status(500).json({ message: 'Error updating product' });
-    }
-});
-
-// Delete product
-router.delete('/products/:id', auth, async (req, res) => {
-    try {
-        const product = await Product.findByIdAndDelete(req.params.id);
-        if (!product) {
-            return res.status(404).json({ message: 'Product not found' });
-        }
-        res.json({ message: 'Product deleted' });
-    } catch (error) {
-        res.status(500).json({ message: 'Error deleting product' });
-    }
-});
-
-router.put('/:id/toggle', auth, async (req, res) => {
-    try {
-        const { isActive } = req.body;
-        const product = await Product.findByIdAndUpdate(
-            req.params.id,
-            { isActive },
-            { new: true }
-        );
-        
-        if (!product) {
-            return res.status(404).json({ error: 'Product not found' });
-        }
-        
-        res.json(product);
-    } catch (error) {
-        console.error('Error toggling product status:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        console.error('Error fetching product:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching product'
+        });
     }
 });
 
