@@ -1,34 +1,122 @@
 // Navigation Functions
 document.addEventListener('DOMContentLoaded', function() {
-    // Side Navigation Toggle
-    const navHandle = document.getElementById('navHandle');
-    const sideNav = document.querySelector('.side-nav');
-    const sideNavOverlay = document.getElementById('sideNavOverlay');
-    const body = document.body;
-
-    // Prevent flash of navigation on page load
-    if (sideNav) {
-        // Add a class to control initial visibility
-        sideNav.classList.add('nav-initialized');
+    // Force show main navigation
+    const mainNav = document.getElementById('mainNavMenu');
+    if (mainNav) {
+        mainNav.style.display = 'flex';
+        mainNav.style.opacity = '1';
+        mainNav.style.visibility = 'visible';
     }
 
-    if (navHandle) {
-        navHandle.addEventListener('click', function() {
-            sideNav.classList.toggle('active');
-            navHandle.classList.toggle('active');
-            body.classList.toggle('nav-expanded');
-            if (sideNavOverlay) {
-                sideNavOverlay.style.display = sideNav.classList.contains('active') ? 'block' : 'none';
+    // Set active nav button based on current page
+    const currentPath = window.location.pathname;
+    const currentPage = currentPath.split('/').pop() || 'index.html';
+    
+    document.querySelectorAll('.nav-button').forEach(button => {
+        const href = button.getAttribute('href');
+        if (href === currentPage || (currentPage === '' && href === 'index.html')) {
+            button.classList.add('active');
+        } else {
+            button.classList.remove('active');
+        }
+    });
+
+    // Side navigation functionality
+    const sideNav = document.querySelector('.side-nav');
+    const navHandle = document.getElementById('navHandle');
+    const sideNavOverlay = document.getElementById('sideNavOverlay');
+    
+    if (navHandle && sideNav) {
+        const navIcon = navHandle.querySelector('i');
+
+        function toggleSideNav(forceClose = false) {
+            const isActive = sideNav.classList.contains('active');
+
+            if (forceClose || isActive) {
+                sideNav.classList.remove('active');
+                sideNavOverlay.classList.remove('active');
+                navHandle.classList.remove('active');
+                navIcon.classList.remove('fa-times');
+                navIcon.classList.add('fa-bars');
+            } else {
+                sideNav.classList.add('active');
+                sideNavOverlay.classList.add('active');
+                navHandle.classList.add('active');
+                navIcon.classList.remove('fa-bars');
+                navIcon.classList.add('fa-times');
+            }
+        }
+
+        navHandle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleSideNav();
+        });
+
+        if (sideNavOverlay) {
+            sideNavOverlay.addEventListener('click', () => {
+                toggleSideNav(true);
+            });
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!sideNav.contains(e.target) && !navHandle.contains(e.target)) {
+                toggleSideNav(true);
             }
         });
     }
 
-    if (sideNavOverlay) {
-        sideNavOverlay.addEventListener('click', function() {
-            sideNav.classList.remove('active');
-            navHandle.classList.remove('active');
+    // Handle side nav links
+    document.querySelectorAll('.side-nav .nav-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            const route = this.getAttribute('data-route');
+            if (route) {
+                e.preventDefault();
+                
+                // Map routes to pages
+                const routeMap = {
+                    'Home': 'index.html',
+                    'Profile': 'profile.html',
+                    'Admin': 'Host-WEB/admin_Login_page.html',
+                    'Login': 'login.html',
+                    'Signup': 'signup.html'
+                };
+                
+                if (routeMap[route]) {
+                    window.location.href = routeMap[route];
+                }
+            }
+        });
+    });
+
+    // Side Navigation Toggle
+    const navHandle2 = document.getElementById('navHandle');
+    const sideNav2 = document.querySelector('.side-nav');
+    const sideNavOverlay2 = document.getElementById('sideNavOverlay');
+    const body = document.body;
+
+    // Prevent flash of navigation on page load
+    if (sideNav2) {
+        // Add a class to control initial visibility
+        sideNav2.classList.add('nav-initialized');
+    }
+
+    if (navHandle2) {
+        navHandle2.addEventListener('click', function() {
+            sideNav2.classList.toggle('active');
+            navHandle2.classList.toggle('active');
+            body.classList.toggle('nav-expanded');
+            if (sideNavOverlay2) {
+                sideNavOverlay2.style.display = sideNav2.classList.contains('active') ? 'block' : 'none';
+            }
+        });
+    }
+
+    if (sideNavOverlay2) {
+        sideNavOverlay2.addEventListener('click', function() {
+            sideNav2.classList.remove('active');
+            navHandle2.classList.remove('active');
             body.classList.remove('nav-expanded');
-            sideNavOverlay.style.display = 'none';
+            sideNavOverlay2.style.display = 'none';
         });
     }
 
@@ -72,12 +160,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Set active navigation based on current page
-    const currentPath = window.location.pathname;
-    const currentPage = currentPath.split('/').pop();
+    const currentPath2 = window.location.pathname;
+    const currentPage2 = currentPath2.split('/').pop();
 
     sideNavLinks.forEach(link => {
         const route = link.getAttribute('data-route');
-        if (route && currentPage.includes(route.toLowerCase())) {
+        if (route && currentPage2.includes(route.toLowerCase())) {
             link.classList.add('active');
         }
     });
@@ -477,3 +565,191 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Rest of your existing navigation code...
 });
+
+// Navigation Functions
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize navigation
+    initializeNavigation();
+    
+    // Set active nav button based on current page
+    const currentPath = window.location.pathname;
+    const currentPage = currentPath.split('/').pop() || 'index.html';
+    
+    document.querySelectorAll('.nav-button').forEach(button => {
+        const href = button.getAttribute('href');
+        if (href === currentPage || (currentPage === '' && href === 'index.html')) {
+            button.classList.add('active');
+        } else {
+            button.classList.remove('active');
+        }
+    });
+});
+
+function initializeNavigation() {
+    // Force show main navigation
+    const mainNav = document.getElementById('mainNavMenu');
+    if (mainNav) {
+        mainNav.style.display = 'flex';
+        mainNav.style.opacity = '1';
+        mainNav.style.visibility = 'visible';
+    }
+
+    // Side navigation functionality
+    const sideNav = document.querySelector('.side-nav');
+    const navHandle = document.getElementById('navHandle');
+    const sideNavOverlay = document.getElementById('sideNavOverlay');
+    
+    if (navHandle && sideNav) {
+        const navIcon = navHandle.querySelector('i');
+
+        function toggleSideNav(forceClose = false) {
+            const isActive = sideNav.classList.contains('active');
+
+            if (forceClose || isActive) {
+                sideNav.classList.remove('active');
+                sideNavOverlay.classList.remove('active');
+                navHandle.classList.remove('active');
+                navIcon.classList.remove('fa-times');
+                navIcon.classList.add('fa-bars');
+            } else {
+                sideNav.classList.add('active');
+                sideNavOverlay.classList.add('active');
+                navHandle.classList.add('active');
+                navIcon.classList.remove('fa-bars');
+                navIcon.classList.add('fa-times');
+            }
+        }
+
+        navHandle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleSideNav();
+        });
+
+        if (sideNavOverlay) {
+            sideNavOverlay.addEventListener('click', () => {
+                toggleSideNav(true);
+            });
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!sideNav.contains(e.target) && !navHandle.contains(e.target)) {
+                toggleSideNav(true);
+            }
+        });
+    }
+
+    // Handle side nav links
+    document.querySelectorAll('.side-nav .nav-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            const route = this.getAttribute('data-route');
+            if (route) {
+                e.preventDefault();
+                
+                // Map routes to pages
+                const routeMap = {
+                    'Home': 'index.html',
+                    'Profile': 'profile.html',
+                    'Admin': 'Host-WEB/admin_Login_page.html',
+                    'Login': 'login.html',
+                    'Signup': 'signup.html'
+                };
+                
+                if (routeMap[route]) {
+                    window.location.href = routeMap[route];
+                }
+            }
+        });
+    });
+
+    // Side Navigation Toggle
+    const navHandle2 = document.getElementById('navHandle');
+    const sideNav2 = document.querySelector('.side-nav');
+    const sideNavOverlay2 = document.getElementById('sideNavOverlay');
+    const body = document.body;
+
+    // Prevent flash of navigation on page load
+    if (sideNav2) {
+        // Add a class to control initial visibility
+        sideNav2.classList.add('nav-initialized');
+    }
+
+    if (navHandle2) {
+        navHandle2.addEventListener('click', function() {
+            sideNav2.classList.toggle('active');
+            navHandle2.classList.toggle('active');
+            body.classList.toggle('nav-expanded');
+            if (sideNavOverlay2) {
+                sideNavOverlay2.style.display = sideNav2.classList.contains('active') ? 'block' : 'none';
+            }
+        });
+    }
+
+    if (sideNavOverlay2) {
+        sideNavOverlay2.addEventListener('click', function() {
+            sideNav2.classList.remove('active');
+            navHandle2.classList.remove('active');
+            body.classList.remove('nav-expanded');
+            sideNavOverlay2.style.display = 'none';
+        });
+    }
+
+    // Navigation Links
+    const sideNavLinks = document.querySelectorAll('.side-nav .nav-link');
+    
+    sideNavLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Remove active class from all links
+            sideNavLinks.forEach(l => l.classList.remove('active'));
+            
+            // Add active class to clicked link
+            this.classList.add('active');
+            
+            // Get the route from data attribute
+            const route = this.getAttribute('data-route');
+            
+            // Handle navigation based on route
+            switch(route) {
+                case 'Home':
+                    window.location.href = 'index.html';
+                    break;
+                case 'Profile':
+                    window.location.href = 'profile.html';
+                    break;
+                case 'Admin':
+                    window.location.href = 'Host-WEB/admin_dashboard.html';
+                    break;
+                case 'Login':
+                    window.location.href = 'login.html';
+                    break;
+                case 'Signup':
+                    window.location.href = 'signup.html';
+                    break;
+                default:
+                    console.log('Unknown route:', route);
+            }
+        });
+    });
+
+    // Set active navigation based on current page
+    const currentPath2 = window.location.pathname;
+    const currentPage2 = currentPath2.split('/').pop();
+
+    sideNavLinks.forEach(link => {
+        const route = link.getAttribute('data-route');
+        if (route && currentPage2.includes(route.toLowerCase())) {
+            link.classList.add('active');
+        }
+    });
+    
+    // Logout handler
+    document.getElementById('logoutButton')?.addEventListener('click', function() {
+        // Clear user session
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('token');
+        
+        // Redirect to login page
+        window.location.href = 'login.html';
+    });
+}

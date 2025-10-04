@@ -1,3 +1,4 @@
+
 /* Add black background to body */
 body {
     background-color: #222123 !important;
@@ -12,17 +13,113 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 30px;
-    background: rgba(1, 11, 44, 0.95);
-    backdrop-filter: blur(10px);
+    padding: 15px 50px;
+    background: linear-gradient(135deg, rgba(1, 11, 44, 0.95) 0%, rgba(20, 30, 70, 0.95) 100%);
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     z-index: 1000;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    border-bottom: 2px solid rgba(116, 83, 252, 0.3);
 }
 
+.main-nav .logo img {
+    height: 50px;
+    width: auto;
+    transition: transform 0.3s ease;
+}
+
+.main-nav .logo:hover img {
+    transform: scale(1.05);
+}
+
+/* Navigation Menu */
+.nav-menu {
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+.nav-menu .nav-links {
+    display: flex;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    align-items: center;
+}
+
+.nav-menu .nav-links li {
+    list-style: none;
+}
+
+.nav-menu .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    font-weight: 500;
+    border: 2px solid transparent;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.nav-menu .nav-link:hover {
+    background: rgba(116, 83, 252, 0.2);
+    border-color: rgba(116, 83, 252, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(116, 83, 252, 0.3);
+}
+
+.nav-menu .nav-link.active {
+    background: linear-gradient(135deg, #7453fc 0%, #5a3fd6 100%);
+    border-color: #7453fc;
+    box-shadow: 0 4px 15px rgba(116, 83, 252, 0.4);
+}
+
+.nav-menu .nav-link i {
+    font-size: 16px;
+}
+
+.nav-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: rgba(116, 83, 252, 0.1);
+    border: 1px solid rgba(116, 83, 252, 0.3);
+    border-radius: 25px;
+    color: #fff;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.nav-button i {
+    font-size: 16px;
+}
+
+.nav-button:hover {
+    background: rgba(116, 83, 252, 0.3);
+    border-color: #7453fc;
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+.nav-button.active {
+    background: #7453fc;
+    border-color: #7453fc;
+    color: #fff;
+}
+
+/* Main Navigation Button Styles */
 .nav-menu {
     display: flex;
     align-items: center;
@@ -83,53 +180,6 @@ body {
 }
 
 /* Main Navigation Button Styles */
-.nav-menu {
-    display: flex;
-    align-items: center;
-}
-
-.nav-menu .nav-links {
-    display: flex;
-    gap: 15px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-.nav-button {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 24px;
-    color: #fff;
-    background: rgba(255, 255, 255, 0.1);
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    border-radius: 30px;
-    cursor: pointer;
-    font-size: 15px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    transition: all 0.3s ease;
-}
-
-.nav-button:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: #fff;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-
-.nav-button.active {
-    background: #fff;
-    color: #010b2c;
-    border-color: #fff;
-}
-
-.nav-button i {
-    font-size: 18px;
-}
-
 .nav-menu {
     display: flex;
     align-items: center;
@@ -224,16 +274,18 @@ body {
 
 .mobile-menu-toggle {
     display: none;
+    background: rgba(116, 83, 252, 0.2);
+    border: 2px solid rgba(116, 83, 252, 0.5);
     color: #fff;
-    font-size: 20px;
+    padding: 10px 15px;
+    border-radius: 10px;
     cursor: pointer;
-    padding: 10px;
-    border-radius: 5px;
     transition: all 0.3s ease;
 }
 
 .mobile-menu-toggle:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(116, 83, 252, 0.4);
+    transform: scale(1.05);
 }
 
 /* Responsive Design */
@@ -1091,4 +1143,379 @@ html, body {
 .side-nav .nav-link:focus {
     outline: none !important;
     box-shadow: none !important;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .nav-button span {
+        display: none;
+    }
+    
+    .nav-button {
+        padding: 10px 15px;
+    }
+    
+    .nav-menu .nav-links {
+        gap: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-nav {
+        padding: 15px 20px;
+    }
+    
+    .nav-menu {
+        display: none !important;
+    }
+    
+    /* Show side nav on mobile */
+    .side-nav {
+        display: block;
+    }
+}
+
+/* Side Navigation for Mobile */
+.side-nav {
+    position: fixed;
+    left: -300px;
+    top: 0;
+    width: 280px;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 80px 20px 20px;
+    transition: left 0.3s ease;
+    z-index: 999;
+    display: none;
+}
+
+.side-nav.active {
+    left: 0;
+}
+
+.side-nav-toggle {
+    position: fixed;
+    left: 20px;
+    top: 20px;
+    width: 50px;
+    height: 50px;
+    background: #7453fc;
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1001;
+    transition: all 0.3s ease;
+}
+
+.side-nav-toggle:hover {
+    background: #fff;
+    color: #7453fc;
+}
+
+.side-nav-toggle i {
+    font-size: 20px;
+    color: #fff;
+}
+
+.side-nav-toggle:hover i {
+    color: #7453fc;
+}
+
+.side-nav-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    z-index: 998;
+}
+
+.side-nav-overlay.active {
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .side-nav,
+    .side-nav-toggle {
+        display: flex;
+    }
+}
+
+/* ===== Enhanced Side Navigation ===== */
+.side-nav {
+    position: fixed;
+    top: 0;
+    left: -280px;
+    height: 100vh;
+    width: 280px;
+    background: linear-gradient(180deg, 
+        rgba(1, 11, 44, 0.98) 0%, 
+        rgba(20, 30, 70, 0.98) 50%,
+        rgba(30, 40, 80, 0.98) 100%);
+    backdrop-filter: blur(20px);
+    padding: 0;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 4px 0 30px rgba(0, 0, 0, 0.5);
+    border-right: 2px solid rgba(116, 83, 252, 0.3);
+    overflow-y: auto;
+}
+
+.side-nav.active {
+    left: 0;
+}
+
+/* Side Nav Header */
+.side-nav-header {
+    padding: 30px 20px;
+    text-align: center;
+    background: linear-gradient(135deg, rgba(116, 83, 252, 0.2) 0%, rgba(90, 63, 214, 0.2) 100%);
+    border-bottom: 2px solid rgba(116, 83, 252, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.side-nav-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(116, 83, 252, 0.1) 0%, transparent 70%);
+    animation: pulse 3s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+.brand-logo {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 15px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid rgba(116, 83, 252, 0.5);
+    box-shadow: 0 0 20px rgba(116, 83, 252, 0.4);
+    position: relative;
+    z-index: 1;
+}
+
+.brand-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.brand-name {
+    color: #fff;
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, #7453fc 0%, #fff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    position: relative;
+    z-index: 1;
+}
+
+/* Side Nav Links */
+.side-nav-links {
+    flex: 1;
+    padding: 20px 0;
+}
+
+/* Add/Update these styles for mobile menu functionality */
+
+.main-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgba(1, 11, 44, 0.98);
+    backdrop-filter: blur(10px);
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1000;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
+}
+
+.logo img {
+    height: 40px;
+    width: auto;
+}
+
+/* Mobile Menu Toggle Button */
+.mobile-menu-toggle {
+    display: none;
+    background: transparent;
+    border: 2px solid #fff;
+    color: #fff;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    cursor: pointer;
+    position: relative;
+    z-index: 1001;
+    transition: all 0.3s ease;
+}
+
+.mobile-menu-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.05);
+}
+
+.mobile-menu-toggle i {
+    font-size: 20px;
+}
+
+/* Desktop Navigation */
+.nav-menu {
+    display: flex;
+    align-items: center;
+    visibility: visible !important;
+    opacity: 1;
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.nav-link:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+    color: #fff;
+}
+
+.nav-link.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.nav-link i {
+    font-size: 18px;
+}
+
+/* Side Navigation (Mobile) */
+.side-nav {
+    position: fixed;
+    left: -100%;
+    top: 0;
+    width: 280px;
+    height: 100vh;
+    background: linear-gradient(135deg, rgba(1, 11, 44, 0.98) 0%, rgba(30, 30, 60, 0.98) 100%);
+    backdrop-filter: blur(20px);
+    padding: 80px 20px 20px;
+    transition: left 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    z-index: 999;
+    box-shadow: 5px 0 30px rgba(0, 0, 0, 0.5);
+    overflow-y: auto;
+}
+
+.side-nav.active {
+    left: 0;
+}
+
+.side-nav .nav-links {
+    flex-direction: column;
+    gap: 15px;
+}
+
+.side-nav .nav-link {
+    width: 100%;
+    padding: 15px 20px;
+    justify-content: flex-start;
+    font-size: 16px;
+    border-left: 3px solid transparent;
+}
+
+.side-nav .nav-link:hover {
+    border-left-color: #667eea;
+    background: rgba(102, 126, 234, 0.2);
+}
+
+.side-nav .nav-link.active {
+    border-left-color: #667eea;
+}
+
+/* Overlay for mobile menu */
+.nav-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 998;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.nav-overlay.active {
+    display: block;
+    opacity: 1;
+}
+
+/* Mobile Styles */
+@media (max-width: 991px) {
+    .mobile-menu-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .nav-menu {
+        display: none !important;
+    }
+
+    .side-nav {
+        display: block;
+    }
+
+    .main-nav {
+        padding: 15px 20px;
+    }
+}
+
+@media (min-width: 992px) {
+    .side-nav {
+        display: none;
+    }
+}
+
+/* Smooth scrolling for body when menu is open */
+body.menu-open {
+    overflow: hidden;
 }

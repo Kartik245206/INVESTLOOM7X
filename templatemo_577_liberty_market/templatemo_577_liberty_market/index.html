@@ -46,16 +46,18 @@
     </div>
 
     <!-- ***** Header Area Start ***** -->
+    <!-- Replace the header section (around line 52) with this: -->
+    
     <header class="main-nav">
         <a href="index.html" class="logo">
             <img src="assets/images/logo.png" alt="INVESTLOOM7X">
         </a>
         
-        <nav class="nav-menu" id="mainNavMenu">
+        <nav class="nav-menu" id="mainNavMenu" style="display: flex !important; opacity: 1 !important; visibility: visible !important;">
             <ul class="nav-links">
                 <li><a href="index.html" class="nav-button active">
                     <i class="fas fa-home"></i>
-                    <span>Home</span>r
+                    <span>Home</span>
                 </a></li>
                 <li><a href="profile.html" class="nav-button">
                     <i class="fas fa-user"></i>
@@ -80,35 +82,127 @@
             </ul>
         </nav>
     </header>
+    
     <!-- ***** Header Area End ***** -->
 
     
-    <nav class="side-nav">
-        <a href="#" class="nav-link active" data-route="Home" id="Home">
-            <i class="fas fa-home"></i>
-            <span>Home</span>
-        </a>
-        <a href="#" class="nav-link" data-route="Profile" id="Profile">
-            <i class="fas fa-user"></i>
-            <span>Profile</span>
-        </a>
-        <a href="#" class="nav-link" data-route="Admin" id="Admin">
-            <i class="fas fa-info-circle"></i>
-            <span>Admin Pannel</span>
-        </a>
-        <a href="#" class="nav-link" data-route="Login" id="Login">
-            <i class="fas fa-sign-in-alt"></i>
-            <span>Login</span>
-        </a>
-        <a href="#" class="nav-link" data-route="Signup" id="Signup">
-            <i class="fas fa-user-plus"></i>
-            <span>Create Account</span>
-        </a>
+<!-- Replace the header section (lines 52-85) with this: -->
+
+<header class="main-nav">
+    <a href="index.html" class="logo">
+        <img src="assets/images/logo.png" alt="INVESTLOOM7X">
+    </a>
+    
+    <nav class="nav-menu" id="mainNavMenu">
+        <ul class="nav-links">
+            <li><a href="index.html" class="nav-link active">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a></li>
+            <li><a href="profile.html" class="nav-link">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </a></li>
+            <li><a href="details.html" class="nav-link">
+                <i class="fas fa-info-circle"></i>
+                <span>Details</span>
+            </a></li>
+            <li><a href="Host-WEB/admin_Login_page.html" class="nav-link">
+                <i class="fas fa-user-shield"></i>
+                <span>Admin</span>
+            </a></li>
+            <li><a href="login.html" class="nav-link">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>Login</span>
+            </a></li>
+            <li><a href="signup.html" class="nav-link">
+                <i class="fas fa-user-plus"></i>
+                <span>Sign Up</span>
+            </a></li>
+        </ul>
     </nav>
-    <div class="side-nav-toggle" id="navHandle">
-        <i class="fas fa-arrow-right"></i>
+    
+    <button class="mobile-menu-toggle" id="mobileMenuToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+</header>
+
+<!-- Side Navigation (Enhanced) -->
+<nav class="side-nav" id="sideNav">
+    <div class="side-nav-header">
+        <div class="brand-logo">
+            <img src="assets/images/logo.png" alt="Logo">
+        </div>
+        <h3 class="brand-name">INVESTLOOM7X</h3>
     </div>
-    <div id="sideNavOverlay" class="side-nav-overlay"></div>
+    
+    <div class="side-nav-links">
+        <a href="index.html" class="nav-link active">
+            <div class="nav-link-content">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </div>
+            <div class="nav-indicator"></div>
+        </a>
+        <a href="profile.html" class="nav-link">
+            <div class="nav-link-content">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </div>
+            <div class="nav-indicator"></div>
+        </a>
+        <a href="details.html" class="nav-link">
+            <div class="nav-link-content">
+                <i class="fas fa-info-circle"></i>
+                <span>Details</span>
+            </div>
+            <div class="nav-indicator"></div>
+        </a>
+        <a href="Host-WEB/admin_Login_page.html" class="nav-link">
+            <div class="nav-link-content">
+                <i class="fas fa-user-shield"></i>
+                <span>Admin Panel</span>
+            </div>
+            <div class="nav-indicator"></div>
+        </a>
+        <a href="login.html" class="nav-link">
+            <div class="nav-link-content">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>Login</span>
+            </div>
+            <div class="nav-indicator"></div>
+        </a>
+        <a href="signup.html" class="nav-link">
+            <div class="nav-link-content">
+                <i class="fas fa-user-plus"></i>
+                <span>Create Account</span>
+            </div>
+            <div class="nav-indicator"></div>
+        </a>
+    </div>
+    
+    <div class="side-nav-footer">
+        <div class="user-info" id="sideNavUserInfo">
+            <div class="user-avatar">
+                <i class="fas fa-user-circle"></i>
+            </div>
+            <div class="user-details">
+                <span class="user-name">Guest</span>
+                <span class="user-status">Not logged in</span>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="side-nav-toggle" id="navHandle">
+    <i class="fas fa-chevron-right"></i>
+</div>
+<div id="sideNavOverlay" class="side-nav-overlay"></div>
+
+<div class="side-nav-toggle" id="navHandle">
+    <i class="fas fa-chevron-right"></i>
+</div>
+<div id="sideNavOverlay" class="side-nav-overlay"></div>
     
 
 
