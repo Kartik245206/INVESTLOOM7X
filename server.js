@@ -57,6 +57,10 @@ const VIEWS_DIR = path.join(__dirname, 'templatemo_577_liberty_market', 'templat
 console.log('Views directory:', VIEWS_DIR);
 console.log('Directory exists:', require('fs').existsSync(VIEWS_DIR));
 
+// Import the products router
+const productsRouter = require('./api/products');
+const adminRouter = require('./api/admin');
+
 // Initialize DB and start server
 (async () => {
     try {
@@ -86,11 +90,11 @@ console.log('Directory exists:', require('fs').existsSync(VIEWS_DIR));
 
         // API routes
         app.use('/api/auth', require('./api/auth'));
-        app.use('/api/products', require('./api/products'));
+        app.use('/api/products', productsRouter);
         app.use('/api/purchase', require('./api/purchase'));
         app.use('/api/transactions', require('./api/transactions'));
         app.use('/api/withdraw', require('./api/withdraw'));
-        app.use('/api/admin', require('./api/admin')); // Add this line
+        app.use('/api/admin', adminRouter);
 
         // Handle 404 for API routes
         app.use('/api/*', (req, res) => {
