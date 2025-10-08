@@ -539,15 +539,48 @@ body {
 
 
         /* Main Banner Styles */
-        .main-banner {
-            background-image: url(assets/images/banner-bg.jpg);
-            background-position: center center;
-            background-repeat: no-repeat;
-            background-size: cover;
-            padding: 10px 0 10px;
-            border-radius: 0px;
-            position: relative;
-        }
+        /* Reduce main banner height */
+.main-banner {
+    margin-top: 70px;
+    padding: 40px 0; /* Reduced from 80px to 40px */
+    min-height: 40vh; /* Reduced from calc(100vh - 70px) to 40vh */
+    display: flex;
+    align-items: center;
+    position: relative;
+    background-attachment: fixed;
+}
+
+.main-banner .header-text h1 {
+    font-size: 2rem; /* Reduced size */
+    margin-bottom: 10px; /* Reduced spacing */
+}
+
+.main-banner .header-text p.lead {
+    font-size: 1rem; /* Reduced size */
+    margin-bottom: 15px; /* Reduced spacing */
+}
+
+.main-banner .cta-buttons {
+    margin-bottom: 20px; /* Reduced spacing */
+}
+
+/* Reduce spacing for the four buttons section */
+.main-banner .row.mt-4 {
+    margin-top: 15px !important; /* Reduced from default mt-4 */
+}
+
+.main-banner .col-2 {
+    padding: 5px !important; /* Reduced padding */
+}
+
+.item.small-item {
+    padding: 15px !important; /* Reduced padding */
+}
+
+.item.small-item h4 {
+    font-size: 0.9rem; /* Reduced font size */
+    margin: 5px 0; /* Reduced margin */
+}
 
         .main-banner::before {
             content: '';
@@ -555,7 +588,7 @@ body {
             top: 0;
             left: 0;
             right: 0;
-            bottom: 0;
+            bottom: 50px;
             background: rgba(0, 0, 0, 0.6);
             border-radius: 0px;
         }
@@ -1052,7 +1085,7 @@ html, body {
 
 /* Main Banner fixes */
 .main-banner {
-    margin-top: 70px; /* Height of main nav */
+    margin-top: 10px; /* Height of main nav */
     padding: 80px 0;
     min-height: calc(100vh - 70px);
     display: flex;
@@ -1518,4 +1551,62 @@ html, body {
 /* Smooth scrolling for body when menu is open */
 body.menu-open {
     overflow: hidden;
+}
+
+/* Increase market products area */
+.market-products {
+    padding: 40px 0; /* Increased from default */
+    min-height: 20vh; /* Ensure it takes more space */
+}
+
+.currently-market {
+    padding: 40px 0; /* Increased from 30px */
+    margin-left: 10px;
+    min-height: 20vh; /* Add minimum height */
+}
+
+.currently-market .section-heading {
+    margin-bottom: 20px; /* Increased spacing */
+}
+
+/* Ensure product grid has proper spacing */
+.currently-market-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+    padding: 20px 0;
+}
+
+/* Mobile responsive adjustments */
+@media screen and (max-width: 768px) {
+    .main-banner {
+        padding: 20px 0 !important;
+        min-height: 20vh !important; /* Further reduced for mobile */
+    }
+
+    .main-banner .header-text h1 {
+        font-size: 1.5rem !important;
+    }
+
+    .main-banner .header-text p.lead {
+        font-size: 0.9rem !important;
+    }
+
+    .main-banner .row .col-2 {
+        width: 50% !important;
+        padding: 5px !important;
+    }
+
+    .item.small-item {
+        padding: 10px !important;
+    }
+
+    /* Increase market products on mobile */
+    .market-products {
+        padding: 10px 0 !important;
+    }
+
+    .currently-market {
+        padding: 10px 0 !important;
+    }
 }

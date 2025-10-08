@@ -18,8 +18,8 @@ const products = [
     {
         name: 'Premium Investment Plan',
         category: 'Investment',
-        price: 5000,
-        total: 50,
+        price: 5,
+        total: 2,
         image: '/assets/images/investment-2.jpg',
         Plans: 'Premium',
         description: 'Advanced investment options with higher returns',

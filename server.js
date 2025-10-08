@@ -1,13 +1,18 @@
 require('dotenv').config();
+
+// ✅ CORRECTED: Import routers with correct paths
+const productsRouter = require('./api/products');
+const adminRouter = require('./api/admin');
+const purchaseRouter = require('./api/purchase');
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
-const purchaseRouter = require('./api/purchase');
 
-// Load models in correct order
+// ✅ CORRECTED: Load models from correct directory
 require('./models/User');
 require('./models/Product');
 require('./models/Transaction');
@@ -50,16 +55,12 @@ async function connectDB(retries = 5) {
     return false;
 }
 
-// Define base directory for views
-const VIEWS_DIR = path.join(__dirname, 'templatemo_577_liberty_market', 'templatemo_577_liberty_market');
+// ✅ CORRECTED: Define base directory - only one level of templatemo_577_liberty_market
+const VIEWS_DIR = path.join(__dirname, 'templatemo_577_liberty_market');
 
 // Debug log for paths
 console.log('Views directory:', VIEWS_DIR);
 console.log('Directory exists:', require('fs').existsSync(VIEWS_DIR));
-
-// Import the products router
-const productsRouter = require('./api/products');
-const adminRouter = require('./api/admin');
 
 // Initialize DB and start server
 (async () => {
@@ -74,9 +75,12 @@ const adminRouter = require('./api/admin');
         }));
         app.use(cookieParser());
 
-        // Serve static files from the template directory
-        app.use('/', express.static(path.join(__dirname, 'templatemo_577_liberty_market', 'templatemo_577_liberty_market')));
-        app.use('/Host-WEB', express.static(path.join(__dirname, 'templatemo_577_liberty_market', 'templatemo_577_liberty_market', 'Host-WEB')));
+        // ✅ CORRECTED: Serve static files - single level path
+        app.use('/', express.static(path.join(__dirname, 'templatemo_577_liberty_market')));
+        app.use('/Host-WEB', express.static(path.join(__dirname, 'templatemo_577_liberty_market', 'Host-WEB')));
+        
+        // ✅ CORRECTED: Serve assets explicitly
+        app.use('/assets', express.static(path.join(__dirname, 'templatemo_577_liberty_market', 'assets')));
 
         // Add route for root path
         app.get('/', (req, res) => {
@@ -91,7 +95,7 @@ const adminRouter = require('./api/admin');
         // API routes
         app.use('/api/auth', require('./api/auth'));
         app.use('/api/products', productsRouter);
-        app.use('/api/purchase', require('./api/purchase'));
+        app.use('/api/purchase', purchaseRouter);
         app.use('/api/transactions', require('./api/transactions'));
         app.use('/api/withdraw', require('./api/withdraw'));
         app.use('/api/admin', adminRouter);

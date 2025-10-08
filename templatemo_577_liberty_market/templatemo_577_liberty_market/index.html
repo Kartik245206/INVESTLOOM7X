@@ -45,47 +45,6 @@
         </div>
     </div>
 
-    <!-- ***** Header Area Start ***** -->
-    <!-- Replace the header section (around line 52) with this: -->
-    
-    <header class="main-nav">
-        <a href="index.html" class="logo">
-            <img src="assets/images/logo.png" alt="INVESTLOOM7X">
-        </a>
-        
-        <nav class="nav-menu" id="mainNavMenu" style="display: flex !important; opacity: 1 !important; visibility: visible !important;">
-            <ul class="nav-links">
-                <li><a href="index.html" class="nav-button active">
-                    <i class="fas fa-home"></i>
-                    <span>Home</span>
-                </a></li>
-                <li><a href="profile.html" class="nav-button">
-                    <i class="fas fa-user"></i>
-                    <span>Profile</span>
-                </a></li>
-                <li><a href="details.html" class="nav-button">
-                    <i class="fas fa-info-circle"></i>
-                    <span>Details</span>
-                </a></li>
-                <li><a href="Host-WEB/admin_Login_page.html" class="nav-button">
-                    <i class="fas fa-user-shield"></i>
-                    <span>Admin</span>
-                </a></li>
-                <li><a href="login.html" class="nav-button">
-                    <i class="fas fa-sign-in-alt"></i>
-                    <span>Login</span>
-                </a></li>
-                <li><a href="signup.html" class="nav-button">
-                    <i class="fas fa-user-plus"></i>
-                    <span>Sign Up</span>
-                </a></li>
-            </ul>
-        </nav>
-    </header>
-    
-    <!-- ***** Header Area End ***** -->
-
-    
 <!-- Replace the header section (lines 52-85) with this: -->
 
 <header class="main-nav">
@@ -516,57 +475,61 @@
      ***** Currently Market Area End ***** -->
 
 
-    <div class="currently-market">
-        <div class="container">
-            <div class="row">
-                <div class="row currently-market-items" id="productContainer">
-                    <!-- Products will be loaded here dynamically -->
-                </div>
-            </div>
-    <script>
-                // Single source of truth for products
-        async function loadProducts() {
-            try {
-                const productContainer = document.getElementById('productContainer');
-                if (!productContainer) {
-                    console.error('Product container not found');
-                    return;
-                }
 
-                productContainer.innerHTML = '<div class="text-center"><p>Loading products...</p></div>';
+<script>
+    // Unified product loading function
+    async function loadProducts() {
+        try {
+            // Target both product containers with unique selectors
+            const marketProductsContainer = document.querySelector('.market-products #productContainer');
 
-                // Add error handling and logging
-                console.log('Fetching products...');
-                const response = await fetch('https://investloom7x.onrender.com/api/products');
-                console.log('Response status:', response.status);
+            if (!marketProductsContainer) {
+                console.error('Market product container not found');
+                return;
+            }
+
+            // Show loading state
+            if (marketProductsContainer) {
+                marketProductsContainer.innerHTML = '<div class="text-center"><p>Loading products...</p></div>';
+            }
+
+            // Fetch products from API
+            console.log('Fetching products...');
+            const response = await fetch('https://investloom7x.onrender.com/api/products');
+            console.log('Response status:', response.status);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            console.log('Received data:', data);
+
+            const products = Array.isArray(data.products) ? data.products : [];
+            console.log('Processed products:', products);
+
+            if (products.length === 0) {
+                const emptyMessage = `
+                    <div class="col-12 text-center">
+                        <h3>No products available</h3>
+                        <p>Please check back later for new products</p>
+                    </div>`;
                 
-                const data = await response.json();
-                console.log('Received data:', data);
+                if (marketProductsContainer) marketProductsContainer.innerHTML = emptyMessage;
+                if (currentlyMarketContainer) currentlyMarketContainer.innerHTML = emptyMessage;
+                return;
+            }
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const products = Array.isArray(data.products) ? data.products : [];
-                console.log('Processed products:', products);
-
-                if (products.length === 0) {
-                    productContainer.innerHTML = `
-                        <div class="col-12 text-center">
-                            <h3>No products available</h3>
-                            <p>Please check back later for new products</p>
-                        </div>`;
-                    return;
-                }
-
-                const productsHTML = products.map(product => `
+            // Generate HTML for market products section
+            if (marketProductsContainer) {
+                const marketProductsHTML = products.map(product => `
                     <div class="col-lg-3 col-md-6">
                         <div class="item">
                             <div class="left-image">
                                 <img src="${product.imageUrl || 'assets/images/placeholder.jpg'}" 
-                                     alt="${product.name}" 
-                                     onerror="this.src='assets/images/placeholder.jpg'"
-                                     class="product-image">
+                                    alt="${product.name}" 
+                                    onerror="this.src='assets/images/placeholder.jpg'"
+                                    class="product-image">
                             </div>
                             <div class="right-content">
                                 <h4>${product.name}</h4>
@@ -591,30 +554,44 @@
                     </div>
                 `).join('');
                 
-                productContainer.innerHTML = productsHTML;
-
-            } catch (error) {
-                console.error('Error loading products:', error);
-                const productContainer = document.getElementById('productContainer');
-                productContainer.innerHTML = `
-                    <div class="col-12 text-center">
-                        <div class="alert alert-danger">
-                            <h3>Error loading products</h3>
-                            <p>Please try again later</p>
-                            <small>${error.message}</small>
-                        </div>
-                    </div>`;
+                marketProductsContainer.innerHTML = marketProductsHTML;
             }
-        }
 
-        // Initialize products on page load and refresh every 30 seconds
-        document.addEventListener('DOMContentLoaded', () => {
-            loadProducts();
-            setInterval(loadProducts, 30000);
-        });
-    </script>
-        </div>
-    </div>
+        } catch (error) {
+            console.error('Error loading products:', error);
+            const errorMessage = `
+                <div class="col-12 text-center">
+                    <div class="alert alert-danger">
+                        <h3>Error loading products</h3>
+                        <p>Please try again later</p>
+                        <small>${error.message}</small>
+                    </div>
+                </div>`;
+            
+            const marketProductsContainer = document.querySelector('.market-products #productContainer');
+            
+            if (marketProductsContainer) marketProductsContainer.innerHTML = errorMessage;
+        }
+    }
+
+    // Initialize products on page load and refresh every 30 seconds
+    document.addEventListener('DOMContentLoaded', () => {
+        // Initialize UI components
+        initializeUI();
+        
+        // Load products
+        loadProducts();
+        
+        // Refresh products every 30 seconds
+        setInterval(loadProducts, 30000);
+        
+        // Handle responsive layout
+        handleResponsiveLayout();
+        
+        // Listen for window resize
+        window.addEventListener('resize', handleResponsiveLayout);
+    });
+</script>
 
     <script>
         // View product details
