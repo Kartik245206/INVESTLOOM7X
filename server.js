@@ -82,6 +82,9 @@ console.log('Directory exists:', require('fs').existsSync(VIEWS_DIR));
         // ✅ CORRECTED: Serve assets explicitly
         app.use('/assets', express.static(path.join(__dirname, 'templatemo_577_liberty_market', 'assets')));
 
+        // Serve static files from the templatemo_577_liberty_market directory
+        app.use(express.static(path.join(__dirname, 'templatemo_577_liberty_market/templatemo_577_liberty_market')));
+
         // Add route for root path
         app.get('/', (req, res) => {
             res.sendFile(path.join(VIEWS_DIR, 'index.html'));
@@ -92,6 +95,11 @@ console.log('Directory exists:', require('fs').existsSync(VIEWS_DIR));
             res.sendFile(path.join(VIEWS_DIR, 'Host-WEB', 'admin_dashboard.html'));
         });
 
+        // Route for the main page
+        app.get('/', (req, res) => {
+          res.sendFile(path.join(__dirname, 'templatemo_577_liberty_market/templatemo_577_liberty_market/index.html'));
+        });
+
         // API routes
         app.use('/api/auth', require('./api/auth'));
         app.use('/api/products', productsRouter);
@@ -99,6 +107,10 @@ console.log('Directory exists:', require('fs').existsSync(VIEWS_DIR));
         app.use('/api/transactions', require('./api/transactions'));
         app.use('/api/withdraw', require('./api/withdraw'));
         app.use('/api/admin', adminRouter);
+
+        // Make sure you have these routes defined
+        app.use('/api/products', require('./api/products'));
+        app.use('/api/admin', require('./api/admin'));
 
         // Handle 404 for API routes
         app.use('/api/*', (req, res) => {
@@ -109,6 +121,8 @@ console.log('Directory exists:', require('fs').existsSync(VIEWS_DIR));
         app.get('*', (req, res) => {
             res.sendFile(path.join(VIEWS_DIR, 'index.html'));
         });
+
+        const PORT = process.env.PORT || 3000;
 
         app.listen(PORT, () => {
             console.log(`Server running on port ${PORT}`);
