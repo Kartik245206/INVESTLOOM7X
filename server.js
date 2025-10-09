@@ -108,6 +108,39 @@ app.get('/health', (req, res) => {
     });
 });
 
+// Debug endpoint to check models
+app.get('/api/debug', async (req, res) => {
+    try {
+        const Product = mongoose.model('Product');
+        const productCount = await Product.countDocuments();
+        
+        res.json({
+            success: true,
+            mongodb: {
+                connected: mongoose.connection.readyState === 1,
+                state: mongoose.connection.readyState,
+                host: mongoose.connection.host,
+                name: mongoose.connection.name
+            },
+            models: {
+                loaded: Object.keys(mongoose.models),
+                Product: !!mongoose.models.Product,
+                User: !!mongoose.models.User,
+                Transaction: !!mongoose.models.Transaction
+            },
+            products: {
+                count: productCount
+            }
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message,
+            stack: error.stack
+        });
+    }
+});
+
 // Initialize and start server
 (async () => {
     try {
