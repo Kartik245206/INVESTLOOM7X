@@ -3,31 +3,61 @@ const mongoose = require('mongoose');
 const productSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
     category: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
     price: {
         type: Number,
-        required: true
+        required: true,
+        min: 0
     },
-    description: String,
+    dailyEarning: {
+        type: Number,
+        required: true,
+        min: 0
+    },
+    duration: {
+        type: Number,
+        default: 100
+    },
+    description: {
+        type: String,
+        default: ''
+    },
     imageUrl: {
         type: String,
-        required: true
+        default: 'assets/images/placeholder.jpg'
     },
-    status: {
+    image: {
         type: String,
-        enum: ['active', 'inactive'],
-        default: 'active'
+        default: 'assets/images/placeholder.jpg'
     },
-    dailyEarning: Number,
+    isActive: {
+        type: Boolean,
+        default: true
+    },
     createdAt: {
+        type: Date,
+        default: Date.now
+    },
+    updatedAt: {
         type: Date,
         default: Date.now
     }
 });
 
-module.exports = mongoose.model('Product', productSchema);
+// Update timestamp on save
+productSchema.pre('save', function(next) {
+    this.updatedAt = Date.now();
+    next();
+});
+
+// Check if model already exists to prevent OverwriteModelError
+const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
+
+module.exports = Product;

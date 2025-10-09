@@ -7,19 +7,6 @@ const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 
-// Load models FIRST
-require('./models/User');
-require('./models/Product');
-require('./models/Transaction');
-
-// Import routers
-const productsRouter = require('./api/products');
-const adminRouter = require('./api/admin');
-const purchaseRouter = require('./api/purchase');
-const authRouter = require('./api/auth');
-const transactionsRouter = require('./api/transactions');
-const withdrawRouter = require('./api/withdraw');
-
 const app = express();
 
 // Environment variables
@@ -46,6 +33,13 @@ async function connectDB(retries = 5) {
                 serverSelectionTimeoutMS: 5000
             });
             console.log('✅ MongoDB Connected Successfully');
+            
+            // Load models AFTER connection
+            require('./models/User');
+            require('./models/Product');
+            require('./models/Transaction');
+            console.log('✅ Models loaded successfully');
+            
             return true;
         } catch (err) {
             console.error(`❌ MongoDB connection error (${retries} retries left):`, err.message);
@@ -69,9 +63,20 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // CORS configuration
 const corsOptions = {
-    origin: NODE_ENV === 'production' 
-        ? ['https://investloom7x.onrender.com'] 
-        : ['http://localhost:3000', 'http://127.0.0.1:3000'],
+    origin: function (origin, callback) {
+        // Allow requests with no origin (mobile apps, Postman, etc.)
+        if (!origin) return callback(null, true);
+        
+        const allowedOrigins = NODE_ENV === 'production' 
+            ? ['https://investloom7x.onrender.com'] 
+            : ['http://localhost:3000', 'http://127.0.0.1:3000'];
+        
+        if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+            callback(null, true);
+        } else {
+            callback(null, true); // Allow all origins for now
+        }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'x-admin-secret']
@@ -98,49 +103,61 @@ app.get('/health', (req, res) => {
     res.json({ 
         status: 'ok', 
         timestamp: new Date().toISOString(),
-        mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
-    });
-});
-
-// API Routes - Mount these BEFORE the catch-all route
-app.use('/api/auth', authRouter);
-app.use('/api/products', productsRouter);
-app.use('/api/admin', adminRouter);
-app.use('/api/purchase', purchaseRouter);
-app.use('/api/transactions', transactionsRouter);
-app.use('/api/withdraw', withdrawRouter);
-
-// Root route
-app.get('/', (req, res) => {
-    res.sendFile(path.join(VIEWS_DIR, 'index.html'));
-});
-
-// Catch-all route for HTML pages (must be AFTER API routes)
-app.get('*', (req, res) => {
-    const filePath = path.join(VIEWS_DIR, req.path);
-    
-    // Check if file exists
-    if (require('fs').existsSync(filePath) && filePath.endsWith('.html')) {
-        res.sendFile(filePath);
-    } else {
-        res.status(404).sendFile(path.join(VIEWS_DIR, 'index.html'));
-    }
-});
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-    console.error('❌ Error:', err.stack);
-    res.status(err.status || 500).json({
-        success: false,
-        error: NODE_ENV === 'production' ? 'Internal server error' : err.message
+        mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+        environment: NODE_ENV
     });
 });
 
 // Initialize and start server
 (async () => {
     try {
-        // Connect to database
+        // Connect to database first
         await connectDB();
+        
+        // Import routers AFTER database connection and models are loaded
+        const productsRouter = require('./api/products');
+        const adminRouter = require('./api/admin');
+        const purchaseRouter = require('./api/purchase');
+        const authRouter = require('./api/auth');
+        const transactionsRouter = require('./api/transactions');
+        const withdrawRouter = require('./api/withdraw');
+        
+        // API Routes - Mount these BEFORE the catch-all route
+        app.use('/api/auth', authRouter);
+        app.use('/api/products', productsRouter);
+        app.use('/api/admin', adminRouter);
+        app.use('/api/purchase', purchaseRouter);
+        app.use('/api/transactions', transactionsRouter);
+        app.use('/api/withdraw', withdrawRouter);
+        
+        console.log('✅ API routes mounted successfully');
+        
+        // Root route
+        app.get('/', (req, res) => {
+            res.sendFile(path.join(VIEWS_DIR, 'index.html'));
+        });
+        
+        // Catch-all route for HTML pages (must be AFTER API routes)
+        app.get('*', (req, res) => {
+            const filePath = path.join(VIEWS_DIR, req.path);
+            
+            // Check if file exists
+            if (require('fs').existsSync(filePath) && filePath.endsWith('.html')) {
+                res.sendFile(filePath);
+            } else {
+                res.status(404).sendFile(path.join(VIEWS_DIR, 'index.html'));
+            }
+        });
+        
+        // Error handling middleware
+        app.use((err, req, res, next) => {
+            console.error('❌ Error:', err.stack);
+            res.status(err.status || 500).json({
+                success: false,
+                error: NODE_ENV === 'production' ? 'Internal server error' : err.message,
+                stack: NODE_ENV === 'development' ? err.stack : undefined
+            });
+        });
         
         // Start server
         app.listen(PORT, () => {
