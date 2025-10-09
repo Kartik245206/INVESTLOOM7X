@@ -20,56 +20,6 @@ function handleWithdrawal() {
     }
 }
 
-// Load products from API or localStorage
-function loadProducts() {
-    const productContainer = document.getElementById('productContainer');
-    if (!productContainer) return;
-
-    // Sample product data - replace with your actual API call
-    const products = [
-        {
-            id: 1,
-            name: "Product 1",
-            price: "100",
-            image: "assets/images/market-01.jpg",
-            category: "EMI"
-        },
-        {
-            id: 2,
-            name: "Product 2",
-            price: "200",
-            image: "assets/images/market-02.jpg",
-            category: "Deposit"
-        }
-        // Add more products as needed
-    ];
-
-    // Clear existing content
-    productContainer.innerHTML = '';
-
-    // Create product cards
-    products.forEach(product => {
-        const productCard = `
-            <div class="col-lg-4 col-md-6">
-                <div class="item">
-                    <div class="item-image">
-                        <img src="${product.image}" alt="${product.name}">
-                    </div>
-                    <div class="item-info">
-                        <h4>${product.name}</h4>
-                        <span class="price">₹${product.price}</span>
-                        <div class="category">${product.category}</div>
-                        <button class="main-button" onclick="handleProduct(${product.id})">
-                            View Details
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
-        productContainer.innerHTML += productCard;
-    });
-}
-
 // Add event listeners
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize menu functionality

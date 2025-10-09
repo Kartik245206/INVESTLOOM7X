@@ -594,39 +594,6 @@ function logout() {
     window.location.href = 'login.html';
 }
 
-// Load Products function
-async function loadProducts() {
-    try {
-        const response = await fetch('/api/products');
-        const products = await response.json();
-        
-        const productContainer = document.querySelector('.market-products');
-        if (!productContainer) return;
-
-        productContainer.innerHTML = products
-            .filter(product => product.isActive) // Only show active products
-            .map(product => `
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="${product.image}" alt="${product.name}">
-                    </div>
-                    <div class="product-info">
-                        <h4>${product.name}</h4>
-                        <div class="price-info">
-                            <span class="price">₹${product.price}</span>
-                            <span class="daily">₹${product.dailyEarning}/day</span>
-                        </div>
-                        <a href="details.html?id=${product._id}" class="view-details">View Details</a>
-                    </div>
-                </div>
-            `).join('');
-    } catch (error) {
-        console.error('Error loading products:', error);
-    }
-}
-
-// Call this when page loads
-document.addEventListener('DOMContentLoaded', loadProducts);
 
 // Preloader
 window.addEventListener('load', function() {

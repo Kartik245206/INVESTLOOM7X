@@ -243,7 +243,7 @@
             });
 
             // Load products
-            loadProducts();
+            loadHomePageProducts();
 
             // Initialize side navigation
             document.querySelectorAll('.side-nav-item').forEach(item => {
@@ -478,7 +478,7 @@
 
 <script>
     // Unified product loading function
-    async function loadProducts() {
+    async function loadHomePageProducts() {
         try {
             // Target both product containers with unique selectors
             const marketProductsContainer = document.querySelector('.market-products #productContainer');
@@ -580,10 +580,10 @@
         initializeUI();
         
         // Load products
-        loadProducts();
+        loadHomePageProducts();
         
         // Refresh products every 30 seconds
-        setInterval(loadProducts, 30000);
+        setInterval(loadHomePageProducts, 30000);
         
         // Handle responsive layout
         handleResponsiveLayout();
@@ -787,7 +787,7 @@
 
         // Initialize products when DOM is loaded
         document.addEventListener('DOMContentLoaded', function () {
-            loadProducts();
+            loadHomePageProducts();
 
             // Add responsive handling
             handleResponsiveLayout();
@@ -813,68 +813,13 @@
 
         // Listen for window resize
         window.addEventListener('resize', handleResponsiveLayout);
-
-        function loadProducts() {
-            // Cache DOM selection
-            const container = document.getElementById('productContainer');
-            if (!container) return;
-
-            // Get products from localStorage
-            let products;
-            try {
-                products = JSON.parse(localStorage.getItem('products') || '[]');
-            } catch (e) {
-                console.error('Error parsing products:', e);
-                products = [];
-            }
-
-            // Create document fragment for better performance
-            const fragment = document.createDocumentFragment();
-
-            // Sort products once before mapping
-            products.sort((a, b) => a.id - b.id);
-
-            products.forEach(product => {
-                const productDiv = document.createElement('div');
-                productDiv.className = 'col-lg-3 col-md-6 col-sm-12 currently-market-item';
-                
-                productDiv.innerHTML = `
-                    <div class="item">
-                        <div class="left-image">
-                            <img src="${product.image || 'assets/images/market-01.jpg'}" alt="${product.name}" loading="lazy">
-                        </div>
-                        <div class="right-content">
-                            <h4>${product.name}</h4>
-                            <span class="author"><h6>${product.Plans || ''}</h6></span>
-                            <div class="line-dec"></div>
-                            <span class="bid">
-                                Amount/Day<br>
-                                <strong>₹${product.price}/day</strong><br>
-                                <em>(₹${product.total})</em>
-                            </span>
-                            <span class="ends">Ends In<br><strong>100 Days</strong></span>
-                            <div class="text-button">
-                                <a href="details.html?id=${product.id}">View Details</a>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                
-                fragment.appendChild(productDiv);
-            });
-
-            // Clear and update container in one operation
-            container.innerHTML = '';
-            container.appendChild(fragment);
-        }
-
         // Add this to improve initial load
         document.addEventListener('DOMContentLoaded', () => {
             // Load products immediately
-            loadProducts();
+            loadHomePageProducts();
             
             // Then refresh every 30 seconds
-            setInterval(loadProducts, 30000);
+            setInterval(loadHomePageProducts, 30000);
         });
 
     </script>

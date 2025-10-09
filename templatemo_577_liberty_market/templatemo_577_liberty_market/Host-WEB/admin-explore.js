@@ -94,29 +94,3 @@ document.addEventListener('DOMContentLoaded', function() {
         preview.classList.remove('d-none');
     });
 });
-
-function loadProducts() {
-    const products = JSON.parse(localStorage.getItem('products') || '[]');
-    const tbody = document.getElementById('productTableBody');
-    
-    if (!tbody) return;
-
-    tbody.innerHTML = products.map(product => `
-        <tr>
-            <td>${product.id}</td>
-            <td><img src="${product.image}" alt="${product.name}" style="width: 50px; height: 50px; object-fit: cover;"></td>
-            <td>${product.name}</td>
-            <td>${product.category}</td>
-            <td>₹${product.price}/day</td>
-            <td>₹${product.total}</td>
-            <td>
-                <button class="btn btn-sm btn-warning me-2" onclick='openEditModal(${JSON.stringify(product)})'>
-                    <i class="bi bi-pencil"></i> Edit
-                </button>
-                <button class="btn btn-sm btn-danger" onclick="deleteProduct(${product.id})">
-                    <i class="bi bi-trash"></i> Delete
-                </button>
-            </td>
-        </tr>
-    `).join('');
-}
