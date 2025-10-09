@@ -1,25 +1,23 @@
+
 const express = require('express');
 const router = express.Router();
 const Product = require('../models/Product');
 
-// Get all active products (public endpoint)
+// Get all products
 router.get('/products', async (req, res) => {
     try {
-        const products = await Product.find({ status: 'active' })
-            .sort({ createdAt: -1 })
-            .select('-__v');
+        const products = await Product.find({ isActive: true });
         
         res.json({
             success: true,
-            products: products,
-            count: products.length
+            products: products
         });
     } catch (error) {
         console.error('Error fetching products:', error);
         res.status(500).json({
             success: false,
             message: 'Error fetching products',
-            products: []
+            error: error.message
         });
     }
 });

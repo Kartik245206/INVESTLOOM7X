@@ -158,12 +158,6 @@
 </div>
 <div id="sideNavOverlay" class="side-nav-overlay"></div>
 
-<div class="side-nav-toggle" id="navHandle">
-    <i class="fas fa-chevron-right"></i>
-</div>
-<div id="sideNavOverlay" class="side-nav-overlay"></div>
-    
-
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -480,7 +474,6 @@
     // Unified product loading function
     async function loadHomePageProducts() {
         try {
-            // Target both product containers with unique selectors
             const marketProductsContainer = document.querySelector('.market-products #productContainer');
 
             if (!marketProductsContainer) {
@@ -489,13 +482,22 @@
             }
 
             // Show loading state
-            if (marketProductsContainer) {
-                marketProductsContainer.innerHTML = '<div class="text-center"><p>Loading products...</p></div>';
-            }
+            marketProductsContainer.innerHTML = `
+                <div class="col-12 text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading products...</p>
+                </div>`;
 
-            // Fetch products from API
-            console.log('Fetching products...');
-            const response = await fetch('https://investloom7x.onrender.com/api/products');
+            // Fetch from live server
+            const response = await fetch('https://investloom7x.onrender.com/api/products', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
             console.log('Response status:', response.status);
             
             if (!response.ok) {
@@ -505,28 +507,34 @@
             const data = await response.json();
             console.log('Received data:', data);
 
-            const products = Array.isArray(data.products) ? data.products : [];
-            console.log('Processed products:', products);
+            // Handle response
+            let products = [];
+            if (data.success && Array.isArray(data.products)) {
+                products = data.products;
+            } else if (Array.isArray(data)) {
+                products = data;
+            }
 
             if (products.length === 0) {
-                const emptyMessage = `
+                marketProductsContainer.innerHTML = `
                     <div class="col-12 text-center">
-                        <h3>No products available</h3>
-                        <p>Please check back later for new products</p>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle fa-2x mb-3"></i>
+                            <h3>No products available</h3>
+                            <p>Please check back later for new products</p>
+                        </div>
                     </div>`;
-                
-                if (marketProductsContainer) marketProductsContainer.innerHTML = emptyMessage;
-                if (currentlyMarketContainer) currentlyMarketContainer.innerHTML = emptyMessage;
                 return;
             }
 
-            // Generate HTML for market products section
-            if (marketProductsContainer) {
-                const marketProductsHTML = products.map(product => `
-                    <div class="col-lg-3 col-md-6">
+            // Render products
+            const marketProductsHTML = products
+                .filter(product => product.isActive !== false)
+                .map(product => `
+                    <div class="col-lg-3 col-md-6 mb-4">
                         <div class="item">
                             <div class="left-image">
-                                <img src="${product.imageUrl || 'assets/images/placeholder.jpg'}" 
+                                <img src="${product.imageUrl || product.image || 'assets/images/placeholder.jpg'}" 
                                     alt="${product.name}" 
                                     onerror="this.src='assets/images/placeholder.jpg'"
                                     class="product-image">
@@ -543,8 +551,8 @@
                                     <em>(₹${product.dailyEarning || 0})</em>
                                 </span>
                                 <span class="ends">
-                                    Ends In<br>
-                                    <strong>100 Days</strong>
+                                    Duration<br>
+                                    <strong>${product.duration || 100} Days</strong>
                                 </span>
                                 <div class="text-button">
                                     <a href="details.html?id=${product._id}">View Details</a>
@@ -553,24 +561,24 @@
                         </div>
                     </div>
                 `).join('');
-                
-                marketProductsContainer.innerHTML = marketProductsHTML;
-            }
+            
+            marketProductsContainer.innerHTML = marketProductsHTML;
 
         } catch (error) {
             console.error('Error loading products:', error);
-            const errorMessage = `
-                <div class="col-12 text-center">
-                    <div class="alert alert-danger">
-                        <h3>Error loading products</h3>
-                        <p>Please try again later</p>
-                        <small>${error.message}</small>
-                    </div>
-                </div>`;
-            
             const marketProductsContainer = document.querySelector('.market-products #productContainer');
             
-            if (marketProductsContainer) marketProductsContainer.innerHTML = errorMessage;
+            if (marketProductsContainer) {
+                marketProductsContainer.innerHTML = `
+                    <div class="col-12 text-center">
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                            <h3>Error loading products</h3>
+                            <p>Please try again later</p>
+                            <small>${error.message}</small>
+                        </div>
+                    </div>`;
+            }
         }
     }
 
@@ -1121,4 +1129,3 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </body>
 </html>
-
