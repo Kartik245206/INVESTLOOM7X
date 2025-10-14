@@ -6,15 +6,6 @@
     <title>Sign Up - INVESTLOOM7X</title>
     <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/templatemo-liberty-market.css">
-    <link rel="stylesheet" href="assets/css/modern-header.css">
-    
-    <!-- Check if already logged in -->
-    <script>
-        if (localStorage.getItem('token')) {
-            window.location.href = 'index.html';
-        }
-    </script>
-
     
     <style>
         .signup-container {
@@ -52,16 +43,13 @@
             border-radius: 10px;
         }
     </style>
-
-
 </head>
 <body>
     <div class="signup-container">
         <h2 class="text-center mb-4">Create Account</h2>
         
         <!-- Alert Message -->
-        <div id="alertMessage" class="alert" style="display: none; margin-bottom: 20px;">
-        </div>
+        <div id="alertMessage" class="alert" style="display: none; margin-bottom: 20px;"></div>
         
         <form id="signupForm">
             <div class="mb-3">
@@ -95,35 +83,37 @@
         </form>
     </div>
 
-    <!-- Scripts -->
-    <script src="vendor/jquery/jquery.min.js"></script>
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const signupForm = document.getElementById('signupForm');
-        const submitBtn = document.getElementById('submitBtn');
-        const alertDiv = document.getElementById('alertMessage');
-        
-        function showAlert(message, type) {
-            alertDiv.textContent = message;
-            alertDiv.className = `alert alert-${type}`;
-            alertDiv.style.display = 'block';
-        }
-        
-        function hideAlert() {
-            alertDiv.style.display = 'none';
+        // Check if already logged in
+        if (localStorage.getItem('token')) {
+            window.location.href = 'index.html';
         }
 
-        signupForm.addEventListener('submit', async function(event) {
+        const API_URL = 'https://investloom7x.onrender.com/api';
+
+        function showAlert(message, type) {
+            const alertDiv = document.getElementById('alertMessage');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            alertDiv.style.display = 'block';
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    alertDiv.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        function hideAlert() {
+            document.getElementById('alertMessage').style.display = 'none';
+        }
+
+        document.getElementById('signupForm').addEventListener('submit', async function(event) {
             event.preventDefault();
-            hideAlert();
+            
+            const submitBtn = document.getElementById('submitBtn');
             submitBtn.disabled = true;
             submitBtn.textContent = 'Creating Account...';
-            
-            // Disable submit button to prevent double submission
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Creating Account...';
-            
-            // Clear any existing alerts
             hideAlert();
             
             const userData = {
@@ -150,45 +140,19 @@
                 return;
             }
             
-            try {
-                const response = await fetch('/api/auth/signup', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(userData),
-                    credentials: 'include'
-                });
-                
-                const data = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(data.error || 'Failed to create account');
-                }
-                
-                showAlert('Account created successfully! Redirecting to login...', 'success');
-                setTimeout(() => {
-                    window.location.href = 'login.html';
-                }, 2000);
-                
-            } catch (error) {
-                showAlert(error.message || 'Failed to create account. Please try again.', 'danger');
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Sign Up';
-            }
-            
             // Email validation
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(userData.email)) {
                 showAlert('Please enter a valid email address.', 'danger');
-                resetSubmitButton();
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Sign Up';
                 return;
             }
 
             try {
                 console.log('Sending signup request with data:', userData);
                 
-                const response = await fetch('/api/auth/signup', {
+                const response = await fetch(`${API_URL}/auth/signup`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -205,7 +169,7 @@
                     showAlert('Account created successfully! Redirecting to login...', 'success');
                     setTimeout(() => {
                         window.location.href = 'login.html';
-                    }, 2000);584
+                    }, 2000);
                 } else {
                     // Show specific error messages
                     let errorMessage = data.error || 'Signup failed. Please try again.';
@@ -217,39 +181,16 @@
                     }
                     
                     showAlert(errorMessage, 'danger');
-                    resetSubmitButton();
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Sign Up';
                 }
             } catch (error) {
                 console.error('Signup error:', error);
                 showAlert('Network error. Please check your connection and try again.', 'danger');
-                resetSubmitButton();
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Sign Up';
             }
         });
-
-        function resetSubmitButton() {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Sign Up';
-        }
-    });
-
-    function showAlert(message, type) {
-        const alertDiv = document.getElementById('alertMessage');
-        alertDiv.className = `alert alert-${type}`;
-        alertDiv.textContent = message;
-        alertDiv.style.display = 'block';
-        
-        // Auto-hide success and info messages
-        if (type === 'success' || type === 'info') {
-            setTimeout(() => {
-                hideAlert();
-            }, 5000);
-        }
-    }
-
-    function hideAlert() {
-        const alertDiv = document.getElementById('alertMessage');
-        alertDiv.style.display = 'none';
-    }
     </script>
 </body>
 </html>

@@ -52,10 +52,22 @@ const auth = {
         const navLinks = document.querySelector('.nav-links');
         if (navLinks) {
             navLinks.innerHTML = `
-                <a href="index.html" class="active">Home</a>
-                <a href="author.html">Explore</a>
-                <a href="login.html">Login</a>
-                <a href="signup.html">Sign Up</a>
+            <li><a href="index.html" class="nav-link active">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a></li>
+            <li><a href="Host-WEB/admin_Login_page.html" class="nav-link">
+                <i class="fas fa-user-shield"></i>
+                <span>Admin</span>
+            </a></li>
+            <li><a href="login.html" class="nav-link">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>Login</span>
+            </a></li>
+            <li><a href="signup.html" class="nav-link">
+                <i class="fas fa-user-plus"></i>
+                <span>Sign Up</span>
+            </a></li>
             `;
         }
         
@@ -150,29 +162,6 @@ const auth = {
         localStorage.setItem('user', JSON.stringify(user));
         // Add a timestamp for session expiry check
         localStorage.setItem('loginTimestamp', Date.now().toString());
-    },
-    
-    // Update UI for logged out users
-    updateUIForLoggedOutUser() {
-        const userInfoContainers = document.querySelectorAll('.user-account-info');
-        userInfoContainers.forEach(container => {
-            container.innerHTML = `
-                <a href="index.html" class="logo">
-                    <img src="assets/images/logo.png" alt="INVESTLOOM7X">
-                </a>
-            `;
-        });
-        
-        // Update navigation links
-        const navLinks = document.querySelector('.nav-links');
-        if (navLinks) {
-            navLinks.innerHTML = `
-                <a href="index.html" class="active">Home</a>
-                <a href="author.html">Explore</a>
-                <a href="login.html">Login</a>
-                <a href="signup.html">Sign Up</a>
-            `;
-        }
     },
 
     // Update user profile display
