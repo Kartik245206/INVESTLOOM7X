@@ -1,46 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Sign Up - INVESTLOOM7X</title>
     <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/templatemo-liberty-market.css">
-    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="assets/css/main.css" rel="stylesheet">
     <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 0;
+        }
         .signup-container {
-            max-width: 500px;
-            margin: 100px auto;
-            padding: 20px;
-            background: #080808;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
             border-radius: 15px;
-            color: rgb(253, 251, 251);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 100%;
+            margin: 20px auto;
+        }
+        .signup-container h2 {
+            color: #667eea;
+            margin-bottom: 30px;
+            text-align: center;
         }
         .form-control {
-            background-color: #37393c;
-            border: 1px solid #404245;
-            color: rgb(246, 243, 243);
+            padding: 12px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s;
         }
         .form-control:focus {
-            background-color: #37393c;
-            border-color: #7453fc;
-            color: rgb(246, 243, 243);
-            box-shadow: 0 0 0 0.2rem rgba(116, 83, 252, 0.25);
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
         }
         .btn-primary {
-            background: #7453fc;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border: none;
-            border-radius: 40px;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: transform 0.2s;
         }
         .btn-primary:hover {
-            background: #5b42c7;
-        }
-        .btn-primary:disabled {
-            background: #6c757d;
-            cursor: not-allowed;
+            transform: translateY(-2px);
         }
         .alert {
             border-radius: 10px;
+        }
+        .form-label {
+            font-weight: 600;
+            color: #333;
+        }
+        .input-group-text {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px 0 0 8px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        .password-toggle {
+            cursor: pointer;
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
         }
     </style>
 </head>
@@ -66,7 +98,12 @@
             </div>
             <div class="mb-3">
                 <label class="form-label">Password</label>
-                <input type="password" class="form-control" id="password" required minlength="6">
+                <div class="input-group">
+                    <input type="password" class="form-control" id="password" required minlength="6">
+                    <span class="input-group-text password-toggle" id="togglePassword">
+                        <i class="fas fa-eye"></i>
+                    </span>
+                </div>
             </div>
             <div class="mb-3">
                 <label class="form-label">Phone Number</label>
@@ -78,7 +115,7 @@
             </div>
             <button type="submit" class="btn btn-primary w-100" id="submitBtn">Sign Up</button>
             <p class="text-center mt-3">
-                Already have an account? <a href="login.html" style="color: #7453fc;">Login here</a>
+                Already have an account? <a href="login.html" style="color: #667eea;">Login here</a>
             </p>
         </form>
     </div>
@@ -107,6 +144,16 @@
         function hideAlert() {
             document.getElementById('alertMessage').style.display = 'none';
         }
+
+        // Password visibility toggle
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+        });
 
         document.getElementById('signupForm').addEventListener('submit', async function(event) {
             event.preventDefault();

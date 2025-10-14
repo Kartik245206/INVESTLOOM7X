@@ -1,90 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=1024">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Login - INVESTLOOM7X</title>
     <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/templatemo-liberty-market.css">
-    <link rel="stylesheet" href="assets/css/dashboard-common.css">
-    <link rel="stylesheet" href="assets/css/desktop-only.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="assets/css/main.css" rel="stylesheet">
     <style>
-
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
         .login-container {
-            max-width: 1000px;
-            margin: 100px auto;
-            padding: 90px;
-            background: rgba(50, 47, 50, 0.95);
-            border-radius: 200px;
-            box-shadow: 0 4px 8px rgba(192, 5, 199, 0.166);
-            border: 14px solid rgb(88, 2, 87);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-width: 450px;
+            width: 100%;
         }
         .login-container h2 {
-            color: #fff;
-            margin-bottom: 90px;
+            color: #667eea;
+            margin-bottom: 30px;
             text-align: center;
-            font-size: 90px;
         }
-
+        .form-control {
+            padding: 12px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s;
+        }
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
         .btn-primary {
-            background: #7453fc;
-            border-radius: 60px;
-            padding: 32px;
-            transition: all 0.3s ease;
-            font-size: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: transform 0.2s;
         }
         .btn-primary:hover {
-            background: #5b42c7;
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(116, 83, 252, 0.3);
         }
-        .text-center {
-            text-align: center !important;
-            font-size: 40px;
+        .alert {
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .spinner-border {
+            width: 1.5rem;
+            height: 1.5rem;
         }
     </style>
+</head>
 <body>
-    <!-- Remove mobile menu elements -->
-    <header class="header-area">
-        <div class="container">
-            <a href="index.html" class="logo">
-                <img src="assets/images/logo.png" alt="INVESTLOOM7X">
-            </a>
-        </div>
-    </header>
-
     <div class="login-container">
-        <h2>Welcome Back</h2>
+        <h2><i class="fas fa-sign-in-alt"></i> Welcome Back</h2>
+        
+        <!-- Alert Container -->
+        <div id="alertContainer"></div>
+        
         <form id="loginForm">
             <div class="mb-3">
                 <label class="form-label">Email Address</label>
-                <input type="email" class="form-control" id="email" required>
+                <input type="email" class="form-control" id="email" required autocomplete="email">
             </div>
             <div class="mb-3">
                 <label class="form-label">Password</label>
-                <input type="password" class="form-control" id="password" required>
+                <input type="password" class="form-control" id="password" required autocomplete="current-password">
             </div>
-            <button type="submit" class="btn btn-primary w-100">Login</button>
-            <p class="text-center mt-3" style="color: #fff;">
-                Don't have an account? <a href="signup.html" style="color: #7453fc;">Sign up here</a>
+            <button type="submit" class="btn btn-primary w-100" id="loginBtn">
+                <span id="loginBtnText">Login</span>
+                <span id="loginSpinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
+            </button>
+            <p class="text-center mt-3">
+                Don't have an account? <a href="signup.html" style="color: #667eea;">Sign up here</a>
             </p>
         </form>
     </div>
 
-    <!-- Scripts -->
-        <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const form = document.getElementById('loginForm');
-            if (!form) return;
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Check if user is already logged in
+        document.addEventListener('DOMContentLoaded', async function() {
+            const token = localStorage.getItem('token');
             
+            if (token) {
+                // Verify token is still valid
+                try {
+                    const response = await fetch('https://investloom7x.onrender.com/api/auth/verify', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        // User is already logged in, redirect to home
+                        showAlert('You are already logged in. Redirecting...', 'info');
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 1000);
+                        return;
+                    } else {
+                        // Token is invalid, clear it
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('user');
+                    }
+                } catch (error) {
+                    console.error('Token verification error:', error);
+                    // Continue to login page
+                }
+            }
+            
+            // Setup form submission
+            setupLoginForm();
+        });
+
+        function setupLoginForm() {
+            const form = document.getElementById('loginForm');
+            const loginBtn = document.getElementById('loginBtn');
+            const loginBtnText = document.getElementById('loginBtnText');
+            const loginSpinner = document.getElementById('loginSpinner');
+
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
-                const email = document.getElementById('email').value;
+                const email = document.getElementById('email').value.trim();
                 const password = document.getElementById('password').value;
                 
+                // Validation
+                if (!email || !password) {
+                    showAlert('Please fill in all fields', 'danger');
+                    return;
+                }
+                
+                // Email validation
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    showAlert('Please enter a valid email address', 'danger');
+                    return;
+                }
+                
+                // Disable button and show spinner
+                loginBtn.disabled = true;
+                loginBtnText.classList.add('d-none');
+                loginSpinner.classList.remove('d-none');
+                
                 try {
-                    const response = await fetch('/api/auth/login', {
+                    const response = await fetch('https://investloom7x.onrender.com/api/auth/login', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -96,44 +166,52 @@
                     const data = await response.json();
                     
                     if (!response.ok) {
-                        throw new Error(data.error || 'Invalid credentials');
+                        throw new Error(data.error || data.message || 'Login failed');
                     }
                     
+                    // Store authentication data
                     localStorage.setItem('token', data.token);
                     localStorage.setItem('user', JSON.stringify(data.user));
+                    localStorage.setItem('loginTimestamp', Date.now().toString());
                     
-                    // Redirect after successful login
-                    const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
-                    window.location.href = redirectUrl || 'index.html';
+                    showAlert('Login successful! Redirecting...', 'success');
+                    
+                    // Redirect after 1 second
+                    setTimeout(() => {
+                        const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
+                        sessionStorage.removeItem('redirectAfterLogin');
+                        window.location.href = redirectUrl || 'index.html';
+                    }, 1000);
                     
                 } catch (error) {
-                    alert(error.message || 'Login failed. Please check your credentials.');
+                    console.error('Login error:', error);
+                    showAlert(error.message || 'Login failed. Please check your credentials.', 'danger');
+                } finally {
+                    // Re-enable button
+                    loginBtn.disabled = false;
+                    loginBtnText.classList.remove('d-none');
+                    loginSpinner.classList.add('d-none');
                 }
             });
+        }
 
-          form.addEventListener('submit', async function (e) {
-            e.preventDefault();
-            const email = document.getElementById('email')?.value?.trim();
-
-            const password = document.getElementById('password')?.value;
-
-            if (!email || !password) {
-              alert('Email and password required');
-              return;
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alertContainer');
+            alertContainer.innerHTML = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'exclamation-circle' : 'info-circle'}"></i>
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            
+            // Auto-hide success messages
+            if (type === 'success' || type === 'info') {
+                setTimeout(() => {
+                    alertContainer.innerHTML = '';
+                }, 5000);
             }
-
-            const result = await auth.login(email, password);
-
-            if (!result.success) {
-              alert(result.message || 'Login failed. Please check your credentials.');
-            }
-            // Successful login is handled by auth.js (redirect)
-          });
-        });
+        }
     </script>
-    <script src="assets/js/navigation.js"></script>
-    <link rel="stylesheet" href="assets/css/navigation.css">
-    <script src="assets/js/auth.js"></script>
 </body>
 </html>
-
