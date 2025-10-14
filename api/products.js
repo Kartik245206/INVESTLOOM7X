@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const Product = require('../models/Product');
 
-// GET all products
+// Get all products
 router.get('/', async (req, res) => {
     try {
         console.log('[products.getAll] Fetching products...');
@@ -16,24 +16,26 @@ router.get('/', async (req, res) => {
         
         res.json({
             success: true,
-            products: products
+            products: products,
+            count: products.length
         });
     } catch (error) {
         console.error('[products.getAll] Error:', error);
         res.status(500).json({
             success: false,
-            error: 'Internal server error',
-            message: error.message
+            error: 'Failed to fetch products',
+            message: error.message,
+            details: process.env.NODE_ENV === 'development' ? error.stack : undefined
         });
     }
 });
 
-// GET single product by ID
+// Get product by ID
 router.get('/:id', async (req, res) => {
     try {
         console.log('[products.getById] Fetching product:', req.params.id);
         
-        const product = await Product.findById(req.params.id);
+        const product = await Product.findById(req.params.id).lean();
         
         if (!product) {
             return res.status(404).json({
@@ -50,7 +52,7 @@ router.get('/:id', async (req, res) => {
         console.error('[products.getById] Error:', error);
         res.status(500).json({
             success: false,
-            error: 'Internal server error',
+            error: 'Failed to fetch product',
             message: error.message
         });
     }

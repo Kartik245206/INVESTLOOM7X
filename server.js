@@ -1,3 +1,4 @@
+
 require('dotenv').config();
 
 const express = require('express');
@@ -55,7 +56,7 @@ async function connectDB(retries = 5) {
 }
 
 // Views directory
-const VIEWS_DIR = path.join(__dirname, 'templatemo_577_liberty_market');
+const VIEWS_DIR = path.join(__dirname, 'templatemo_577_liberty_market', 'templatemo_577_liberty_market');
 
 // Middleware
 app.use(express.json({ limit: '50mb' }));
@@ -98,6 +99,8 @@ app.use(express.static(VIEWS_DIR));
 app.use('/assets', express.static(path.join(VIEWS_DIR, 'assets')));
 app.use('/Host-WEB', express.static(path.join(VIEWS_DIR, 'Host-WEB')));
 
+console.log('📁 Serving static files from:', VIEWS_DIR);
+
 // Health check endpoint
 app.get('/health', (req, res) => {
     res.json({ 
@@ -137,6 +140,37 @@ app.get('/api/debug', async (req, res) => {
             success: false,
             error: error.message,
             stack: error.stack
+        });
+    }
+});
+
+// Add this debug endpoint to check MongoDB status
+app.get('/api/health', async (req, res) => {
+    try {
+        const mongoose = require('mongoose');
+        const Product = mongoose.model('Product');
+        
+        const dbStatus = {
+            connected: mongoose.connection.readyState === 1,
+            state: mongoose.connection.readyState,
+            host: mongoose.connection.host,
+            name: mongoose.connection.name
+        };
+        
+        const productCount = await Product.countDocuments();
+        
+        res.json({
+            success: true,
+            database: dbStatus,
+            products: {
+                count: productCount
+            }
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
         });
     }
 });
