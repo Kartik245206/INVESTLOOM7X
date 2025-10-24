@@ -812,7 +812,7 @@ body {
         body {
             background-color: #222123 !important;
             color: #ffffff;
-            padding-left: 20px !important; /* Added padding to prevent collision */
+            padding-left: 0px !important; /* Added padding to prevent collision */
             transition: padding 0.3s ease;
         }
 
@@ -894,7 +894,7 @@ body {
     body {
         width: 100vw !important;
         overflow-x: hidden !important;
-        padding-left: 40px !important; /* Space for side nav strip */
+        padding-left: 10px !important; /* Space for side nav strip */
     }
 
     /* Main banner adjustments */
