@@ -366,7 +366,7 @@
 
     <!-- ***** Real-time Updates Info End *****
      
-     ***** Currently Market Area End ***** -->
+     ***** Currently Market Area End *****
 
 
 
@@ -1071,14 +1071,41 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(err => console.error('Could not load footer-nav:', err));
     })();
     </script>
+    
     <script>
-    // Load and inject footer navigation
-    fetch('common/footer-nav.html')
-        .then(response => response.text())
-        .then(html => {
-            document.body.insertAdjacentHTML('beforeend', html);
-        })
-        .catch(err => console.error('Error loading footer nav:', err));
-    </script>
+// Load and inject footer navigation with correct path
+fetch('./common/footer-nav.html')  // Use relative path with ./ to indicate current directory
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.text();
+    })
+    .then(html => {
+        const container = document.createElement('div');
+        container.innerHTML = html;
+        
+        // Append all non-script nodes
+        Array.from(container.childNodes).forEach(node => {
+            if (node.tagName !== 'SCRIPT') {
+                document.body.appendChild(node);
+            }
+        });
+        
+        // Execute any scripts in the footer
+        const scripts = container.getElementsByTagName('script');
+        Array.from(scripts).forEach(oldScript => {
+            const newScript = document.createElement('script');
+            Array.from(oldScript.attributes).forEach(attr => {
+                newScript.setAttribute(attr.name, attr.value);
+            });
+            newScript.textContent = oldScript.textContent;
+            document.body.appendChild(newScript);
+        });
+    })
+    .catch(error => {
+        console.error('Error loading footer navigation:', error);
+    });
+</script>
 </body>
 </html>

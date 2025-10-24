@@ -390,47 +390,41 @@ function updateUserData() {
 setInterval(updateUserData, 60000);
 </script>
 
-<script>
-    // load [footer-nav.html](http://_vscodecontentref_/1) and insert it into the page (execute inline scripts)
-    (function loadFooterNav() {
-      fetch('common/footer-nav.html')
-        .then(r => {
-          if (!r.ok) throw new Error('HTTP ' + r.status);
-          return r.text();
-        })
-        .then(html => {
-          const container = document.createElement('div');
-          container.innerHTML = html;
 
-          // Move non-script nodes into body (append at end)
-          const scripts = [];
-          Array.from(container.childNodes).forEach(node => {
-            if (node.tagName === 'SCRIPT') scripts.push(node);
-            else document.body.appendChild(node);
-          });
-
-          // Recreate & run scripts (so inline scripts execute)
-          scripts.forEach(oldScript => {
-            const s = document.createElement('script');
-            if (oldScript.src) s.src = oldScript.src;
-            s.textContent = oldScript.textContent;
-            // preserve async/defer attributes if present
-            if (oldScript.async) s.async = true;
-            if (oldScript.defer) s.defer = true;
-            document.body.appendChild(s);
-          });
-        })
-        .catch(err => console.error('Could not load footer-nav:', err));
-    })();
-    </script>
     <script>
-    // Load and inject footer navigation
-    fetch('common/footer-nav.html')
-        .then(response => response.text())
-        .then(html => {
-            document.body.insertAdjacentHTML('beforeend', html);
-        })
-        .catch(err => console.error('Error loading footer nav:', err));
-    </script>
+// Load and inject footer navigation with correct path
+fetch('./common/footer-nav.html')  // Use relative path with ./ to indicate current directory
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.text();
+    })
+    .then(html => {
+        const container = document.createElement('div');
+        container.innerHTML = html;
+        
+        // Append all non-script nodes
+        Array.from(container.childNodes).forEach(node => {
+            if (node.tagName !== 'SCRIPT') {
+                document.body.appendChild(node);
+            }
+        });
+        
+        // Execute any scripts in the footer
+        const scripts = container.getElementsByTagName('script');
+        Array.from(scripts).forEach(oldScript => {
+            const newScript = document.createElement('script');
+            Array.from(oldScript.attributes).forEach(attr => {
+                newScript.setAttribute(attr.name, attr.value);
+            });
+            newScript.textContent = oldScript.textContent;
+            document.body.appendChild(newScript);
+        });
+    })
+    .catch(error => {
+        console.error('Error loading footer navigation:', error);
+    });
+</script>
 </body>
 </html>
