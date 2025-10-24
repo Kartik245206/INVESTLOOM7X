@@ -58,6 +58,29 @@
     </div>
 </header>
 
+<nav class="bottom-nav">
+    
+    <a href="index.html" class="active">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+    </a>
+
+    <a href="profile.html" >
+        <i class="fas fa-wallet"></i>
+        <span>Wallet</span>
+    </a>
+
+    <a href="about-website.html" >
+        <i class="fas fa-chart-line"></i>
+        <span>About</span>
+    </a>
+
+    <a href="profile.html">
+        <i class="fas fa-user"></i>
+        <span>Profile</span>
+    </a>
+</nav>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -241,43 +264,6 @@
     </div>
     <!-- ***** Main Banner Area End ***** -->
 
-    <!-- ***** Trust Indicators Section Start ***** -->
-    <section class="trust-indicators">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-3 col-md-6">
-                    <div class="trust-item">
-                        <i class="fas fa-shield-alt"></i>
-                        <h4>Secure Trading</h4>
-                        <p>Advanced encryption & security</p>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6">
-                    <div class="trust-item">
-                        <i class="fas fa-clock"></i>
-                        <h4>24/7 Support</h4>
-                        <p>Round-the-clock assistance</p>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6">
-                    <div class="trust-item">
-                        <i class="fas fa-wallet"></i>
-                        <h4>Quick Withdrawals</h4>
-                        <p>Fast & secure transactions</p>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6">
-                    <div class="trust-item">
-                        <i class="fas fa-chart-line"></i>
-                        <h4>Market Analysis</h4>
-                        <p>Expert insights & tools</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- ***** Trust Indicators Section End ***** -->
-
     <!-- ***** Market Products Area Start ***** -->
     <div class="market-products">
         <div class="container">
@@ -299,6 +285,8 @@
         </div>
     </div>
     <!-- ***** Market Products Area End ***** -->
+
+
 
 
     <!-- Deposit Modal -->
@@ -1038,74 +1026,24 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 });
     </script>
+
     <script>
-    // load [footer-nav.html](http://_vscodecontentref_/1) and insert it into the page (execute inline scripts)
-    (function loadFooterNav() {
-      fetch('common/footer-nav.html')
-        .then(r => {
-          if (!r.ok) throw new Error('HTTP ' + r.status);
-          return r.text();
-        })
-        .then(html => {
-          const container = document.createElement('div');
-          container.innerHTML = html;
-
-          // Move non-script nodes into body (append at end)
-          const scripts = [];
-          Array.from(container.childNodes).forEach(node => {
-            if (node.tagName === 'SCRIPT') scripts.push(node);
-            else document.body.appendChild(node);
-          });
-
-          // Recreate & run scripts (so inline scripts execute)
-          scripts.forEach(oldScript => {
-            const s = document.createElement('script');
-            if (oldScript.src) s.src = oldScript.src;
-            s.textContent = oldScript.textContent;
-            // preserve async/defer attributes if present
-            if (oldScript.async) s.async = true;
-            if (oldScript.defer) s.defer = true;
-            document.body.appendChild(s);
-          });
-        })
-        .catch(err => console.error('Could not load footer-nav:', err));
-    })();
-    </script>
+// Add this before the closing </body> tag
+document.addEventListener('DOMContentLoaded', function() {
+    // Set active nav item based on current page
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    const navLinks = document.querySelectorAll('.bottom-nav a');
     
-    <script>
-// Load and inject footer navigation with correct path
-fetch('./common/footer-nav.html')  // Use relative path with ./ to indicate current directory
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+    navLinks.forEach(link => {
+        if (link.getAttribute('href') === currentPage) {
+            link.classList.add('active');
+        } else {
+            link.classList.remove('active');
         }
-        return response.text();
-    })
-    .then(html => {
-        const container = document.createElement('div');
-        container.innerHTML = html;
-        
-        // Append all non-script nodes
-        Array.from(container.childNodes).forEach(node => {
-            if (node.tagName !== 'SCRIPT') {
-                document.body.appendChild(node);
-            }
-        });
-        
-        // Execute any scripts in the footer
-        const scripts = container.getElementsByTagName('script');
-        Array.from(scripts).forEach(oldScript => {
-            const newScript = document.createElement('script');
-            Array.from(oldScript.attributes).forEach(attr => {
-                newScript.setAttribute(attr.name, attr.value);
-            });
-            newScript.textContent = oldScript.textContent;
-            document.body.appendChild(newScript);
-        });
-    })
-    .catch(error => {
-        console.error('Error loading footer navigation:', error);
     });
+});
 </script>
+
+
 </body>
 </html>

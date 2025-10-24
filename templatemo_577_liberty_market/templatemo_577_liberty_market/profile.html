@@ -53,35 +53,71 @@
 
         </header>
 
-    <nav class="side-nav">
-        <a href="index.html" class="nav-link active">
-            <i class="fas fa-home"></i>
-            <span>Home</span>
-        </a>
-        <a href="profile.html" class="nav-link">
-            <i class="fas fa-user"></i>
-            <span>Profile</span>
-        </a>
-        <a href="details.html" class="nav-link">
-            <i class="fas fa-info-circle"></i>
-            <span>Details</span>
-        </a>
-        <a href="Host-WEB/admin_Login_page.html" class="nav-link">
-            <i class="fas fa-user-shield"></i>
-            <span>Admin</span>
-        </a>
-        <a href="login.html" class="nav-link">
-            <i class="fas fa-sign-in-alt"></i>
-            <span>Login</span>
-        </a>
-        <a href="signup.html" class="nav-link">
-            <i class="fas fa-user-plus"></i>
-            <span>Create Account</span>
-        </a>
-    </nav>
-    <div class="side-nav-toggle" id="sideNavToggle">
-            <i class="fas fa-arrow-right"></i>
-        </div> 
+<nav class="bottom-nav">
+    
+    <a href="index.html">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+    </a>
+
+    <a href="profile.html" class="active">
+        <i class="fas fa-wallet"></i>
+        <span>Wallet</span>
+    </a>
+
+    <a href="about-website.html" >
+        <i class="fas fa-chart-line"></i>
+        <span>About</span>
+    </a>
+
+    <a href="profile.html">
+        <i class="fas fa-user"></i>
+        <span>Profile</span>
+    </a>
+</nav>
+
+    <!-- Add this after the header section and before the profile-container -->
+<div class="settings-wrapper">
+    <button class="settings-toggle" onclick="toggleSettings()">
+        <i class="fas fa-cog"></i>
+    </button>
+    
+    <div class="settings-menu" id="settingsMenu">
+        <div class="settings-header">
+            <h4>Settings</h4>
+            <button onclick="toggleSettings()" class="close-settings">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="settings-options">
+            <a href="#" onclick="openProfileEdit()">
+                <i class="fas fa-user-edit"></i>
+                Edit Profile
+            </a>
+            <a href="#" onclick="openThemeSettings()">
+                <i class="fas fa-palette"></i>
+                Change Theme
+            </a>
+            <a href="#" onclick="openUPISettings()">
+                <i class="fas fa-money-bill-wave"></i>
+                Update UPI
+            </a>
+            <a href="#" onclick="shareProfile()">
+                <i class="fas fa-share-alt"></i>
+                Share Profile
+            </a>
+            <a href="#" onclick="checkUpdates()">
+                <i class="fas fa-sync"></i>
+                Check Updates
+            </a>
+            <a href="Host-WEB/admin_dashboard.html" class="admin-option">
+                <i class="fas fa-user-shield"></i>
+                Admin Dashboard
+            </a>
+        </div>
+    </div>
+</div>
 
     <div class="profile-container">
         <div class="container">
@@ -390,41 +426,5 @@ function updateUserData() {
 setInterval(updateUserData, 60000);
 </script>
 
-
-    <script>
-// Load and inject footer navigation with correct path
-fetch('./common/footer-nav.html')  // Use relative path with ./ to indicate current directory
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.text();
-    })
-    .then(html => {
-        const container = document.createElement('div');
-        container.innerHTML = html;
-        
-        // Append all non-script nodes
-        Array.from(container.childNodes).forEach(node => {
-            if (node.tagName !== 'SCRIPT') {
-                document.body.appendChild(node);
-            }
-        });
-        
-        // Execute any scripts in the footer
-        const scripts = container.getElementsByTagName('script');
-        Array.from(scripts).forEach(oldScript => {
-            const newScript = document.createElement('script');
-            Array.from(oldScript.attributes).forEach(attr => {
-                newScript.setAttribute(attr.name, attr.value);
-            });
-            newScript.textContent = oldScript.textContent;
-            document.body.appendChild(newScript);
-        });
-    })
-    .catch(error => {
-        console.error('Error loading footer navigation:', error);
-    });
-</script>
 </body>
 </html>
