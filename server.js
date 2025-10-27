@@ -1,4 +1,3 @@
-
 require('dotenv').config();
 
 const express = require('express');
@@ -36,9 +35,9 @@ async function connectDB(retries = 5) {
             console.log('✅ MongoDB Connected Successfully');
             
             // Load models AFTER connection
-            require('./models/User');
-            require('./models/Product');
-            require('./models/Transaction');
+            require('./api/models/User');          // Update path to api/models
+            require('./api/models/Product');       // Fix casing and path
+            require('./api/models/Transaction');   // Update path to api/models
             console.log('✅ Models loaded successfully');
             
             return true;
@@ -182,7 +181,7 @@ app.get('/api/health', async (req, res) => {
         await connectDB();
         
         // Import routers AFTER database connection and models are loaded
-        const productsRouter = require('./api/products');
+        const productsRouter = require('./api/products');    // Matches your actual products.js file
         const adminRouter = require('./api/admin');
         const purchaseRouter = require('./api/purchase');
         const authRouter = require('./api/auth');
