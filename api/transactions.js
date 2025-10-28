@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User');
+const User = require('./models/User');          // Update path
+const Transaction = require('./models/Transaction');  // Update path
+const auth = require('./auth-middleware');      // Keep relative to api directory
 
 // Deposit: user submits txnRef + amount (you may mark pending and verify externally)
 router.post('/deposit', async (req, res) => {
