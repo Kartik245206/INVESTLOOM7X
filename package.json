@@ -14,7 +14,7 @@
 
     "dev": "nodemon server.js",
 
-    "seed": "node scripts/seed-products.js",
+    "seed": "node api/seed-products.js",
 
     "css:build": "postcss assets/css/templatemo-liberty-market.css -o assets/css/templatemo-liberty-market.min.css --config postcss.config.js",
 

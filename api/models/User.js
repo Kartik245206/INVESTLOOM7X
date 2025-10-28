@@ -1,22 +1,30 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
-const PaymentSchema = new mongoose.Schema({
-    upi: { type: String },
-    bank: {
-        accountNumber: String,
-        ifsc: String,
-        bankName: String
-    },
-    cards: [{ brand: String, last4: String, token: String }]
-}, { _id: false });
+// Check if model already exists to prevent overwrite error
+if (mongoose.models.User) {
+    module.exports = mongoose.models.User;
+} else {
+    const PaymentSchema = new mongoose.Schema({
+        upi: { type: String },
+        bank: {
+            accountNumber: String,
+            ifsc: String,
+            bankName: String
+        },
+        cards: [{ brand: String, last4: String, token: String }]
+    }, { _id: false });
 
-const UserSchema = new mongoose.Schema({
-    name: { type: String },
-    email: { type: String, required: true, unique: true },
-    passwordHash: { type: String },
-    googleId: { type: String, index: true, sparse: true },
-    payments: PaymentSchema,
-    createdAt: { type: Date, default: Date.now }
-});
+    const UserSchema = new mongoose.Schema({
+        name: { type: String },
+        email: { type: String, required: true, unique: true },
+        passwordHash: { type: String },
+        googleId: { type: String, index: true, sparse: true },
+        payments: PaymentSchema,
+        createdAt: { type: Date, default: Date.now }
+    });
 
-module.exports = mongoose.models.User || mongoose.model('User', UserSchema);
+    // ...existing methods and middleware...
+
+    module.exports = mongoose.model('User', UserSchema);
+}

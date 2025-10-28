@@ -34,11 +34,14 @@ async function connectDB(retries = 5) {
             });
             console.log('✅ MongoDB Connected Successfully');
             
-            // Load models AFTER connection
-            require('./api/models/User');          // Update path to api/models
-            require('./api/models/Product');       // Fix casing and path
-            require('./api/models/Transaction');   // Update path to api/models
-            console.log('✅ Models loaded successfully');
+            // Load models AFTER connection - use require assignment to prevent duplicate loading
+            const models = {
+                User: require('./api/models/User'),
+                Product: require('./api/models/Product'),
+                Transaction: require('./api/models/Transaction')
+            };
+            
+            console.log('✅ Models loaded successfully:', Object.keys(models));
             
             return true;
         } catch (err) {

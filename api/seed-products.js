@@ -14,7 +14,7 @@ async function seedProducts() {
         console.log('✅ Connected to MongoDB');
         
         // Load Product model
-        require('../models/Product');
+        require('./models/Product');
         const Product = mongoose.model('Product');
         
         // Check existing products

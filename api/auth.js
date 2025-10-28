@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User'); // Updated path to User model
+const User = require('./models/User'); // Updated path to User model
 
 const JWT_SECRET = process.env.JWT_SECRET || 'change_this_secret';
 const ADMIN_SECRET = process.env.ADMIN_SECRET;
