@@ -1,4 +1,3 @@
-
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
@@ -77,38 +76,36 @@ router.get('/products', adminAuth, async (req, res) => {
 // Add new product with image upload
 router.post('/products', adminAuth, upload.single('productImage'), async (req, res) => {
     try {
-        const { name, category, price, dailyEarning, description, imageUrl } = req.body;
+        console.log('[admin.addProduct] Request body:', req.body);
         
-        // Use uploaded image or provided URL
-        let finalImageUrl = imageUrl || 'assets/images/placeholder.jpg';
+        const productData = {
+            name: req.body.name,
+            category: req.body.category,
+            price: parseFloat(req.body.price),
+            dailyEarning: parseFloat(req.body.dailyEarning),
+            duration: parseInt(req.body.duration) || 100,
+            description: req.body.description,
+            imageUrl: req.file ? `/uploads/${req.file.filename}` : 'assets/images/default-product.jpg',
+            isActive: true,
+            createdAt: new Date()
+        };
+
+        console.log('[admin.addProduct] Creating product:', productData);
         
-        if (req.file) {
-            // Store relative path for web access
-            finalImageUrl = `assets/images/products/${req.file.filename}`;
-        }
+        const product = await Product.create(productData);
         
-        const product = new Product({
-            name,
-            category,
-            price: Number(price),
-            dailyEarning: Number(dailyEarning),
-            description,
-            imageUrl: finalImageUrl,
-            status: 'active'
-        });
+        console.log('[admin.addProduct] Product created:', product);
         
-        await product.save();
-        
-        res.status(201).json({
+        res.json({
             success: true,
-            message: 'Product created successfully',
             product: product
         });
     } catch (error) {
-        console.error('Error creating product:', error);
+        console.error('[admin.addProduct] Error:', error);
         res.status(500).json({
             success: false,
-            message: 'Error creating product: ' + error.message
+            error: 'Failed to create product',
+            message: error.message
         });
     }
 });

@@ -85,11 +85,59 @@ async function loadHomePageProducts() {
     
     try {
         showLoadingState(marketProductsContainer);
-        const products = await fetchProducts();
-        renderProducts(products, marketProductsContainer);
+        
+        console.log('Fetching products from API...');
+        const response = await fetch('/api/products');
+        console.log('API Response:', response);
+        
+        const data = await response.json();
+        console.log('Products data:', data);
+        
+        if (!data.success) {
+            throw new Error(data.message || 'Failed to fetch products');
+        }
+        
+        renderProducts(data.products, marketProductsContainer);
     } catch (error) {
+        console.error('Error loading products:', error);
         showErrorState(error, marketProductsContainer);
     }
+}
+
+function renderProducts(products, container) {
+    if (!products || products.length === 0) {
+        container.innerHTML = `
+            <div class="col-12 text-center">
+                <p>No products available at the moment.</p>
+            </div>`;
+        return;
+    }
+
+    const productHTML = products.map(product => `
+        <div class="col-lg-4 col-md-6">
+            <div class="item">
+                <div class="left-image">
+                    <img src="${product.imageUrl}" alt="${product.name}" />
+                </div>
+                <div class="right-content">
+                    <h4>${product.name}</h4>
+                    <span class="author">
+                        <h6>${product.category}</h6>
+                    </span>
+                    <div class="line-dec"></div>
+                    <span class="bid">
+                        Price<br><strong>₹${product.price.toLocaleString()}</strong><br>
+                        Daily Earning<br><strong>₹${product.dailyEarning.toLocaleString()}</strong>
+                    </span>
+                    <div class="main-button">
+                        <a href="details.html?id=${product._id}">View Details</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+
+    container.innerHTML = productHTML;
 }
 
 // API Functions

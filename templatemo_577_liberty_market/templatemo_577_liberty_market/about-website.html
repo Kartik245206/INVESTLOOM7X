@@ -6,16 +6,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About This Website</title>
     <link rel="stylesheet" href="styles.css">
+    <link href="assets/css/navigation.css" rel="stylesheet">
+    <link href="assets/css/about-website.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="assets/js/navigation.js" defer></script>
+
 </head>
 
 <body>
-    <header>
+    <header class="site-header">
+        <a href="index.html" class="logo">
+        <img src="assets/images/logo.png" alt="INVESTLOOM7X">
+    </a>
         <h1>About This Website</h1>
     </header>
+
+
+<nav class="bottom-nav">
+    
+    <a href="index.html" >
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+    </a>
+
+    <a href="profile.html" >
+        <i class="fas fa-wallet"></i>
+        <span>Wallet</span>
+    </a>
+
+    <a href="about-website.html" class="active">
+        <i class="fas fa-chart-line"></i>
+        <span>About</span>
+    </a>
+
+    <a href="profile.html">
+        <i class="fas fa-user"></i>
+        <span>Profile</span>
+    </a>
+</nav>
+
     <main>
         <section>
             <h2>Purpose</h2>
-            <p>This website is designed to provide users with information about our products and services. It aims to offer a seamless user experience with easy navigation and access to relevant content.</p>
+            <h3>This website is designed to provide users with information about our products and services. It aims to offer a seamless user experience with easy navigation and access to relevant content.</h3>
         </section>
         <section>
             <h2>Features</h2>
@@ -30,31 +63,31 @@
     <section class="trust-indicators">
         <div class="container">
             <div class="row">
-                <div class="col-lg-3 col-md-6">
+                <div class="col-lg-12 col-md-6">
                     <div class="trust-item">
                         <i class="fas fa-shield-alt"></i>
-                        <h4>Secure Trading</h4>
+                        <h2>Secure Trading</h2>
                         <p>Advanced encryption & security</p>
                     </div>
                 </div>
-                <div class="col-lg-3 col-md-6">
+                <div class="col-lg-12 col-md-6">
                     <div class="trust-item">
                         <i class="fas fa-clock"></i>
-                        <h4>24/7 Support</h4>
+                        <h2>24/7 Support</h2>
                         <p>Round-the-clock assistance</p>
                     </div>
                 </div>
-                <div class="col-lg-3 col-md-6">
+                <div class="col-lg-12 col-md-6">
                     <div class="trust-item">
                         <i class="fas fa-wallet"></i>
-                        <h4>Quick Withdrawals</h4>
+                        <h2>Quick Withdrawals</h2>
                         <p>Fast & secure transactions</p>
                     </div>
                 </div>
-                <div class="col-lg-3 col-md-6">
+                <div class="col-lg-12 col-md-6">
                     <div class="trust-item">
                         <i class="fas fa-chart-line"></i>
-                        <h4>Market Analysis</h4>
+                        <h2>Market Analysis</h2>
                         <p>Expert insights & tools</p>
                     </div>
                 </div>
@@ -62,4 +95,27 @@
         </div>
     </section>
     <!-- ***** Trust Indicators Section End ***** -->
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <div class="footer-content">
+                        <div class="social-links mb-4">
+                            <a href="#" class="social-link"><i class="fab fa-facebook"></i></a>
+                            <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                            <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                            <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+                        </div>
+                        <p class="copyright-text">
+                            Copyright © 2024-25 <span class="gradient-text">INVESTLOOM7X</span> 
+                            <br>Published on <a href="#" class="gradient-text">GitHub</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+
 </body>
