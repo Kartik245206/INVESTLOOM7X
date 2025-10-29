@@ -28,7 +28,7 @@ console.log('🔍 Environment Check:', {
 
 // Database connection with retry logic
 async function connectDB(retries = 5) {
-    while (retries) {
+    while (retries > 0) {
         try {
             await mongoose.connect(process.env.MONGODB_URI, {
                 useNewUrlParser: true,
@@ -88,7 +88,16 @@ const corsOptions = {
     allowedHeaders: ['Content-Type', 'Authorization', 'x-admin-secret']
 };
 
-app.use(cors(corsOptions));
+app.use(cors({
+    origin: [
+        'http://localhost:3000',
+        'https://investloom7x.onrender.com',
+        'http://localhost:8000'
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // Security headers
 app.use(helmet({
@@ -231,10 +240,11 @@ app.get('/api/health', async (req, res) => {
         
         // Error handling middleware
         app.use((err, req, res, next) => {
-            console.error('Error:', err);
+            console.error('Global error handler:', err);
             res.status(500).json({
                 success: false,
-                error: err.message
+                error: err.message,
+                stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
             });
         });
         

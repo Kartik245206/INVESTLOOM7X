@@ -80,29 +80,33 @@ function updateUserAccountInfo() {
 
 // Product Loading Functions
 async function loadHomePageProducts() {
-    const marketProductsContainer = document.querySelector('.market-products #productContainer');
-    if (!marketProductsContainer) {
+    const productContainer = document.querySelector('#productContainer');
+    if (!productContainer) {
         console.error('Product container not found');
         return;
     }
-    
+
     try {
-        showLoadingState(marketProductsContainer);
+        showLoadingState(productContainer);
         
-        // Add debug logging
-        console.log('Fetching products...');
-        const response = await fetch('/api/products');
+        // Add proper API URL based on environment
+        const API_URL = window.location.hostname === 'localhost' 
+            ? 'http://localhost:3000'
+            : 'https://investloom7x.onrender.com';
+            
+        const response = await fetch(`${API_URL}/api/products`);
         const data = await response.json();
-        console.log('Products received:', data);
         
+        console.log('Products API Response:', data);
+
         if (!data.success || !data.products) {
-            throw new Error('Invalid response format');
+            throw new Error('Invalid product data received');
         }
-        
-        renderProducts(data.products, marketProductsContainer);
+
+        renderProducts(data.products, productContainer);
     } catch (error) {
         console.error('Failed to load products:', error);
-        showErrorState(error, marketProductsContainer);
+        showErrorState(error, productContainer);
     }
 }
 
@@ -164,16 +168,22 @@ function showLoadingState(container) {
             <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">Loading products...</span>
             </div>
+            <p class="mt-3">Loading investment plans...</p>
         </div>
     `;
 }
 
 function showErrorState(error, container) {
     container.innerHTML = `
-        <div class="col-12 text-center text-danger">
-            <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
-            <h4>Error loading products</h4>
-            <p>${error.message}</p>
+        <div class="col-12 text-center">
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-circle fa-2x mb-3"></i>
+                <h4>Unable to load products</h4>
+                <p>${error.message}</p>
+                <button onclick="loadHomePageProducts()" class="btn btn-primary mt-3">
+                    <i class="fas fa-sync-alt"></i> Try Again
+                </button>
+            </div>
         </div>
     `;
 }
