@@ -89,24 +89,31 @@ const corsOptions = {
 };
 
 app.use(cors({
-    origin: [
-        'http://localhost:3000',
-        'https://investloom7x.onrender.com',
-        'http://localhost:8000'
-    ],
+    origin: ['http://localhost:3000', 'https://investloom7x.onrender.com'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+app.use(express.json());
+app.use(cookieParser());
+
 // Security headers
 app.use(helmet({
-    contentSecurityPolicy: NODE_ENV === 'production' ? undefined : false,
-    crossOriginEmbedderPolicy: false,
-    crossOriginResourcePolicy: { policy: "cross-origin" }
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https:"],
+            imgSrc: ["'self'", "data:", "https:"],
+            connectSrc: ["'self'", "https://investloom7x.onrender.com"],
+            fontSrc: ["'self'", "https:"],
+            objectSrc: ["'none'"],
+            mediaSrc: ["'self'"],
+            frameSrc: ["'self'"],
+        }
+    }
 }));
-
-app.use(cookieParser());
 
 // Serve static files
 app.use(express.static(VIEWS_DIR));
@@ -240,11 +247,11 @@ app.get('/api/health', async (req, res) => {
         
         // Error handling middleware
         app.use((err, req, res, next) => {
-            console.error('Global error handler:', err);
+            console.error('Server error:', err);
             res.status(500).json({
                 success: false,
-                error: err.message,
-                stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+                message: 'Internal server error',
+                error: process.env.NODE_ENV === 'development' ? err.message : undefined
             });
         });
         

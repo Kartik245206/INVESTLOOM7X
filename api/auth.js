@@ -164,58 +164,63 @@ router.post('/signup', async (req, res) => {
 // Login
 router.post('/login', async (req, res) => {
   try {
-    const { email, username, password } = req.body;
+    console.log('Login attempt for:', req.body.email);
     
-    if (!password) {
-      return res.status(400).json({ error: 'Password is required' });
-    }
-
-    if (!email && !username) {
-      return res.status(400).json({ error: 'Email or username is required' });
-    }
-
-    // Find user by email or username
-    let query = {};
-    if (email) {
-      query.email = String(email).trim().toLowerCase();
-    } else if (username) {
-      query.username = String(username).trim().toLowerCase();
-    }
-
-    const user = await User.findOne(query);
+    const { email, password } = req.body;
     
+    // Validation
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide both email and password'
+      });
+    }
+
+    // Find user by email
+    const user = await User.findOne({ email });
     if (!user) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid credentials'
+      });
     }
 
-    const isValidPassword = await user.comparePassword(password);
-    if (!isValidPassword) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+    // Compare password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid credentials'
+      });
     }
 
-    const token = makeToken(user);
-    res.cookie('token', token, {
-      httpOnly: true,
-      sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 1000 * 60 * 60 * 24 * 7
-    });
+    // Create token
+    const token = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
 
-    return res.json({
+    // Send response
+    res.json({
       success: true,
       token,
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
-        username: user.username,
         balance: user.balance,
         profilePic: user.profilePic
       }
     });
+
   } catch (error) {
-    console.error('[auth.login] error:', error);
-    return res.status(500).json({ error: 'Internal Server Error' });
+    console.error('Login error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: error.message
+    });
   }
 });
 

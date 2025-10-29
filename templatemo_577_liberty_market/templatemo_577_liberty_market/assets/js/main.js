@@ -27,10 +27,24 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // UI Initialization Functions
+function initializeCategoryItems() {
+    const categories = document.querySelectorAll('.category-item');
+    if (categories) {
+        categories.forEach(category => {
+            category.addEventListener('click', function() {
+                categories.forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                
+                const filter = this.getAttribute('data-filter');
+                filterProducts(filter);
+            });
+        });
+    }
+}
+
 function initializeUI() {
     initializeCategoryItems();
-    initializePaymentOptions();
-    initializeSideNav();
+    loadHomePageProducts();
 }
 
 function setActiveNavItem() {
