@@ -81,25 +81,27 @@ function updateUserAccountInfo() {
 // Product Loading Functions
 async function loadHomePageProducts() {
     const marketProductsContainer = document.querySelector('.market-products #productContainer');
-    if (!marketProductsContainer) return;
+    if (!marketProductsContainer) {
+        console.error('Product container not found');
+        return;
+    }
     
     try {
         showLoadingState(marketProductsContainer);
         
-        console.log('Fetching products from API...');
+        // Add debug logging
+        console.log('Fetching products...');
         const response = await fetch('/api/products');
-        console.log('API Response:', response);
-        
         const data = await response.json();
-        console.log('Products data:', data);
+        console.log('Products received:', data);
         
-        if (!data.success) {
-            throw new Error(data.message || 'Failed to fetch products');
+        if (!data.success || !data.products) {
+            throw new Error('Invalid response format');
         }
         
         renderProducts(data.products, marketProductsContainer);
     } catch (error) {
-        console.error('Error loading products:', error);
+        console.error('Failed to load products:', error);
         showErrorState(error, marketProductsContainer);
     }
 }
@@ -160,20 +162,18 @@ function showLoadingState(container) {
     container.innerHTML = `
         <div class="col-12 text-center">
             <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
+                <span class="visually-hidden">Loading products...</span>
             </div>
-            <p class="mt-2">Loading products...</p>
-        </div>`;
+        </div>
+    `;
 }
 
 function showErrorState(error, container) {
     container.innerHTML = `
-        <div class="col-12 text-center">
-            <div class="alert alert-danger">
-                <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
-                <h3>Error loading products</h3>
-                <p>${error.message}</p>
-                <small>Please try again later or contact support</small>
-            </div>
-        </div>`;
+        <div class="col-12 text-center text-danger">
+            <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+            <h4>Error loading products</h4>
+            <p>${error.message}</p>
+        </div>
+    `;
 }

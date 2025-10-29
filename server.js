@@ -7,6 +7,9 @@ const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 
+// Add this line before connecting to MongoDB
+mongoose.set('strictQuery', false);
+
 const app = express();
 
 // Environment variables
@@ -34,7 +37,7 @@ async function connectDB(retries = 5) {
             });
             console.log('✅ MongoDB Connected Successfully');
             
-            // Load models AFTER connection - use require assignment to prevent duplicate loading
+            // Load models AFTER connection
             const models = {
                 User: require('./api/models/User'),
                 Product: require('./api/models/Product'),
@@ -191,15 +194,23 @@ app.get('/api/health', async (req, res) => {
         const transactionsRouter = require('./api/transactions');
         const withdrawRouter = require('./api/withdraw');
         
-        // API Routes - Mount these BEFORE the catch-all route
+        // API Routes - Mount before static files
         app.use('/api/auth', authRouter);
-        app.use('/api/products', productsRouter);
         app.use('/api/admin', adminRouter);
-        app.use('/api/purchase', purchaseRouter);
+        app.use('/api/products', productsRouter);
         app.use('/api/transactions', transactionsRouter);
+        app.use('/api/purchase', purchaseRouter);
         app.use('/api/withdraw', withdrawRouter);
         
         console.log('✅ API routes mounted successfully');
+        
+        // Add a specific health check endpoint
+        app.get('/api/ping', (req, res) => {
+            res.json({ status: 'ok', timestamp: new Date().toISOString() });
+        });
+        
+        // Static files serving
+        app.use(express.static(VIEWS_DIR));
         
         // Root route
         app.get('/', (req, res) => {
@@ -220,11 +231,10 @@ app.get('/api/health', async (req, res) => {
         
         // Error handling middleware
         app.use((err, req, res, next) => {
-            console.error('❌ Error:', err.stack);
-            res.status(err.status || 500).json({
+            console.error('Error:', err);
+            res.status(500).json({
                 success: false,
-                error: NODE_ENV === 'production' ? 'Internal server error' : err.message,
-                stack: NODE_ENV === 'development' ? err.stack : undefined
+                error: err.message
             });
         });
         
