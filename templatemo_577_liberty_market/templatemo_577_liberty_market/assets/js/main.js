@@ -27,11 +27,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // UI Initialization Functions
 function initializeCategoryItems() {
-    const categories = document.querySelectorAll('.category-item');
-    if (categories) {
-        categories.forEach(category => {
-            category.addEventListener('click', function() {
-                categories.forEach(c => c.classList.remove('active'));
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    if (filterButtons) {
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                // Add active class to clicked button
                 this.classList.add('active');
                 
                 const filter = this.getAttribute('data-filter');
@@ -39,6 +41,18 @@ function initializeCategoryItems() {
             });
         });
     }
+}
+
+function filterProducts(filter) {
+    const products = document.querySelectorAll('#productContainer .col-lg-4');
+    products.forEach(product => {
+        const category = product.querySelector('.author h6').textContent.toLowerCase();
+        if (filter === 'all' || category === filter.toLowerCase()) {
+            product.style.display = '';
+        } else {
+            product.style.display = 'none';
+        }
+    });
 }
 
 function initializeUI() {
