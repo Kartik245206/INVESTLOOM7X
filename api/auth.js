@@ -2,7 +2,14 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const cors = require('cors');
 const User = require('./models/User'); // Updated path to User model
+
+// Enable CORS for all auth routes
+router.use(cors({
+    origin: ['http://localhost:8000', 'https://investloom7x.onrender.com'],
+    credentials: true
+}));
 
 const JWT_SECRET = process.env.JWT_SECRET || 'change_this_secret';
 const ADMIN_SECRET = process.env.ADMIN_SECRET;
@@ -20,6 +27,54 @@ router.get('/ping', (req, res) => res.json({ ok: true }));
 // Test route
 router.get('/test', (req, res) => {
   res.json({ message: 'Auth API is working', timestamp: new Date() });
+});
+
+// User Login
+router.post('/login', async (req, res) => {
+  try {
+    console.log('Login request body:', req.body);
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    const normalizedEmail = String(email).trim().toLowerCase();
+    
+    // Find user by email
+    const user = await User.findOne({ email: normalizedEmail });
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    // Verify password
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    // Generate token
+    const token = jwt.sign(
+      { id: user._id, email: user.email },
+      JWT_SECRET,
+      { expiresIn: TOKEN_EXPIRES }
+    );
+
+    // Send success response with token
+    res.json({
+      success: true,
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        username: user.username
+      }
+    });
+  } catch (error) {
+    console.error('[auth.login] error:', error);
+    res.status(500).json({ error: 'Internal server error during login' });
+  }
 });
 
 // Admin Login
