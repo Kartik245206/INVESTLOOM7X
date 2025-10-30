@@ -1,0 +1,81 @@
+.item {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    border-color: #7453fc;
+}
+
+.item .author {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.item .author img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 15px;
+    border: 2px solid #7453fc;
+}
+
+.item .author h6 {
+    color: #fff;
+    font-size: 1.1rem;
+    margin: 0;
+    font-weight: 600;
+}
+
+.line-dec {
+    width: 100%;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 15px 0;
+}
+
+.item .price,
+.item .earnings {
+    display: block;
+    color: #fff;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+}
+
+.item .price {
+    color: #7453fc;
+    font-weight: 600;
+}
+
+.main-button {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.main-button a {
+    background: #7453fc;
+    color: #fff;
+    padding: 12px 30px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 500;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.main-button a:hover {
+    background: #5a3fd6;
+    transform: scale(1.05);
+}
+
+#productContainer {
+    margin-top: 30px;
+}

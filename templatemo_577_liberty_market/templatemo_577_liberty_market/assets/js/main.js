@@ -1,3 +1,65 @@
+// Product loading functionality
+async function loadHomePageProducts() {
+    try {
+        console.log('Loading products...');
+        const response = await fetch('https://investloom7x.onrender.com/api/products');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log('Products data:', data);
+
+        const productContainer = document.getElementById('productContainer');
+        if (!productContainer) {
+            console.error('Product container not found!');
+            return;
+        }
+
+        if (data.success && data.products && data.products.length > 0) {
+            const productHTML = data.products.map(product => `
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="item">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <span class="author">
+                                    <img src="${product.imageUrl || 'assets/images/default-product.png'}" alt="${product.name}" style="width: 50px; height: 50px; object-fit: cover;">
+                                    <h6>${product.name}</h6>
+                                </span>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="line-dec"></div>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <span class="price">Price: ₹${product.price}</span>
+                                    </div>
+                                    <div class="col-6">
+                                        <span class="earnings">Daily: ₹${product.dailyEarning}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="main-button">
+                                    <a href="javascript:void(0)" onclick="purchaseProduct('${product._id}')">Purchase Now</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            productContainer.innerHTML = productHTML;
+        } else {
+            productContainer.innerHTML = '<div class="col-12"><p class="text-center">No products available at the moment.</p></div>';
+        }
+    } catch (error) {
+        console.error('Error loading products:', error);
+        const productContainer = document.getElementById('productContainer');
+        if (productContainer) {
+            productContainer.innerHTML = '<div class="col-12"><p class="text-center text-danger">Error loading products. Please try again later.</p></div>';
+        }
+    }
+}
+
 // Constants
 const UPI_APPS = {
     'gpay': 'com.google.android.apps.nbu.paisa.user',
@@ -7,12 +69,78 @@ const UPI_APPS = {
 
 // Initialize everything when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-    // Core initialization
-    auth.initSession();
-    initializeUI();
-    testAPIConnection();
+    console.log('DOM Loaded - Initializing...');
     
-    // Load and refresh products
+    // Core initialization
+    if (typeof auth !== 'undefined') {
+        auth.initSession();
+    }
+    if (typeof initializeUI === 'function') {
+        initializeUI();
+    }
+    if (typeof testAPIConnection === 'function') {
+        testAPIConnection();
+    }
+
+    // Load products
+    loadHomePageProducts();
+    async function loadHomePageProducts() {
+        try {
+            const response = await fetch('https://investloom7x.onrender.com/api/products');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            const productContainer = document.getElementById('productContainer');
+            if (!productContainer) {
+                console.error('Product container not found');
+                return;
+            }
+            if (data.products && data.products.length > 0) {
+                const productHTML = data.products.map(product => `
+                    <div class="col-lg-4">
+                        <div class="item">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <span class="author">
+                                        <img src="${product.imageUrl || 'assets/images/default-product.png'}" alt="${product.name}">
+                                        <h6>${product.name}</h6>
+                                    </span>
+                                </div>
+                                <div class="col-lg-12">
+                                    <div class="line-dec"></div>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <span>Price: ₹${product.price}</span>
+                                        </div>
+                                        <div class="col-6">
+                                            <span>Daily Earning: ₹${product.dailyEarning}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12">
+                                    <div class="main-button">
+                                        <a href="javascript:void(0)" onclick="purchaseProduct('${product._id}')">Purchase Now</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                productContainer.innerHTML = productHTML;
+            } else {
+                productContainer.innerHTML = '<p class="text-center">No products available</p>';
+            }
+        } catch (error) {
+            console.error('Error loading products:', error);
+            const productContainer = document.getElementById('productContainer');
+            if (productContainer) {
+                productContainer.innerHTML = '<p class="text-center text-danger">Error loading products. Please try again later.</p>';
+            }
+        }
+    }
+    
+    // Initial load and set up refresh
     loadHomePageProducts();
     setInterval(loadHomePageProducts, 30000);
     

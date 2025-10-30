@@ -1,5 +1,20 @@
 // Navigation Functions
+let sideNavLinks;  // Declare globally
+
+function initializeSideNav() {
+    sideNavLinks = document.querySelectorAll('.side-nav .nav-link');
+    if (sideNavLinks) {
+        sideNavLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                sideNavLinks.forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+            });
+        });
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
+    initializeSideNav();
     // Force show main navigation
     const mainNav = document.getElementById('mainNavMenu');
     if (mainNav) {
@@ -586,8 +601,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Fix sideNavLinks undefined error
-const sideNavLinks = document.querySelectorAll('.side-nav-link');
-
 function initializeNavigation() {
     if (sideNavLinks) {
         sideNavLinks.forEach(link => {

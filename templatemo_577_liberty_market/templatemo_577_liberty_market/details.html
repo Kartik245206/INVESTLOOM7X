@@ -62,10 +62,21 @@
 
 <body>
     
+<!-- Header Navigation -->
     <header class="main-nav">
-        <a href="index.html" class="logo">
-            <img src="assets/images/logo.png" alt="INVESTLOOM7X">
-        </a>
+        <div class="header-content">
+            <a href="index.html" class="logo">
+                <img src="assets/images/logo.png" alt="INVESTLOOM7X" height="40">
+            </a>
+            
+            <div class="user-account-info">
+                <div class="balance-info">
+                    <small class="text-muted">Balance</small>
+                    <span id="userBalanceAmount" class="balance-amount">₹0</span>
+                </div>
+                <img id="userProfilePic" src="assets/images/icon-02.png" alt="User Profile" class="profile-pic">
+            </div>
+        </div>
     </header>
 
 
@@ -76,13 +87,13 @@
         <span>Home</span>
     </a>
 
-    <a href="profile.html" >
-        <i class="fas fa-wallet"></i>
-        <span>Wallet</span>
-    </a>
     <a href="details.html"class="active">
         <i class="fas fa-money-bill-wave"></i>
         <span>Detail</span>
+    </a>
+    <a href="trading-activity.html">
+        <i class="fas fa-chart-bar"></i>
+        <span>Activity</span>
     </a>
 
     <a href="about-website.html" >

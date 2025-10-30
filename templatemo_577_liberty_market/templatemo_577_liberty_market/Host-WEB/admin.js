@@ -319,22 +319,6 @@ function createToastContainer() {
     return container;
 }
     
-
-        if (!response.ok) {
-            throw new Error('Failed to add product');
-        }
-
-        // Refresh product list
-        await loadAdminProducts();
-        
-        // Show success message
-        showAlert('Product added successfully', 'success');
-        catch (error) {
-        console.error('Error adding product:', error);
-        showAlert('Failed to add product', 'error');
-    }
-
-
 // Add this function to handle product status toggle
 async function toggleProductStatus(productId, isActive) {
     try {

@@ -91,28 +91,13 @@
 		}
 	});
 
-	$('.owl-features').owlCarousel({
-		items:3,
-		loop:true,
-		dots: false,
-		nav: true,
-		autoplay: true,
-		margin:30,
-		responsive:{
-			  0:{
-				  items:1
-			  },
-			  800:{
-				  items:2
-			  },
-			  1000:{
-				  items:3
-			  },
-			  1800:{
-				items:4
-			}
-		}
-	})
+	// Removed owl carousel
+    $('.features-items').css({
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '30px'
+    });
+	// Responsive settings handled by CSS
 
 	$('.owl-collection').owlCarousel({
 		items:3,

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Trading Activity - InvestLoom7x</title>
+
+    <!-- Bootstrap -->
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Core CSS -->
+    <link href="assets/css/utils/variables.css" rel="stylesheet">
+    <link href="assets/css/main.css" rel="stylesheet">
+    <link href="assets/css/navigation.css" rel="stylesheet">
+    <link href="assets/css/trading-activity.css" rel="stylesheet">
+
+
+</head>
+
+
+<body>
+    <!-- Header Navigation -->
+    <header class="main-nav">
+        <div class="header-content">
+            <div class="logo-container">
+                <a href="index.html" class="logo">
+                    <i class="fas fa-database"></i>
+                    <span class="logo-text">INVESTLOOM7X</span>
+                </a>
+            </div>
+            
+            <div class="user-account-info">
+                <div class="balance-info">
+                    <small class="text-muted">Balance</small>
+                    <span id="userBalanceAmount" class="balance-amount">₹0</span>
+                </div>
+                <img id="userProfilePic" src="assets/images/icon-02.png" alt="User Profile" class="profile-pic">
+            </div>
+        </div>
+    </header>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="index.html" class="nav-item">
+            <i class="fas fa-home"></i><br>
+            <span>Home</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <i class="fas fa-wallet"></i><br>
+            <span>Wallet</span>
+        </a>
+        <a href="trading-activity.html" class="nav-item active">
+            <i class="fas fa-chart-line"></i><br>
+            <span>Activity</span>
+        </a>
+        <a href="about-website.html" class="nav-item">
+            <i class="fas fa-chart-bar"></i><br>
+            <span>About</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <i class="fas fa-user"></i><br>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+
+    <div class="container">
+        <div class="trading-dashboard">
+            <!-- Market Overview Section -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="text-white">Market Overview</h4>
+                        <div class="d-flex align-items-center">
+                            <span class="text-white me-3">Auto-refresh in: <span id="refreshTimer">30s</span></span>
+                            <button class="refresh-button" onclick="refreshData()">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3 col-6">
+                    <div class="stats-card">
+                        <h6 class="text-white">Active Users</h6>
+                        <h3 class="text-white" id="activeUsers">2,847</h3>
+                        <small class="text-success">+12.5% <i class="fas fa-arrow-up"></i></small>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stats-card">
+                        <h6 class="text-white">Total Investment</h6>
+                        <h3 class="text-white">₹8.2M</h3>
+                        <small class="text-success">+8.3% <i class="fas fa-arrow-up"></i></small>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stats-card">
+                        <h6 class="text-white">Active Products</h6>
+                        <h3 class="text-white">186</h3>
+                        <small class="text-danger">-2.1% <i class="fas fa-arrow-down"></i></small>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stats-card">
+                        <h6 class="text-white">Avg. ROI</h6>
+                        <h3 class="text-white">18.5%</h3>
+                        <small class="text-success">+5.2% <i class="fas fa-arrow-up"></i></small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Activity and Top Investors -->
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="live-activity">
+                        <h5 class="text-white mb-3">Live Activity</h5>
+                        <div id="activityFeed">
+                            <!-- Activity items will be dynamically added here -->
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="top-investors">
+                        <h5 class="text-white mb-3">Top Investors</h5>
+                        <div id="topInvestorsList">
+                            <!-- Top investors will be dynamically added here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <!-- Scripts -->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Fake data generation
+        const fakeNames = [
+            "Rahul Sharma", "Priya Patel", "Amit Kumar", "Neha Singh", "Raj Malhotra",
+            "Anjali Gupta", "Vikram Verma", "Pooja Shah", "Arun Mehta", "Meera Reddy"
+        ];
+
+        const products = [
+            "Gold Investment Plan", "Silver Growth Fund", "Platinum Elite Scheme",
+            "Diamond Premium Bond", "Emerald Savings Plan", "Ruby Investment Trust",
+            "Sapphire Growth Portfolio", "Pearl Wealth Plan", "Coral Investment Scheme"
+        ];
+
+        function generateRandomAmount(min, max) {
+            return Math.floor(Math.random() * (max - min + 1) + min);
+        }
+
+        function getRandomElement(array) {
+            return array[Math.floor(Math.random() * array.length)];
+        }
+
+        function formatAmount(amount) {
+            return new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        function generateActivity() {
+            const activities = [];
+            const now = new Date();
+
+            for (let i = 0; i < 20; i++) {
+                const type = Math.random() > 0.5 ? 'investment' : 'profit';
+                const amount = generateRandomAmount(type === 'investment' ? 5000 : 1000, type === 'investment' ? 50000 : 10000);
+                const timeOffset = i * Math.floor(Math.random() * 10 + 1) * 60000;
+                const timestamp = new Date(now.getTime() - timeOffset);
+
+                activities.push({
+                    name: getRandomElement(fakeNames),
+                    type: type,
+                    amount: amount,
+                    product: getRandomElement(products),
+                    timestamp: timestamp
+                });
+            }
+
+            return activities.sort((a, b) => b.timestamp - a.timestamp);
+        }
+
+        function formatTimestamp(timestamp) {
+            const now = new Date();
+            const diffMinutes = Math.floor((now - timestamp) / 60000);
+
+            if (diffMinutes < 1) return 'Just now';
+            if (diffMinutes < 60) return diffMinutes + ' m ago';
+            if (diffMinutes < 1440) {
+                const hours = Math.floor(diffMinutes / 60);
+                return hours + 'h ago';
+            }
+            return timestamp.toLocaleDateString();
+        }
+
+        function updateActivityFeed() {
+            const activities = generateActivity();
+            const feedContainer = document.getElementById('activityFeed');
+            feedContainer.innerHTML = '';
+
+            activities.forEach(function(activity) {
+                const element = document.createElement('div');
+                element.className = 'activity-item ' + activity.type;
+                element.innerHTML = 
+                    '<div class="d-flex justify-content-between align-items-start">' +
+                        '<div>' +
+                            '<strong class="text-white">' + activity.name + '</strong>' +
+                            '<span class="ms-2">' + (activity.type === 'investment' ? 'invested in' : 'earned from') + '</span>' +
+                            '<span class="text-white">' + activity.product + '</span>' +
+                        '</div>' +
+                        '<span class="' + (activity.type === 'investment' ? 'investment-amount' : 'profit-amount') + '">' +
+                            formatAmount(activity.amount) +
+                        '</span>' +
+                    '</div>' +
+                    '<div class="activity-timestamp">' + formatTimestamp(activity.timestamp) + '</div>';
+                feedContainer.appendChild(element);
+            });
+        }
+
+        function updateTopInvestors() {
+            const investors = fakeNames.slice(0, 5).map(function(name) {
+                return {
+                    name: name,
+                    amount: generateRandomAmount(100000, 1000000),
+                    products: generateRandomAmount(2, 8)
+                };
+            }).sort(function(a, b) { return b.amount - a.amount; });
+
+            const container = document.getElementById('topInvestorsList');
+            container.innerHTML = '';
+
+            investors.forEach(function(investor, index) {
+                const element = document.createElement('div');
+                element.className = 'investor-card';
+                element.innerHTML = 
+                    '<div class="investor-avatar">' + (index + 1) + '</div>' +
+                    '<div class="flex-grow-1">' +
+                        '<div class="text-white">' + investor.name + '</div>' +
+                        '<small class="text-muted">' + investor.products + ' products</small>' +
+                    '</div>' +
+                    '<div class="text-end">' +
+                        '<div class="text-white">' + formatAmount(investor.amount) + '</div>' +
+                        '<small class="text-success">+' + generateRandomAmount(5, 25) + '%</small>' +
+                    '</div>';
+                container.appendChild(element);
+            });
+        }
+
+        function updateActiveUsers() {
+            const baseUsers = 2847;
+            const variation = Math.floor(Math.random() * 200) - 100;
+            document.getElementById('activeUsers').textContent = (baseUsers + variation).toLocaleString();
+        }
+
+        let refreshCounter = 30;
+        function updateRefreshTimer() {
+            document.getElementById('refreshTimer').textContent = refreshCounter + 's';
+            refreshCounter--;
+            if (refreshCounter < 0) {
+                refreshCounter = 30;
+                refreshData();
+            }
+        }
+
+        function refreshData() {
+            updateActivityFeed();
+            updateTopInvestors();
+            updateActiveUsers();
+            refreshCounter = 30;
+        }
+
+        // Initial load
+        refreshData();
+
+        // Set up auto-refresh
+        setInterval(updateRefreshTimer, 1000);
+
+        // Update user account info
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (currentUser && currentUser.balance) {
+                document.getElementById('userBalanceAmount').textContent = formatAmount(currentUser.balance);
+            }
+        });
+    </script>
+</body>
+</html>
