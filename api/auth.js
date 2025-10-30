@@ -32,7 +32,15 @@ router.get('/test', (req, res) => {
 // User Login
 router.post('/login', async (req, res) => {
   try {
-    console.log('Login request body:', req.body);
+    console.log('Login request received:', {
+      body: req.body,
+      contentType: req.headers['content-type']
+    });
+    
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(400).json({ error: 'No request body received' });
+    }
+    
     const { email, password } = req.body;
 
     if (!email || !password) {
