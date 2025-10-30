@@ -1,5 +1,4 @@
 // Constants
-const API_BASE = 'https://investloom7x.onrender.com';
 const UPI_APPS = {
     'gpay': 'com.google.android.apps.nbu.paisa.user',
     'phonepe': 'com.phonepe.app',
@@ -103,12 +102,8 @@ async function loadHomePageProducts() {
     try {
         showLoadingState(productContainer);
         
-        // Add proper API URL based on environment
-        const API_URL = window.location.hostname === 'localhost' 
-            ? 'http://localhost:3000'
-            : 'https://investloom7x.onrender.com';
-            
-        const response = await fetch(`${API_URL}/api/products`);
+        // Use the common API_BASE URL
+        const response = await fetch(`${API_BASE}/api/products`);
         const data = await response.json();
         
         console.log('Products API Response:', data);

@@ -1,5 +1,10 @@
 // Common JavaScript functions for INVESTLOOM7X
 
+// Define API base URL based on environment
+const API_BASE = window.location.hostname === 'localhost' 
+    ? 'http://localhost:3000'
+    : 'https://investloom7x.onrender.com';
+
 // Handle withdrawal functionality
 function handleWithdrawal() {
     // Check if user is logged in

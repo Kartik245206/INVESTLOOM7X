@@ -1,60 +1,201 @@
 // Product Management Functions
 let products = []; // Will be populated from API
+let adminToken = localStorage.getItem('adminToken');
+
+// Check admin authentication on page load
+document.addEventListener('DOMContentLoaded', function() {
+    if (!adminToken) {
+        window.location.href = 'admin_Login_page.html';
+        return;
+    }
+    loadProducts();
+    setupImagePreview();
+});
 
 async function loadProducts() {
     try {
-        const response = await fetch('/api/products');
+        const response = await fetch('https://investloom7x.onrender.com/api/admin/products', {
+            headers: {
+                'Authorization': `Bearer ${adminToken}`,
+                'x-admin-secret': localStorage.getItem('adminSecret')
+            }
+        });
+        
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        products = await response.json();
         
-        const tbody = document.getElementById('productsTableBody');
-        tbody.innerHTML = '';
+        const data = await response.json();
+        products = data.products;
+        
+        const productsContainer = document.getElementById('productsList');
+        if (!productsContainer) return;
 
-        products.forEach(product => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>
-                    <img src="${product.image}" alt="${product.name}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">
-                </td>
-                <td>${product.name}</td>
-                <td>₹${product.price}</td>
-                <td>₹${product.dailyEarning}</td>
-                <td>${product.category}</td>
-                <td>
-                    <span class="badge bg-${product.status === 'active' ? 'success' : 'danger'}">
-                        ${product.status}
-                    </span>
-                </td>
-                <td>
-                    <button class="btn btn-sm btn-primary" onclick="editProduct('${product._id}')">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteProduct('${product._id}')">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
-
-        // Publish active products to website (if needed for client-side display elsewhere)
-        publishProducts();
+        productsContainer.innerHTML = products.length === 0 ? getEmptyProductsTemplate() : 
+            products.map(product => getProductCardTemplate(product)).join('');
 
     } catch (error) {
         console.error('Failed to load products:', error);
-        alert('Failed to load products: ' + error.message);
+        showToast('error', 'Failed to load products: ' + error.message);
     }
 }
 
-function showAddProductModal() {
-    document.getElementById('productModalTitle').textContent = 'Add New Product';
-    document.getElementById('productForm').reset();
-    document.getElementById('productId').value = '';
-    document.getElementById('imagePreview').innerHTML = '';
-    const modal = new bootstrap.Modal(document.getElementById('productModal'));
-    modal.show();
+
+function setupImagePreview() {
+    const imageInput = document.getElementById('productImage');
+    if (!imageInput) return;
+
+    imageInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('imagePreview');
+                preview.src = e.target.result;
+                preview.classList.remove('d-none');
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+}
+
+function getEmptyProductsTemplate() {
+    return `
+        <div class="text-center p-5">
+            <i class="bi bi-box-seam" style="font-size: 4rem; color: #ccc;"></i>
+            <h3 class="mt-3">No products available</h3>
+            <p class="text-muted">Click "Add New Product" to create your first product</p>
+        </div>
+    `;
+}
+
+function getProductCardTemplate(product) {
+    return `
+        <div class="card">
+            <div class="card-img-container">
+                <img src="${product.image}" class="card-img-top" alt="${product.name}" 
+                     onerror="this.src='../assets/images/placeholder.jpg'">
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">${product.name}</h5>
+                <div class="category-badge">${product.category}</div>
+                <div class="price-info">
+                    <div class="total-price">
+                        <span class="label">Total Price:</span>
+                        <span class="amount">₹${product.price}</span>
+                    </div>
+                    <div class="daily-earning">
+                        <span class="label">Daily Earning:</span>
+                        <span class="amount">₹${product.dailyEarning}</span>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-danger" onclick="deleteProduct('${product._id}')">Delete</button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Save new product
+async function saveProduct() {
+    try {
+        const formData = new FormData();
+        const imageFile = document.getElementById('productImage').files[0];
+        const productName = document.getElementById('productName').value;
+        const productCategory = document.getElementById('productCategory').value;
+        const productPricePerDay = document.getElementById('productPricePerDay').value;
+        const productTotalAmount = document.getElementById('productTotalAmount').value;
+
+        if (!imageFile || !productName || !productCategory || !productPricePerDay || !productTotalAmount) {
+            showToast('error', 'Please fill all fields');
+            return;
+        }
+
+        formData.append('image', imageFile);
+        formData.append('name', productName);
+        formData.append('category', productCategory);
+        formData.append('dailyEarning', productPricePerDay);
+        formData.append('price', productTotalAmount);
+
+        const response = await fetch('https://investloom7x.onrender.com/api/admin/products', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${adminToken}`,
+                'x-admin-secret': localStorage.getItem('adminSecret')
+            },
+            body: formData
+        });
+
+        if (!response.ok) throw new Error('Failed to save product');
+
+        // Close modal and reset form
+        const modal = bootstrap.Modal.getInstance(document.getElementById('addProductModal'));
+        modal.hide();
+        document.getElementById('addProductForm').reset();
+        document.getElementById('imagePreview').classList.add('d-none');
+
+        // Reload products
+        loadProducts();
+        showToast('success', 'Product added successfully');
+    } catch (error) {
+        console.error('Error saving product:', error);
+        showToast('error', 'Failed to save product');
+    }
+}
+
+// Delete product
+async function deleteProduct(productId) {
+    if (!confirm('Are you sure you want to delete this product?')) return;
+
+    try {
+        const response = await fetch(`https://investloom7x.onrender.com/api/admin/products/${productId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${adminToken}`,
+                'x-admin-secret': localStorage.getItem('adminSecret')
+            }
+        });
+
+        if (!response.ok) throw new Error('Failed to delete product');
+
+        loadProducts();
+        showToast('success', 'Product deleted successfully');
+    } catch (error) {
+        console.error('Error deleting product:', error);
+        showToast('error', 'Failed to delete product');
+    }
+}
+
+// Toast notification
+function showToast(type, message) {
+    const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center text-white bg-${type === 'success' ? 'success' : 'danger'} border-0`;
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'assertive');
+    toast.setAttribute('aria-atomic', 'true');
+    
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">${message}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    `;
+    
+    toastContainer.appendChild(toast);
+    const bsToast = new bootstrap.Toast(toast);
+    bsToast.show();
+    
+    toast.addEventListener('hidden.bs.toast', () => toast.remove());
+}
+
+function createToastContainer() {
+    const container = document.createElement('div');
+    container.id = 'toastContainer';
+    container.className = 'toast-container position-fixed top-0 end-0 p-3';
+    document.body.appendChild(container);
+    return container;
 }
 
 function editProduct(productId) {
@@ -80,41 +221,48 @@ function editProduct(productId) {
 }
 
 async function saveProduct() {
-    const form = document.getElementById('productForm');
-    if (!form.checkValidity()) {
-        form.reportValidity();
-        return;
-    }
-
-    const productId = document.getElementById('productId').value;
-    const imageFile = document.getElementById('productImage').files[0];
-    
-    // Convert image to base64
-    let imageBase64 = '';
-    if (imageFile) {
-        imageBase64 = await convertImageToBase64(imageFile);
-    }
-
-    const productData = {
-        _id: productId || undefined, // Use _id for existing products, undefined for new
-        name: document.getElementById('productName').value,
-        price: Number(document.getElementById('productPrice').value),
-        dailyEarning: Number(document.getElementById('productEarning').value),
-        category: document.getElementById('productCategory').value,
-        description: document.getElementById('productDescription').value,
-        status: document.getElementById('productStatus').value,
-        image: imageBase64 || (productId ? products.find(p => p._id === productId)?.image : '')
-    };
-
     try {
-        await saveProductToServer(productData);
-        const modal = bootstrap.Modal.getInstance(document.getElementById('productModal'));
+        const formData = new FormData();
+        const imageFile = document.getElementById('productImage').files[0];
+        const productName = document.getElementById('productName').value;
+        const productCategory = document.getElementById('productCategory').value;
+        const productPricePerDay = document.getElementById('productPricePerDay').value;
+        const productTotalAmount = document.getElementById('productTotalAmount').value;
+
+        if (!imageFile || !productName || !productCategory || !productPricePerDay || !productTotalAmount) {
+            showToast('error', 'Please fill all fields');
+            return;
+        }
+
+        formData.append('image', imageFile);
+        formData.append('name', productName);
+        formData.append('category', productCategory);
+        formData.append('dailyEarning', productPricePerDay);
+        formData.append('price', productTotalAmount);
+
+        const response = await fetch('https://investloom7x.onrender.com/api/admin/products', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${adminToken}`,
+                'x-admin-secret': localStorage.getItem('adminSecret')
+            },
+            body: formData
+        });
+
+        if (!response.ok) throw new Error('Failed to save product');
+
+        // Close modal and reset form
+        const modal = bootstrap.Modal.getInstance(document.getElementById('addProductModal'));
         modal.hide();
+        document.getElementById('addProductForm').reset();
+        document.getElementById('imagePreview').classList.add('d-none');
+
+        // Reload products
         loadProducts();
-        alert('Product saved successfully!');
+        showToast('success', 'Product added successfully');
     } catch (error) {
-        console.error('Failed to save product:', error);
-        alert('Failed to save product: ' + error.message);
+        console.error('Error saving product:', error);
+        showToast('error', 'Failed to save product');
     }
 }
 
@@ -122,26 +270,55 @@ async function deleteProduct(productId) {
     if (!confirm('Are you sure you want to delete this product?')) return;
 
     try {
-        await deleteProductFromServer(productId);
+        const response = await fetch(`https://investloom7x.onrender.com/api/admin/products/${productId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${adminToken}`,
+                'x-admin-secret': localStorage.getItem('adminSecret')
+            }
+        });
+
+        if (!response.ok) throw new Error('Failed to delete product');
+
         loadProducts();
-        alert('Product deleted successfully!');
+        showToast('success', 'Product deleted successfully');
     } catch (error) {
-        console.error('Failed to delete product:', error);
-        alert('Failed to delete product: ' + error.message);
+        console.error('Error deleting product:', error);
+        showToast('error', 'Failed to delete product');
     }
 }
 
-// After successful product addition/edit
-async function addProduct(productData) {
-    try {
-        const response = await fetch('/api/products', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-            },
-            body: JSON.stringify(productData)
-        });
+// Toast notification
+function showToast(type, message) {
+    const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center text-white bg-${type === 'success' ? 'success' : 'danger'} border-0`;
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'assertive');
+    toast.setAttribute('aria-atomic', 'true');
+    
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">${message}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    `;
+    
+    toastContainer.appendChild(toast);
+    const bsToast = new bootstrap.Toast(toast);
+    bsToast.show();
+    
+    toast.addEventListener('hidden.bs.toast', () => toast.remove());
+}
+
+function createToastContainer() {
+    const container = document.createElement('div');
+    container.id = 'toastContainer';
+    container.className = 'toast-container position-fixed top-0 end-0 p-3';
+    document.body.appendChild(container);
+    return container;
+}
+    
 
         if (!response.ok) {
             throw new Error('Failed to add product');
@@ -152,11 +329,11 @@ async function addProduct(productData) {
         
         // Show success message
         showAlert('Product added successfully', 'success');
-    } catch (error) {
+        catch (error) {
         console.error('Error adding product:', error);
         showAlert('Failed to add product', 'error');
     }
-}
+
 
 // Add this function to handle product status toggle
 async function toggleProductStatus(productId, isActive) {

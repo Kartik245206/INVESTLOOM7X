@@ -12,7 +12,7 @@
 
     "start": "node server.js",
 
-    "seed": "node api/seed-products.js"
+    "seed": "node scripts/seed-products.js"
 
   },
 
