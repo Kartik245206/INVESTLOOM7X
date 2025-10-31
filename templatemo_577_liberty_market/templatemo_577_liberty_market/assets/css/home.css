@@ -1,3 +1,46 @@
+
+        /* Header Layout Styles */
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 0 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: left;
+        }
+
+        .user-account-info {
+            display: flex;
+            align-items: right;
+            gap: 15px;
+            margin-left: 50px;
+        }
+
+        .balance-info small {
+            display: block;
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .balance-amount {
+            color: #7453fc;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #7453fc;
+        }
+
 /* Main Banner Styles */
 .main-banner {
     background: linear-gradient(135deg, #1a1f3e 0%, #2c1f54 100%);

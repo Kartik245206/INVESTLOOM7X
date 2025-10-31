@@ -17,6 +17,8 @@ body {
     line-height: 1.6;
 }
 
+/* Bottom nav styles moved to navigation.css */
+
 /* Hero Section */
 .hero-section {
     background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));

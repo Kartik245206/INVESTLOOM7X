@@ -1,71 +1,26 @@
 /* Trading Activity Page Styles */
-        .main-nav {
-            background: rgba(1, 11, 44, 0.95);
-            padding: 12px 20px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            backdrop-filter: blur(10px);
+
+        /* Header Layout Styles */
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 0 20px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         .logo-container {
             display: flex;
-            align-items: center;
-            margin-right: auto;
-        }
-
-        .logo {
-            display: flex;
             align-items: left;
-            gap: 12px;
-            text-decoration: none;
-            color: #fff;
-            font-weight: 600;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            padding: 5px 0;
-        }
-
-        .logo:hover {
-            color: #7453fc;
-            align-items: left;
-        }
-
-        .logo i {
-            color: #7453fc;
-            font-size: 1.4rem;
-            margin-right: 2px;
-        }
-
-        .logo-text {
-            background: linear-gradient(45deg, #7453fc, #8a72ff);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-        }
-        .header-content {
-            display: flex;
-            justify-content: flex-start;
-            align-items: center;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 15px;
-            gap: 20px;
         }
 
         .user-account-info {
             display: flex;
-            align-items: center;
+            align-items: right;
             gap: 15px;
-        }
-
-        .balance-info {
-            text-align: right;
-            margin-right: 10px;
+            margin-left: 50px;
         }
 
         .balance-info small {
@@ -227,7 +182,7 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(143, 138, 138, 0.95);
             display: flex;
             justify-content: space-around;
             padding: 10px 0;
@@ -247,7 +202,7 @@
         }
 
         .nav-item.active {
-            color: #7453fc;
+            color: #21058f;
         }
 
         /* Custom Scrollbar */
