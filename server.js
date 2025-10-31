@@ -12,26 +12,48 @@ mongoose.set('strictQuery', false);
 
 const app = express();
 
+// Configure CORS
+app.use(cors({
+    origin: [
+        'http://localhost:3000',
+        'http://localhost:8000',
+        'http://127.0.0.1:3000',
+        'http://127.0.0.1:8000',
+        'https://investloom7x.onrender.com'
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
+}));
+
 // Body parsing middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Security configuration
+// Security configuration with updated CSP
 app.use(helmet({
     contentSecurityPolicy: {
         directives: {
-            defaultSrc: ["'self'"],
+            defaultSrc: ["'self'", "https://investloom7x.onrender.com"],
             scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", 
                 "https://code.jquery.com",
                 "https://cdn.jsdelivr.net",
-                "https://cdnjs.cloudflare.com"],
+                "https://cdnjs.cloudflare.com",
+                "https://*.jsdelivr.net"],
             styleSrc: ["'self'", "'unsafe-inline'",
                 "https://cdn.jsdelivr.net",
-                "https://cdnjs.cloudflare.com"],
-            imgSrc: ["'self'", "data:", "https:"],
-            connectSrc: ["'self'", "https://investloom7x.onrender.com"],
-            fontSrc: ["'self'", "https://cdnjs.cloudflare.com"],
+                "https://cdnjs.cloudflare.com",
+                "https://*.jsdelivr.net"],
+            imgSrc: ["'self'", "data:", "https:", "blob:"],
+            connectSrc: ["'self'", 
+                "https://investloom7x.onrender.com",
+                "https://*.jsdelivr.net",
+                "wss://investloom7x.onrender.com"],
+            fontSrc: ["'self'", "data:",
+                "https://cdnjs.cloudflare.com",
+                "https://cdn.jsdelivr.net",
+                "https://*.jsdelivr.net"],
             objectSrc: ["'none'"],
             mediaSrc: ["'self'"],
             frameSrc: ["'self'"],
@@ -48,7 +70,7 @@ app.use(cors({
 }));
 
 // Environment variables
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
 // Debug: Check environment variables

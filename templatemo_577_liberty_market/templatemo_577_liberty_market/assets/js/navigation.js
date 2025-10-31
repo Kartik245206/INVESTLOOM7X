@@ -23,9 +23,22 @@ document.addEventListener('DOMContentLoaded', function() {
         mainNav.style.visibility = 'visible';
     }
 
-    // Set active nav button based on current page
+    // Set active nav item based on current page
     const currentPath = window.location.pathname;
     const currentPage = currentPath.split('/').pop() || 'index.html';
+    
+    // Add click handlers for protected routes in bottom navigation
+    document.querySelectorAll('.bottom-nav .nav-item').forEach(item => {
+        const href = item.getAttribute('href');
+        if (href === 'profile.html' || href === 'trading-activity.html') {
+            item.addEventListener('click', function(e) {
+                if (!window.isAuthenticated()) {
+                    e.preventDefault();
+                    window.location.href = '../auth/login.html';
+                }
+            });
+        }
+    });
     
     document.querySelectorAll('.nav-button').forEach(button => {
         const href = button.getAttribute('href');

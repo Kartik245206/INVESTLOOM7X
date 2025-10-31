@@ -1,7 +1,7 @@
 // User Authentication and Profile Management
 const auth = {
     // Replace localhost URL with your Render URL
-    API_URL: 'https://investloom7x.onrender.com/api',
+    API_URL: window.location.hostname === 'localhost' ? 'http://localhost:4000/api' : 'https://investloom7x.onrender.com/api',
     
     // Initialize user session
     async initSession() {
@@ -60,11 +60,11 @@ const auth = {
                 <i class="fas fa-user-shield"></i>
                 <span>Admin</span>
             </a></li>
-            <li><a href="login.html" class="nav-link">
+            <li><a href="auth/login.html" class="nav-link">
                 <i class="fas fa-sign-in-alt"></i>
                 <span>Login</span>
             </a></li>
-            <li><a href="signup.html" class="nav-link">
+            <li><a href="auth/signup.html" class="nav-link">
                 <i class="fas fa-user-plus"></i>
                 <span>Sign Up</span>
             </a></li>
@@ -119,12 +119,15 @@ const auth = {
     // Handle login
     async login(email, password) {
         try {
+            console.log('Attempting login to:', `${this.API_URL}/auth/login`);
             const response = await fetch(`${this.API_URL}/auth/login`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 },
                 body: JSON.stringify({ email, password }),
+                mode: 'cors',
                 credentials: 'include'
             });
             

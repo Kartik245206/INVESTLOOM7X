@@ -3,25 +3,80 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
-const User = require('./models/User'); // Updated path to User model
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
+const { body, validationResult } = require('express-validator');
+const rateLimit = require('express-rate-limit');
+const User = require('./models/User');
 
 // Enable CORS for all auth routes
 router.use(cors({
-    origin: ['http://localhost:8000', 'https://investloom7x.onrender.com'],
-    credentials: true
+    origin: ['http://localhost:3000', 'http://localhost:8000', 'https://investloom7x.onrender.com'],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
 }));
 
-const JWT_SECRET = process.env.JWT_SECRET || 'change_this_secret';
-const ADMIN_SECRET = process.env.ADMIN_SECRET;
-const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
-const TOKEN_EXPIRES = '7d';
+// Rate limiting setup
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 5, // limit each IP to 5 requests per windowMs
+    message: 'Too many login attempts from this IP, please try again after 15 minutes'
+});
 
-function makeToken(user) {
-  return jwt.sign({ id: user._id, email: user.email, isAdmin: !!user.isAdmin }, JWT_SECRET, { expiresIn: TOKEN_EXPIRES });
-}
+const registerLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 hour
+    max: 3, // limit each IP to 3 accounts per hour
+    message: 'Too many accounts created from this IP, please try again after an hour'
+});
 
-// Health/check route
+// Email configuration
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    }
+});
+
+// Validation middleware
+const validateRegistration = [
+    body('email').isEmail().normalizeEmail(),
+    body('username').isLength({ min: 3, max: 30 }).trim(),
+    body('password').isLength({ min: 8 })
+        .matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*])/)
+        .withMessage('Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'),
+    body('firstName').trim().notEmpty(),
+    body('lastName').trim().notEmpty(),
+    body('phone').optional().matches(/^\+?[\d\s-]{10,}$/)
+];
+
+const validateLogin = [
+    body('email').isEmail().normalizeEmail(),
+    body('password').notEmpty()
+];
+
+// JWT helper functions
+const generateToken = (user) => {
+    return jwt.sign(
+        {
+            userId: user._id,
+            email: user.email,
+            role: user.role
+        },
+        process.env.JWT_SECRET || 'your-secret-key',
+        { expiresIn: '24h' }
+    );
+};
+    const missingFields = requiredFields.filter(field => !req.body[field]);
+    if (missingFields.length > 0) {
+      return res.status(400).json({ 
+        error: `Missing required fields: ${missingFields.join(', ')}` 
+      });
+    }
+    next();
+
+// Health check route
 router.get('/ping', (req, res) => res.json({ ok: true }));
 
 // Test route
@@ -29,61 +84,7 @@ router.get('/test', (req, res) => {
   res.json({ message: 'Auth API is working', timestamp: new Date() });
 });
 
-// User Login
-router.post('/login', async (req, res) => {
-  try {
-    console.log('Login request received:', {
-      body: req.body,
-      contentType: req.headers['content-type']
-    });
-    
-    if (!req.body || Object.keys(req.body).length === 0) {
-      return res.status(400).json({ error: 'No request body received' });
-    }
-    
-    const { email, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password are required' });
-    }
-
-    const normalizedEmail = String(email).trim().toLowerCase();
-    
-    // Find user by email
-    const user = await User.findOne({ email: normalizedEmail });
-    if (!user) {
-      return res.status(401).json({ error: 'Invalid email or password' });
-    }
-
-    // Verify password
-    const validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword) {
-      return res.status(401).json({ error: 'Invalid email or password' });
-    }
-
-    // Generate token
-    const token = jwt.sign(
-      { id: user._id, email: user.email },
-      JWT_SECRET,
-      { expiresIn: TOKEN_EXPIRES }
-    );
-
-    // Send success response with token
-    res.json({
-      success: true,
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        username: user.username
-      }
-    });
-  } catch (error) {
-    console.error('[auth.login] error:', error);
-    res.status(500).json({ error: 'Internal server error during login' });
-  }
-});
 
 // Admin Login
 router.post('/admin/login', async (req, res) => {
@@ -127,100 +128,152 @@ router.post('/admin/login', async (req, res) => {
   }
 });
 
-// Signup
+// Signup route
 router.post('/signup', async (req, res) => {
   try {
     const { 
-      name = '', 
-      email = '', 
-      password = '', 
-      username = '', 
-      phone = '', 
-      upiId = '' 
-    } = req.body || {};
+      firstName,
+      lastName,
+      email, 
+      password, 
+      username, 
+      phone
+    } = req.body;
     
-    if (!email || !password || !username) {
-      return res.status(400).json({ error: 'Email, username and password are required' });
+    // Basic validation
+    if (!email || !password || !username || !firstName || !lastName) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'Please fill in all required fields' 
+      });
     }
-
+    
+    // Normalize inputs
     const normalizedEmail = String(email).trim().toLowerCase();
     const normalizedUsername = String(username).trim().toLowerCase();
 
-    console.log('[auth.signup] checking existing user for email:', normalizedEmail, 'username:', normalizedUsername);
-    
-    try {
-      // Check for existing email
-      const existingEmail = await User.findOne({ email: normalizedEmail }).lean();
-      if (existingEmail) {
-        console.log('[auth.signup] email already exists');
-        return res.status(409).json({ error: 'Email already registered' });
-      }
-
-      // Check for existing username
-      const existingUsername = await User.findOne({ username: normalizedUsername }).lean();
-      if (existingUsername) {
-        console.log('[auth.signup] username already exists');
-        return res.status(409).json({ error: 'Username already exists' });
-      }
-    } catch (findError) {
-      console.error('[auth.signup] error checking existing user:', findError);
+    // Validate username length
+    if (normalizedUsername.length < 3) {
+      return res.status(400).json({
+        success: false,
+        error: 'Username must be at least 3 characters long'
+      });
     }
 
-    const hash = await bcrypt.hash(password, 12);
+    // Validate password length
+    if (password.length < 8) {
+      return res.status(400).json({
+        success: false,
+        error: 'Password must be at least 8 characters long'
+      });
+    }
+
+    // Check for existing email and username
+    const existingUser = await User.findOne({
+      $or: [
+        { email: normalizedEmail },
+        { username: normalizedUsername }
+      ]
+    });
+
+    if (existingUser) {
+      if (existingUser.email === normalizedEmail) {
+        return res.status(409).json({
+          success: false,
+          error: 'Email already registered'
+        });
+      }
+      return res.status(409).json({
+        success: false,
+        error: 'Username already taken. Please choose a different username.'
+      });
+    }
+
+    // Create new user
+    const newUser = new User({
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      email: normalizedEmail,
+      username: normalizedUsername,
+      password, // Password will be hashed by mongoose pre-save hook
+      phone: phone ? phone.trim() : undefined
+    });
 
     const user = new User({
-      name: String(name).trim(),
+      firstName,
+      lastName,
       email: normalizedEmail,
       username: normalizedUsername,
       phone: String(phone).trim(),
-      upiId: String(upiId).trim(),
-      passwordHash: hash,
-      balance: 0,
-      createdAt: new Date()
+      password: passwordHash, // Note: schema field is password, not passwordHash
+      balance: 0
     });
 
-    console.log('[auth.signup] saving user to DB...');
+    // Save user
+    await user.save();
+
+    // Generate token
+    const token = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET || 'your-secret-key',
+      { expiresIn: '24h' }
+    );
+
     try {
-      await user.save();
-      console.log('[auth.signup] user saved:', user._id);
+      // Save the user
+      const savedUser = await newUser.save();
 
-      const token = makeToken(user);
-      res.cookie('token', token, {
-        httpOnly: true,
-        sameSite: 'lax',
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 1000 * 60 * 60 * 24 * 7
-      });
+      // Create token
+      const token = jwt.sign(
+        { userId: savedUser._id },
+        process.env.JWT_SECRET || 'your-secret-key',
+        { expiresIn: '24h' }
+      );
 
-      return res.json({
+      // Send success response
+      return res.status(201).json({
         success: true,
-        token: token,
-        user: { 
-          id: user._id, 
-          name: user.name, 
-          email: user.email, 
-          username: user.username,
-          balance: user.balance 
+        token,
+        user: {
+          id: savedUser._id,
+          firstName: savedUser.firstName,
+          lastName: savedUser.lastName,
+          email: savedUser.email,
+          username: savedUser.username
         }
       });
-    } catch (saveError) {
-      // Handle duplicate key errors
-      if (saveError.code === 11000) {
-        if (saveError.keyPattern && saveError.keyPattern.email) {
-          console.log('[auth.signup] duplicate email detected during save');
-          return res.status(409).json({ error: 'This email is already registered. Please use a different email or login instead.' });
-        }
-        if (saveError.keyPattern && saveError.keyPattern.username) {
-          console.log('[auth.signup] duplicate username detected during save');
-          return res.status(409).json({ error: 'This username is already taken. Please choose a different username.' });
-        }
-        return res.status(409).json({ error: 'User already exists with this information' });
+    } catch (error) {
+      console.error('[auth.signup] error:', error);
+      
+      // Handle mongoose validation errors
+      if (error.name === 'ValidationError') {
+        const validationErrors = Object.values(error.errors).map(err => err.message);
+        return res.status(400).json({
+          success: false,
+          error: validationErrors[0]
+        });
       }
-      throw saveError;
+      
+      // Handle duplicate key errors from MongoDB
+      if (error.code === 11000) {
+        const field = Object.keys(error.keyPattern)[0];
+        return res.status(409).json({
+          success: false,
+          error: `This ${field} is already registered. Please use a different ${field}.`
+        });
+      }
+
+      return res.status(500).json({
+        success: false,
+        error: 'Server error during signup. Please try again.'
+      });
     }
-  } catch (err) {
-    console.error('[auth.signup] error:', err && err.stack ? err.stack : err);
-    return res.status(500).json({ error: err && err.message ? err.message : 'Internal Server Error' });
+  } catch (error) {
+    console.error('[auth.signup] outer error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Server error during signup. Please try again.'
+    });
   }
 });
 
@@ -230,6 +283,7 @@ router.post('/login', async (req, res) => {
     console.log('Login attempt for:', req.body.email);
     
     const { email, password } = req.body;
+    const normalizedEmail = String(email).trim().toLowerCase();
     
     // Validation
     if (!email || !password) {
@@ -240,7 +294,7 @@ router.post('/login', async (req, res) => {
     }
 
     // Find user by email
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: normalizedEmail }).select('+password');
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -260,7 +314,7 @@ router.post('/login', async (req, res) => {
     // Create token
     const token = jwt.sign(
       { userId: user._id },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET || 'your-secret-key',
       { expiresIn: '24h' }
     );
 
@@ -270,10 +324,11 @@ router.post('/login', async (req, res) => {
       token,
       user: {
         id: user._id,
-        name: user.name,
+        firstName: user.firstName,
+        lastName: user.lastName,
         email: user.email,
-        balance: user.balance,
-        profilePic: user.profilePic
+        username: user.username,
+        balance: user.balance || 0
       }
     });
 
@@ -287,7 +342,9 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Add this route temporarily for development only
+
+
+// Development only - clear users route
 router.delete('/clear-users', async (req, res) => {
   try {
     if (process.env.NODE_ENV === 'production') {
@@ -302,15 +359,5 @@ router.delete('/clear-users', async (req, res) => {
     res.status(500).json({ error: 'Failed to clear users' });
   }
 });
-
-// call /api/auth/signup instead of writing to localStorage
-async function signup(formData) {
-  const resp = await fetch('/api/auth/signup', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(formData),
-  });
-  return resp.json();
-}
 
 module.exports = router;

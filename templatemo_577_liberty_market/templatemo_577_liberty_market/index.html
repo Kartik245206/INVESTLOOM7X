@@ -30,10 +30,12 @@
     <link rel="stylesheet" href="assets/css/owl.css" type="text/css">
     <link rel="stylesheet" href="assets/css/animate.css" type="text/css">
     <link rel="stylesheet" href="assets/css/footer.css" type="text/css">
+    <script src="auth/urls.js" defer></script>
+    <script src="auth/navigation.js" defer></script>
     <script src="assets/js/common.js" defer></script>
     <script src="assets/js/navigation.js" defer></script>
     <script src="assets/js/custom.js" defer></script>
-    <script src="assets/js/auth.js" defer></script>
+    <script src="auth/auth.js" defer></script>
     <script src="assets/js/main.js" defer></script>
 </head>
 
@@ -98,7 +100,7 @@
             localStorage.removeItem('currentUser');
 
             // Redirect to login page
-            window.location.href = 'login.html';
+            window.location.href = 'auth/login.html';
         }
 
         // Initialize UI components
@@ -201,7 +203,7 @@
                             <a href="#market-section" class="btn btn-primary btn-lg pulse-animation">
                                 <i class="fas fa-chart-line"></i> Explore Markets
                             </a>
-                            <a href="signup.html" class="btn btn-outline-light btn-lg">
+                            <a href="auth/signup.html" class="btn btn-outline-light btn-lg">
                                 <i class="fas fa-rocket"></i> Get Started
                             </a>
                         </div>

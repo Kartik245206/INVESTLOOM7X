@@ -4,9 +4,16 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Sign Up - INVESTLOOM7X</title>
-    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Meta tags -->
+    <meta name="description" content="Create your account on INVESTLOOM7X">
+    <meta name="author" content="INVESTLOOM7X">
+    
+    <!-- Stylesheets -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="assets/css/main.css" rel="stylesheet">
+    <link href="../assets/css/main.css" rel="stylesheet">
+    
     <style>
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -23,7 +30,6 @@
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
             max-width: 500px;
             width: 100%;
-            margin: 20px auto;
         }
         .signup-container h2 {
             color: #667eea;
@@ -51,28 +57,44 @@
         .btn-primary:hover {
             transform: translateY(-2px);
         }
-        .alert {
-            border-radius: 10px;
-        }
-        .form-label {
-            font-weight: 600;
-            color: #333;
-        }
-        .input-group-text {
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 8px 0 0 8px;
-        }
-        .input-group {
-            margin-bottom: 20px;
-        }
         .password-toggle {
             cursor: pointer;
             position: absolute;
             right: 10px;
             top: 50%;
             transform: translateY(-50%);
+            color: #667eea;
+        }
+        .form-floating {
+            position: relative;
+        }
+        .password-requirements {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 5px;
+        }
+        .requirement {
+            margin: 3px 0;
+        }
+        .requirement i {
+            margin-right: 5px;
+        }
+        .requirement.valid {
+            color: #28a745;
+        }
+        .requirement.invalid {
+            color: #dc3545;
+        }
+        .alert {
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .loading-spinner {
+            display: none;
+            width: 1.5rem;
+            height: 1.5rem;
         }
     </style>
 </head>
@@ -85,8 +107,12 @@
         
         <form id="signupForm">
             <div class="mb-3">
-                <label class="form-label">Full Name</label>
-                <input type="text" class="form-control" id="fullName" required>
+                <label class="form-label">First Name</label>
+                <input type="text" class="form-control" id="firstName" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Last Name</label>
+                <input type="text" class="form-control" id="lastName" required>
             </div>
             <div class="mb-3">
                 <label class="form-label">Email</label>
@@ -164,16 +190,18 @@
             hideAlert();
             
             const userData = {
-                name: document.getElementById('fullName').value.trim(),
+                firstName: document.getElementById('firstName').value.trim(),
+                lastName: document.getElementById('lastName').value.trim(),
                 email: document.getElementById('email').value.trim(),
                 password: document.getElementById('password').value,
                 username: document.getElementById('username').value.trim(),
-                phone: document.getElementById('phone').value.trim(),
-                upiId: document.getElementById('upiId').value.trim()
+                phone: document.getElementById('phone').value.trim()
             };
 
             // Basic validation
-            if (!userData.name || !userData.email || !userData.username || !userData.password) {
+            // Note: earlier code checked `userData.name` which doesn't exist (we collect firstName/lastName).
+            // Validate required fields explicitly.
+            if (!userData.firstName || !userData.lastName || !userData.email || !userData.username || !userData.password || !userData.phone) {
                 showAlert('Please fill in all required fields.', 'danger');
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Sign Up';
