@@ -68,13 +68,17 @@ const generateToken = (user) => {
         { expiresIn: '24h' }
     );
 };
-    const missingFields = requiredFields.filter(field => !req.body[field]);
+
+// Validation middleware for required fields
+const validateRequiredFields = (fields) => (req, res, next) => {
+    const missingFields = fields.filter(field => !req.body[field]);
     if (missingFields.length > 0) {
-      return res.status(400).json({ 
-        error: `Missing required fields: ${missingFields.join(', ')}` 
-      });
+        return res.status(400).json({ 
+            error: `Missing required fields: ${missingFields.join(', ')}` 
+        });
     }
     next();
+};
 
 // Health check route
 router.get('/ping', (req, res) => res.json({ ok: true }));
@@ -129,7 +133,7 @@ router.post('/admin/login', async (req, res) => {
 });
 
 // Signup route
-router.post('/signup', async (req, res) => {
+router.post('/signup', validateRequiredFields(['firstName', 'lastName', 'email', 'password', 'username', 'phone']), async (req, res) => {
   try {
     const { 
       firstName,
