@@ -16,7 +16,10 @@
     <link href="assets/css/main.css" rel="stylesheet">
     <link href="assets/css/navigation.css" rel="stylesheet">
     <link href="assets/css/trading-activity.css" rel="stylesheet">
-
+    
+    <!-- Authentication Scripts -->
+    <script src="auth/auth.js"></script>
+    <script src="auth/authGuard.js"></script>
 
 </head>
 
@@ -45,7 +48,7 @@
     <!-- Bottom Navigation -->
     <nav class="bottom-nav">
         <a href="index.html" class="nav-item">
-            <i class="fas fa-home"></i><br>
+            <i class="fas fa-home"></i>
             <span>Home</span>
         </a>
         <a href="profile.html" class="nav-item">
@@ -292,11 +295,23 @@
         // Set up auto-refresh
         setInterval(updateRefreshTimer, 1000);
 
-        // Update user account info
+        // Update user account info and navigation
         document.addEventListener('DOMContentLoaded', function() {
             const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userBalanceEl = document.getElementById('userBalanceAmount');
+            const userAccountInfo = document.querySelector('.user-account-info');
+            const guestNav = document.querySelector('.guest-nav');
+            const userNav = document.querySelector('.user-nav');
+            
             if (currentUser && currentUser.balance) {
-                document.getElementById('userBalanceAmount').textContent = formatAmount(currentUser.balance);
+                userBalanceEl.textContent = formatAmount(currentUser.balance);
+                if (guestNav) guestNav.style.display = 'none';
+                if (userNav) userNav.style.display = 'block';
+            } else {
+                // If no user is logged in
+                if (userAccountInfo) userAccountInfo.style.display = 'none';
+                if (guestNav) guestNav.style.display = 'block';
+                if (userNav) userNav.style.display = 'none';
             }
         });
     </script>

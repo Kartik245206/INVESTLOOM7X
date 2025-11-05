@@ -275,13 +275,6 @@
 
 })(window.jQuery);
 
-
-// Menu Trigger Functionality
-$(".menu-trigger").on('click', function() {
-    $(this).toggleClass('active');
-    $('.nav').toggleClass('active');
-});
-
 // Close menu when clicking outside
 $(document).on('click', function(e) {
     if (!$(e.target).closest('.nav').length && !$(e.target).closest('.menu-trigger').length) {

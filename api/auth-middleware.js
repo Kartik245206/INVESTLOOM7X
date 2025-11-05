@@ -1,27 +1,24 @@
-const jwt = require('jsonwebtoken');
-require('dotenv').config();
-
-const adminAuth = (req, res, next) => {
-    try {
-        // Check admin token
-        const token = req.header('Authorization')?.replace('Bearer ', '');
-        if (!token) {
-            return res.status(401).json({ message: 'No token, authorization denied' });
-        }
-
-        // Verify token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        
-        // Check if user is admin
-        if (!decoded.isAdmin) {
-            return res.status(403).json({ message: 'Not authorized as admin' });
-        }
-
-        req.user = decoded;
-        next();
-    } catch (error) {
-        res.status(401).json({ message: 'Token is not valid' });
+// Auth middleware to check if user is authenticated
+function isAuthenticated(req, res, next) {
+    if (req.isAuthenticated()) {
+        return next();
     }
-};
+    res.status(401).json({ error: 'Not authenticated' });
+}
 
-module.exports = adminAuth;
+// Auth middleware to handle API responses
+function checkAuth(req, res, next) {
+    if (req.isAuthenticated()) {
+        next();
+    } else {
+        res.status(401).json({
+            isAuthenticated: false,
+            message: 'User not authenticated'
+        });
+    }
+}
+
+module.exports = {
+    isAuthenticated,
+    checkAuth
+};

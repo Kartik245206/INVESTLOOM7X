@@ -1,20 +1,127 @@
 // Navigation Functions
-let sideNavLinks;  // Declare globally
+async function checkAuthStatus() {
+    try {
+        const response = await fetch('/api/auth/status');
+        const data = await response.json();
+        return data.isAuthenticated;
+    } catch (error) {
+        console.error('Auth check failed:', error);
+        return false;
+    }
+}
 
-function initializeSideNav() {
-    sideNavLinks = document.querySelectorAll('.side-nav .nav-link');
-    if (sideNavLinks) {
-        sideNavLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                sideNavLinks.forEach(l => l.classList.remove('active'));
-                link.classList.add('active');
-            });
-        });
+async function handleProtectedNavigation(destination) {
+    const isAuthenticated = await checkAuthStatus();
+    
+    if (isAuthenticated) {
+        window.location.href = destination;
+    } else {
+        // Use the centralized redirect function
+        redirectToLogin(destination);
+    }
+}
+
+async function initializeNavigation() {
+    const userSection = document.getElementById('userSection');
+    const authButtons = document.getElementById('authButtons');
+    const isAuthenticated = await checkAuthStatus();
+
+    if (isAuthenticated) {
+        if (userSection) userSection.style.display = 'block';
+        if (authButtons) authButtons.style.display = 'none';
+        
+        // Load user data
+        try {
+            const response = await fetch('/api/auth/user');
+            const userData = await response.json();
+            
+            // Update UI with user data
+            document.getElementById('userName').textContent = userData.name || 'User';
+            document.getElementById('userBalance').textContent = `₹${userData.balance?.toFixed(2) || '0.00'}`;
+            if (userData.avatar) {
+                document.getElementById('userAvatar').src = userData.avatar;
+            }
+        } catch (error) {
+            console.error('Failed to load user data:', error);
+        }
+    } else {
+        if (userSection) userSection.style.display = 'none';
+        if (authButtons) authButtons.style.display = 'flex';
     }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Function to handle protected navigation
+    async function checkAuthAndNavigate(destination) {
+        try {
+            const response = await fetch('/api/auth/status');
+            const data = await response.json();
+            
+            if (data.isAuthenticated) {
+                window.location.href = destination;
+            } else {
+                sessionStorage.setItem('redirectAfterLogin', destination);
+                window.location.href = '/templatemo_577_liberty_market/auth/login.html';
+            }
+        } catch (error) {
+            console.error('Auth check failed:', error);
+            window.location.href = '/templatemo_577_liberty_market/auth/login.html';
+        }
+    }
+
+    // Handle user dropdown
+    const avatarBtn = document.getElementById('avatarBtn');
+    const userDropdown = document.getElementById('userDropdown');
+    
+    if (avatarBtn && userDropdown) {
+        avatarBtn.addEventListener('click', () => {
+            userDropdown.classList.toggle('show');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!avatarBtn.contains(e.target) && !userDropdown.contains(e.target)) {
+                userDropdown.classList.remove('show');
+            }
+        });
+    }
+
+    // Handle protected links
+    const protectedRoutes = {
+        'profile.html': true,
+        'wallet.html': true,
+        'transactions.html': true,
+        'trading-activity.html': true
+    };
+
+    // Add click handlers for navigation links
+    document.querySelectorAll('a').forEach(link => {
+        const href = link.getAttribute('href');
+        if (href && protectedRoutes[href.split('/').pop()]) {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                handleProtectedNavigation(href);
+            });
+        }
+    });
+
+    // Handle logout
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                await fetch('/api/auth/logout', { method: 'POST' });
+                window.location.href = '/';
+            } catch (error) {
+                console.error('Logout failed:', error);
+            }
+        });
+    }
+
+    // Initialize side navigation
     initializeSideNav();
+
     // Force show main navigation
     const mainNav = document.getElementById('mainNavMenu');
     if (mainNav) {
@@ -27,19 +134,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const currentPath = window.location.pathname;
     const currentPage = currentPath.split('/').pop() || 'index.html';
     
-    // Add click handlers for protected routes in bottom navigation
-    document.querySelectorAll('.bottom-nav .nav-item').forEach(item => {
-        const href = item.getAttribute('href');
-        if (href === 'profile.html' || href === 'trading-activity.html') {
-            item.addEventListener('click', function(e) {
-                if (!window.isAuthenticated()) {
-                    e.preventDefault();
-                    window.location.href = '../auth/login.html';
-                }
-            });
-        }
-    });
-    
     document.querySelectorAll('.nav-button').forEach(button => {
         const href = button.getAttribute('href');
         if (href === currentPage || (currentPage === '' && href === 'index.html')) {
@@ -49,104 +143,36 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Side navigation functionality
-    const sideNav = document.querySelector('.side-nav');
-    const navHandle = document.getElementById('navHandle');
-    const sideNavOverlay = document.getElementById('sideNavOverlay');
-    
-    if (navHandle && sideNav) {
-        const navIcon = navHandle.querySelector('i');
-
-        function toggleSideNav(forceClose = false) {
-            const isActive = sideNav.classList.contains('active');
-
-            if (forceClose || isActive) {
-                sideNav.classList.remove('active');
-                sideNavOverlay.classList.remove('active');
-                navHandle.classList.remove('active');
-                navIcon.classList.remove('fa-times');
-                navIcon.classList.add('fa-bars');
-            } else {
-                sideNav.classList.add('active');
-                sideNavOverlay.classList.add('active');
-                navHandle.classList.add('active');
-                navIcon.classList.remove('fa-bars');
-                navIcon.classList.add('fa-times');
-            }
-        }
-
-        navHandle.addEventListener('click', (e) => {
-            e.stopPropagation();
-            toggleSideNav();
-        });
-
-        if (sideNavOverlay) {
-            sideNavOverlay.addEventListener('click', () => {
-                toggleSideNav(true);
-            });
-        }
-
-        document.addEventListener('click', (e) => {
-            if (!sideNav.contains(e.target) && !navHandle.contains(e.target)) {
-                toggleSideNav(true);
-            }
-        });
-    }
-
-    // Handle side nav links
-    document.querySelectorAll('.side-nav .nav-link').forEach(link => {
-        link.addEventListener('click', function(e) {
-            const route = this.getAttribute('data-route');
-            if (route) {
-                e.preventDefault();
-                
-                // Map routes to pages
-                const routeMap = {
-                    'Home': 'index.html',
-                    'Profile': 'profile.html',
-                    'Admin': 'Host-WEB/admin_Login_page.html',
-                    'Login': 'login.html',
-                    'Signup': 'signup.html'
-                };
-                
-                if (routeMap[route]) {
-                    window.location.href = routeMap[route];
-                }
-            }
-        });
-    });
-
     // Side Navigation Toggle
-    const navHandle2 = document.getElementById('navHandle');
-    const sideNav2 = document.querySelector('.side-nav');
-    const sideNavOverlay2 = document.getElementById('sideNavOverlay');
+    const navHandle = document.getElementById('navHandle');
+    const sideNav = document.querySelector('.side-nav');
+    const sideNavOverlay = document.getElementById('sideNavOverlay');
     const body = document.body;
 
-    // Prevent flash of navigation on page load
-    if (sideNav2) {
-        // Add a class to control initial visibility
-        sideNav2.classList.add('nav-initialized');
+    if (sideNav) {
+        sideNav.classList.add('nav-initialized');
     }
 
-    if (navHandle2) {
-        navHandle2.addEventListener('click', function() {
-            sideNav2.classList.toggle('active');
-            navHandle2.classList.toggle('active');
+    if (navHandle) {
+        navHandle.addEventListener('click', function() {
+            sideNav.classList.toggle('active');
+            navHandle.classList.toggle('active');
             body.classList.toggle('nav-expanded');
-            if (sideNavOverlay2) {
-                sideNavOverlay2.style.display = sideNav2.classList.contains('active') ? 'block' : 'none';
+            if (sideNavOverlay) {
+                sideNavOverlay.style.display = sideNav.classList.contains('active') ? 'block' : 'none';
             }
         });
     }
 
-    if (sideNavOverlay2) {
-        sideNavOverlay2.addEventListener('click', function() {
-            sideNav2.classList.remove('active');
-            navHandle2.classList.remove('active');
+    if (sideNavOverlay) {
+        sideNavOverlay.addEventListener('click', function() {
+            sideNav.classList.remove('active');
+            navHandle.classList.remove('active');
             body.classList.remove('nav-expanded');
-            sideNavOverlay2.style.display = 'none';
+            sideNavOverlay.style.display = 'none';
         });
     }
+});
 
     // Navigation Links
     const sideNavLinks = document.querySelectorAll('.side-nav .nav-link');
@@ -207,7 +233,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // Redirect to login page
         window.location.href = 'login.html';
     });
-});
 
     // Logout handler
     function handleLogout() {

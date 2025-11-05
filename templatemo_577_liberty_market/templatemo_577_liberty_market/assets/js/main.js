@@ -1,11 +1,34 @@
 // Product loading functionality
 async function loadHomePageProducts() {
+    const productContainer = document.getElementById('productContainer');
+    if (!productContainer) {
+        console.error('Product container not found!');
+        return;
+    }
+
+    // Show loading state
+    productContainer.innerHTML = `
+        <div class="col-12 text-center">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Loading investment plans...</p>
+        </div>
+    `;
+
     try {
         console.log('Loading products...');
-        const response = await fetch('https://investloom7x.onrender.com/api/products');
+        const apiUrl = typeof API_BASE !== 'undefined' 
+            ? `${API_BASE}/api/products`
+            : 'https://investloom7x.onrender.com/api/products';
+            
+        console.log('Fetching from:', apiUrl);
+        const response = await fetch(apiUrl);
+        
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
+        
         const data = await response.json();
         console.log('Products data:', data);
 
@@ -55,7 +78,17 @@ async function loadHomePageProducts() {
         console.error('Error loading products:', error);
         const productContainer = document.getElementById('productContainer');
         if (productContainer) {
-            productContainer.innerHTML = '<div class="col-12"><p class="text-center text-danger">Error loading products. Please try again later.</p></div>';
+            productContainer.innerHTML = `
+                <div class="col-12 text-center">
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle"></i>
+                        Error loading products. Please try again later.
+                    </div>
+                    <button class="btn btn-primary mt-3" onclick="loadHomePageProducts()">
+                        <i class="fas fa-sync-alt"></i> Retry
+                    </button>
+                </div>
+            `;
         }
     }
 }

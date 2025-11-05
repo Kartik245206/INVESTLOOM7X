@@ -7,10 +7,55 @@ const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 
-// Add this line before connecting to MongoDB
+// MongoDB configuration
 mongoose.set('strictQuery', false);
+mongoose.set('debug', true);
+
+// MongoDB connection with enhanced error handling
+const MONGODB_URI = process.env.MONGODB_URI2;
+
+if (!MONGODB_URI) {
+    console.error('MONGODB_URI2 is not defined in environment variables');
+    process.exit(1);
+}
+
+mongoose.connect(MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 30000,
+    socketTimeoutMS: 45000,
+    connectTimeoutMS: 30000,
+    keepAlive: true,
+    keepAliveInitialDelay: 300000
+}).then(() => {
+    console.log('✅ MongoDB Connected Successfully');
+}).catch(err => {
+    console.error('❌ MongoDB connection error:', err);
+    process.exit(1);
+});
+
+mongoose.connection.on('error', err => {
+    console.error('MongoDB connection error:', err);
+});
 
 const app = express();
+const session = require('express-session');
+const passport = require('passport');
+
+// Session configuration
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'your_session_secret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
+}));
+
+// Initialize Passport
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Configure CORS
 app.use(cors({
@@ -21,6 +66,13 @@ app.use(cors({
         'http://127.0.0.1:8000',
         'https://investloom7x.onrender.com'
     ],
+    credentials: true
+}));
+
+// Routes
+const authRoutes = require('./api/auth-routes');
+app.use('/api/auth', authRoutes);
+app.use(cors({
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
@@ -63,11 +115,20 @@ app.use(helmet({
     crossOriginResourcePolicy: false
 }));
 
-// Enable CORS
-app.use(cors({
-    origin: ['http://localhost:8000', 'https://investloom7x.onrender.com'],
-    credentials: true
-}));
+// Global error handler middleware
+app.use((err, req, res, next) => {
+    console.error('Global error handler:', err);
+    res.status(500).json({
+        success: false,
+        error: 'Server error',
+        details: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+});
+
+// Unhandled promise rejection handler
+process.on('unhandledRejection', (err) => {
+    console.error('Unhandled Promise Rejection:', err);
+});
 
 // Environment variables
 const PORT = process.env.PORT || 4000;
@@ -83,34 +144,72 @@ console.log('🔍 Environment Check:', {
     PORT: PORT
 });
 
+// Routes
+const authRoutes = require('./api/auth');
+const productRoutes = require('./api/products');
+const purchaseRoutes = require('./api/purchase');
+const transactionRoutes = require('./api/transactions');
+const withdrawRoutes = require('./api/withdraw');
+const adminRoutes = require('./api/admin');
+
+// Mount routes
+app.use('/api/auth', authRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/purchase', purchaseRoutes);
+app.use('/api/transactions', transactionRoutes);
+app.use('/api/withdraw', withdrawRoutes);
+app.use('/api/admin', adminRoutes);
+
 // Database connection with retry logic
 async function connectDB(retries = 5) {
-    while (retries > 0) {
+    const MONGODB_URI = process.env.MONGODB_URI;
+    
+    if (!MONGODB_URI) {
+        throw new Error('MONGODB_URI is not defined in environment variables');
+    }
+
+    console.log('🔄 Attempting MongoDB connection...');
+    
+    let lastError = null;
+    
+    for (let attempt = 1; attempt <= retries; attempt++) {
         try {
-            await mongoose.connect(process.env.MONGODB_URI, {
+            console.log(`Connection attempt ${attempt}/${retries}`);
+            
+            await mongoose.connect(MONGODB_URI, {
                 useNewUrlParser: true,
                 useUnifiedTopology: true,
-                serverSelectionTimeoutMS: 5000
+                serverSelectionTimeoutMS: 30000,
+                socketTimeoutMS: 45000,
+                connectTimeoutMS: 30000,
+                keepAlive: true,
+                keepAliveInitialDelay: 300000
             });
+
             console.log('✅ MongoDB Connected Successfully');
             
-            // Load models AFTER connection
-            const models = {
-                User: require('./api/models/User'),
-                Product: require('./api/models/Product'),
-                Transaction: require('./api/models/Transaction')
-            };
-            
-            console.log('✅ Models loaded successfully:', Object.keys(models));
-            
+            // Set up connection error handler
+            mongoose.connection.on('error', err => {
+                console.error('MongoDB connection error:', err);
+            });
+
+            // Load models
+            const User = require('./api/models/User');
+            const Product = require('./api/models/Product');
+            const Transaction = require('./api/models/Transaction');
+
+            console.log('✅ Models loaded successfully');
             return true;
-        } catch (err) {
-            console.error(`❌ MongoDB connection error (${retries} retries left):`, err.message);
-            retries -= 1;
-            if (!retries) {
-                console.error('💀 Failed to connect to MongoDB after all retries');
-                process.exit(1);
+
+        } catch (error) {
+            console.error(`MongoDB connection attempt ${attempt} failed:`, error);
+            lastError = error;
+            
+            if (attempt === retries) {
+                throw new Error(`Failed to connect to MongoDB after ${retries} attempts: ${lastError.message}`);
             }
+            
+            // Wait before next attempt
             await new Promise(resolve => setTimeout(resolve, 5000));
         }
     }

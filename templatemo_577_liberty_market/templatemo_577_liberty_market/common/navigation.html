@@ -5,6 +5,8 @@
         <div class="row">
             <div class="col-12">
                 <nav class="main-nav">
+                    <!-- Scripts -->
+                    <script src="../assets/js/auth-functions.js"></script>
                     <!-- Logo -->
                     <a href="../index.html" class="logo">
                         <img src="../assets/images/logo.png" alt="InvestLoom Logo">
@@ -22,13 +24,13 @@
                                     </div>
                                 </button>
                                 <div id="userDropdown" class="dropdown-content">
-                                    <a href="../profile.html">
+                                    <a href="#" onclick="handleProtectedNavigation('../profile.html'); return false;">
                                         <i class="fa fa-user"></i> Profile
                                     </a>
-                                    <a href="../transactions.html">
+                                    <a href="#" onclick="handleProtectedNavigation('../transactions.html'); return false;">
                                         <i class="fa fa-history"></i> Transactions
                                     </a>
-                                    <a href="../wallet.html">
+                                    <a href="#" onclick="handleProtectedNavigation('../wallet.html'); return false;">
                                         <i class="fa fa-wallet"></i> Wallet
                                     </a>
                                     <a href="#" id="logoutBtn">
@@ -38,8 +40,8 @@
                             </div>
                         </div>
                         <div id="authButtons">
-                            <a href="auth/login.html" class="btn btn-primary">Login</a>
-                            <a href="auth/signup.html" class="btn btn-outline-primary">Sign Up</a>
+                            <a href="/templatemo_577_liberty_market/auth/login.html" class="btn btn-primary">Login</a>
+                            <a href="/templatemo_577_liberty_market/auth/signup.html" class="btn btn-outline-primary">Sign Up</a>
                         </div>
                     </div>
                 </nav>
