@@ -1,24 +1,28 @@
-// Auth middleware to check if user is authenticated
-function isAuthenticated(req, res, next) {
-    if (req.isAuthenticated()) {
-        return next();
-    }
-    res.status(401).json({ error: 'Not authenticated' });
-}
+﻿const jwt = require('jsonwebtoken');
+const User = require('./models/User');
 
-// Auth middleware to handle API responses
-function checkAuth(req, res, next) {
-    if (req.isAuthenticated()) {
+module.exports = async (req, res, next) => {
+    try {
+        // Get token from header
+        const token = req.headers.authorization?.split(' ')[1];
+        if (!token) {
+            return res.status(401).json({ error: 'No token provided' });
+        }
+
+        // Verify token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        
+        // Get user
+        const user = await User.findById(decoded.userId);
+        if (!user) {
+            return res.status(401).json({ error: 'Invalid token' });
+        }
+
+        // Attach user to request
+        req.user = user;
         next();
-    } else {
-        res.status(401).json({
-            isAuthenticated: false,
-            message: 'User not authenticated'
-        });
+    } catch (error) {
+        console.error('Auth middleware error:', error);
+        res.status(401).json({ error: 'Invalid token' });
     }
-}
-
-module.exports = {
-    isAuthenticated,
-    checkAuth
 };

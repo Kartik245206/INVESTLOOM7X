@@ -1,5 +1,4 @@
-
-const mongoose = require('mongoose');
+﻿const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
@@ -11,30 +10,36 @@ const connectDB = async () => {
     
     console.log('[database] Connecting to MongoDB...');
     
-    await mongoose.connect(mongoURI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 5000, // Timeout after 5 seconds
-      heartbeatFrequencyMS: 10000, // Check connection every 10 seconds
-    });
-    
-    // Handle initial connection errors
-    mongoose.connection.on('error', (error) => {
-      console.error('[database] MongoDB connection error:', error);
-      throw error;
-    });
-
-    // Handle errors after initial connection
-    mongoose.connection.on('disconnected', () => {
-      console.error('[database] Lost MongoDB connection. Retrying...');
+    const formattedURI = mongoURI.replace(/\+/g, '%2B');
+    await mongoose.connect(formattedURI, {
+      serverSelectionTimeoutMS: 30000,
+      socketTimeoutMS: 45000,
+      connectTimeoutMS: 30000,
+      ssl: true,
+      directConnection: true,
+      replicaSet: 'atlas-oncirn-shard-0',
+      authSource: 'admin'
     });
 
     console.log('[database] MongoDB connected successfully');
+
+    mongoose.connection.on('error', (err) => {
+      console.error('[database] MongoDB connection error:', err);
+    });
+
+    mongoose.connection.on('disconnected', () => {
+      console.log('[database] MongoDB disconnected. Attempting to reconnect...');
+    });
+
+    mongoose.connection.on('reconnected', () => {
+      console.log('[database] MongoDB reconnected successfully');
+    });
+
   } catch (error) {
     console.error('[database] MongoDB connection error:', error);
-    console.error('[database] Error stack:', error.stack);
-    throw error; // Let the server handle the error instead of exiting
+    process.exit(1);
   }
 };
 
+// Export the connection function
 module.exports = connectDB;
