@@ -1,9 +1,9 @@
-const mongoose = require('mongoose');
+﻿const mongoose = require('mongoose');
+const { connections } = require('../config/database');
 
-const transactionSchema = new mongoose.Schema({
+const TransactionSchema = new mongoose.Schema({
     userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        type: String,  // Store user ID as string since it's from different database
         required: true
     },
     productId: {
@@ -13,17 +13,31 @@ const transactionSchema = new mongoose.Schema({
     },
     amount: {
         type: Number,
-        required: true
+        required: true,
+        min: 0
+    },
+    transactionId: {
+        type: String,
+        required: true,
+        unique: true
     },
     status: {
         type: String,
-        enum: ['pending', 'completed', 'failed'],
-        default: 'pending'
+        enum: ['PENDING', 'COMPLETED', 'FAILED'],
+        default: 'PENDING'
+    },
+    upiId: {
+        type: String,
+        required: true
     },
     createdAt: {
         type: Date,
         default: Date.now
+    },
+    completedAt: {
+        type: Date
     }
 });
 
-module.exports = mongoose.model('Transaction', transactionSchema);
+// Create the model using the products connection
+module.exports = connections.products.model('Transaction', TransactionSchema);

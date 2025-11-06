@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+﻿const mongoose = require('mongoose');
+const { connections } = require('../config/database');
 
 const UserSchema = new mongoose.Schema({
     username: {
@@ -51,4 +51,5 @@ UserSchema.methods.updateLastLogin = function() {
     return this.save();
 };
 
-module.exports = mongoose.model('User', UserSchema);
+// Create the model using the users connection
+module.exports = connections.users.model('User', UserSchema);
