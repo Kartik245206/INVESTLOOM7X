@@ -9,7 +9,7 @@ const session = require('express-session');
 const passport = require('passport');
 
 // Connect to MongoDB
-const connectDB = require('./config/database');
+const connectDB = require('./config/db');
 connectDB().catch(err => {
     console.error(' MongoDB connection error:', err);
     process.exit(1);
