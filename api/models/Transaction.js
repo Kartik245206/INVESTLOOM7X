@@ -1,5 +1,5 @@
-﻿const mongoose = require('mongoose');
-const { connections } = require('../config/database');
+const mongoose = require('mongoose');
+const { connections } = require('../../config/database');
 
 const TransactionSchema = new mongoose.Schema({
     userId: {
@@ -40,4 +40,5 @@ const TransactionSchema = new mongoose.Schema({
 });
 
 // Create the model using the products connection
-module.exports = connections.products.model('Transaction', TransactionSchema);
+// Fallback to default mongoose connection if connections.products is not available
+module.exports = connections.products ? connections.products.model('Transaction', TransactionSchema) : mongoose.model('Transaction', TransactionSchema);

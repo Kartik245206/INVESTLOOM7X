@@ -1,5 +1,5 @@
 ﻿const mongoose = require('mongoose');
-const { connections } = require('../config/database');
+const { connections } = require('../../config/database');
 
 const UserSchema = new mongoose.Schema({
     username: {
@@ -52,4 +52,5 @@ UserSchema.methods.updateLastLogin = function() {
 };
 
 // Create the model using the users connection
-module.exports = connections.users.model('User', UserSchema);
+// Fallback to default mongoose connection if connections.users is not available
+module.exports = connections.users ? connections.users.model('User', UserSchema) : mongoose.model('User', UserSchema);

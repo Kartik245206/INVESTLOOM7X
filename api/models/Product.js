@@ -1,5 +1,5 @@
-﻿const mongoose = require('mongoose');
-const { connections } = require('../config/database');
+const mongoose = require('mongoose');
+const { connections } = require('../../config/database');
 
 const ProductSchema = new mongoose.Schema({
     name: {
@@ -34,4 +34,5 @@ const ProductSchema = new mongoose.Schema({
 });
 
 // Create the model using the products connection
-module.exports = connections.products.model('Product', ProductSchema);
+// Fallback to default mongoose connection if connections.products is not available
+module.exports = connections.products ? connections.products.model('Product', ProductSchema) : mongoose.model('Product', ProductSchema);

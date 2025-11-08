@@ -1,4 +1,4 @@
-﻿const mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
 const validateMongoURI = (uri) => {
   if (!uri) return false;
@@ -89,9 +89,7 @@ const connectDB = async () => {
 
   } catch (error) {
     console.error('\n[database] Configuration Error:\n', error.message);
-    if (process.env.NODE_ENV !== 'production') {
-      process.exit(1);
-    }
+    throw error; // Re-throw the error so the server can handle it
   }
 };
 

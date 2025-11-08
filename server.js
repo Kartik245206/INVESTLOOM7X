@@ -1,4 +1,4 @@
-﻿require('dotenv').config();
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -8,12 +8,7 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const passport = require('passport');
 
-// Connect to MongoDB
-const connectDB = require('./config/db');
-connectDB().catch(err => {
-    console.error(' MongoDB connection error:', err);
-    process.exit(1);
-});
+const { connectDB } = require('./config/database');
 
 const app = express();
 
@@ -51,22 +46,6 @@ app.use(helmet({
     crossOriginEmbedderPolicy: false
 }));
 
-// Load routes
-const authRoutes = require('./api/auth-routes');
-const productRoutes = require('./api/products');
-const purchaseRoutes = require('./api/purchase');
-const transactionRoutes = require('./api/transactions');
-const withdrawRoutes = require('./api/withdraw');
-const adminRoutes = require('./api/admin');
-
-// Mount routes
-app.use('/api/auth', authRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/purchase', purchaseRoutes);
-app.use('/api/transactions', transactionRoutes);
-app.use('/api/withdraw', withdrawRoutes);
-app.use('/api/admin', adminRoutes);
-
 // Views directory
 const VIEWS_DIR = path.join(__dirname, 'templatemo_577_liberty_market', 'templatemo_577_liberty_market');
 app.use(express.static(VIEWS_DIR));
@@ -79,8 +58,46 @@ app.use((err, req, res, next) => {
     res.status(500).json({ error: 'Server error' });
 });
 
-// Start server
-const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => {
-    console.log(` Server running on port ${PORT}`);
-});
+const startServer = async () => {
+    try {
+        // Connect to DB
+        try {
+            await connectDB();
+            console.log('Database connected successfully');
+        } catch (dbError) {
+            console.warn('Dual database connection failed, falling back to single connection...');
+            const connectSingleDB = require('./config/db');
+            await connectSingleDB();
+            console.log('Single database connection established');
+        }
+
+        // Load routes
+        const authRoutes = require('./api/auth-routes');
+        const productRoutes = require('./api/products');
+        const purchaseRoutes = require('./api/purchase');
+        const transactionRoutes = require('./api/transactions');
+        const withdrawRoutes = require('./api/withdraw');
+        const adminRoutes = require('./api/admin');
+
+        // Mount routes
+        app.use('/api/auth', authRoutes);
+        app.use('/api/products', productRoutes);
+        app.use('/api/purchase', purchaseRoutes);
+        app.use('/api/transactions', transactionRoutes);
+        app.use('/api/withdraw', withdrawRoutes);
+        app.use('/api/admin', adminRoutes);
+
+        // Start server
+        const PORT = process.env.PORT || 4000;
+        app.listen(PORT, () => {
+            console.log(`Server running on port ${PORT}`);
+        });
+
+    } catch (error) {
+        console.error('Failed to start server:', error);
+        process.exit(1);
+    }
+};
+
+// Start the server
+startServer();
