@@ -6,8 +6,6 @@ const { body, validationResult } = require('express-validator');
 const { authLimiter } = require('../middleware/security');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const passport = require('passport');
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
 // Configure Google OAuth Strategy (if credentials are provided)
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
