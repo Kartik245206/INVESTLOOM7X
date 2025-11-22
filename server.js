@@ -29,21 +29,51 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 
-// Security headers with Helmet
+// Security headers with Helmet - COMPREHENSIVE CONFIGURATION
 app.use(helmet({
-    // Disable CSP for now - it was causing false "Dangerous site" warnings
-    // Can be re-enabled later with proper configuration
-    contentSecurityPolicy: false,
+    // Enable comprehensive Content Security Policy
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: [
+                "'self'",
+                "'unsafe-inline'",  // Required for inline scripts - will refactor later
+                "https://cdn.jsdelivr.net",
+                "https://cdnjs.cloudflare.com"
+            ],
+            styleSrc: [
+                "'self'",
+                "'unsafe-inline'",  // Required for inline styles
+                "https://cdn.jsdelivr.net",
+                "https://cdnjs.cloudflare.com"
+            ],
+            imgSrc: ["'self'", "data:", "https:"],
+            fontSrc: ["'self'", "https://cdnjs.cloudflare.com"],
+            connectSrc: ["'self'"],
+            frameSrc: ["'none'"],
+            objectSrc: ["'none'"],
+            upgradeInsecureRequests: []
+        }
+    },
 
-    // Keep these important security headers
+    // HTTP Strict Transport Security
     hsts: {
         maxAge: 31536000, // 1 year
         includeSubDomains: true,
         preload: true
     },
+
+    // Referrer Policy
+    referrerPolicy: {
+        policy: 'strict-origin-when-cross-origin'
+    },
+
+    // Frame protection
     frameguard: {
         action: 'deny'
     },
+
+    // Additional security headers
     noSniff: true,
     xssFilter: true,
     dnsPrefetchControl: true,
@@ -79,6 +109,22 @@ app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
+
+// Session configuration (required for passport)
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'your-session-secret-change-in-production',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
+}));
+
+// Initialize Passport
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Security middleware
 app.use(mongoSanitize()); // Prevent NoSQL injection
