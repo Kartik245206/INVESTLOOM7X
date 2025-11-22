@@ -28,21 +28,14 @@ if (process.env.NODE_ENV === 'production') {
     });
 }
 
+
 // Security headers with Helmet
 app.use(helmet({
-    contentSecurityPolicy: {
-        directives: {
-            defaultSrc: ["'self'"],
-            styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
-            imgSrc: ["'self'", "data:", "https:", "blob:"],
-            fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdn.jsdelivr.net"],
-            connectSrc: ["'self'", "https://investloom7x.onrender.com"],
-            frameSrc: ["'none'"],
-            objectSrc: ["'none'"],
-            upgradeInsecureRequests: process.env.NODE_ENV === 'production' ? [] : null,
-        },
-    },
+    // Disable CSP for now - it was causing false "Dangerous site" warnings
+    // Can be re-enabled later with proper configuration
+    contentSecurityPolicy: false,
+
+    // Keep these important security headers
     hsts: {
         maxAge: 31536000, // 1 year
         includeSubDomains: true,
@@ -53,6 +46,9 @@ app.use(helmet({
     },
     noSniff: true,
     xssFilter: true,
+    dnsPrefetchControl: true,
+    ieNoOpen: true,
+    hidePoweredBy: true
 }));
 
 // CORS configuration
