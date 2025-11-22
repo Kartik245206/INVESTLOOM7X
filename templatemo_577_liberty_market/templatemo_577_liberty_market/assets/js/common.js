@@ -11,9 +11,9 @@ window.API_BASE = window.API_BASE || ((window.location.hostname === 'localhost' 
  * @param {object} options - Fetch options
  * @returns {Promise<any>}
  */
-window.fetchWithAuth = async function(endpoint, options = {}) {
+window.fetchWithAuth = async function (endpoint, options = {}) {
     const token = localStorage.getItem('token');
-    
+
     const headers = {
         'Content-Type': 'application/json',
         ...options.headers
@@ -30,13 +30,13 @@ window.fetchWithAuth = async function(endpoint, options = {}) {
 
     try {
         const response = await fetch(`${window.API_BASE}${endpoint}`, config);
-        
+
         if (response.status === 401) {
             // Unauthorized - clear token and redirect
             localStorage.removeItem('token');
             localStorage.removeItem('currentUser');
             if (window.location.pathname.includes('profile.html') || window.location.pathname.includes('trading-activity.html')) {
-                 window.location.href = 'auth/login.html';
+                window.location.href = 'auth/login.html';
             }
             throw new Error('Unauthorized');
         }
@@ -63,7 +63,7 @@ function handleWithdrawal() {
         window.location.href = 'auth/login.html'; // Fixed path
         return;
     }
-    
+
     // Show withdrawal modal
     const withdrawModal = new bootstrap.Modal(document.getElementById('withdrawalModal')); // Fixed ID to match HTML
     if (withdrawModal) {
@@ -74,7 +74,7 @@ function handleWithdrawal() {
 }
 
 // Add event listeners
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const menuTrigger = document.querySelector('.menu-trigger');
     const sideNav = document.querySelector('.side-nav');
     if (menuTrigger && sideNav) {
@@ -109,16 +109,16 @@ function handleProductPurchase(productId) {
         window.location.href = 'auth/login.html'; // Fixed path
         return;
     }
-    
+
     // Get product details
     const products = JSON.parse(localStorage.getItem('products') || '[]');
     const product = products.find(p => p.id == productId);
-    
+
     if (!product) {
         alert('Product not found!');
         return;
     }
-    
+
     // Show purchase confirmation
     if (confirm(`Are you sure you want to purchase ${product.name} for ₹${product.price}?`)) {
         // Simulate purchase process
@@ -127,12 +127,12 @@ function handleProductPurchase(productId) {
             method: 'POST',
             body: JSON.stringify({ productId: product.id })
         }).then(res => {
-             alert(`Thank you for purchasing ${product.name}. Your investment has been recorded.`);
-             // Update local state if needed
+            alert(`Thank you for purchasing ${product.name}. Your investment has been recorded.`);
+            // Update local state if needed
         }).catch(err => {
             // Fallback for demo/static mode
-             console.warn('Purchase API failed, using local simulation', err);
-             alert(`Thank you for purchasing ${product.name}. Your investment has been recorded (Demo Mode).`);
+            console.warn('Purchase API failed, using local simulation', err);
+            alert(`Thank you for purchasing ${product.name}. Your investment has been recorded (Demo Mode).`);
         });
     }
 }

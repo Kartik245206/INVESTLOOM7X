@@ -30,13 +30,23 @@
 
     "crypto-js": "^4.2.0",
 
+    "csurf": "^1.11.0",
+
     "dotenv": "^10.0.0",
 
     "express": "^4.17.1",
 
+    "express-mongo-sanitize": "^2.2.0",
+
+    "express-rate-limit": "^8.2.1",
+
     "express-session": "^1.18.2",
 
+    "express-validator": "^7.3.1",
+
     "helmet": "^4.6.0",
+
+    "hpp": "^0.2.3",
 
     "isomorphic-fetch": "^3.0.0",
 

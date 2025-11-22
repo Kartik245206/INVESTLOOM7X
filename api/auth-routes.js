@@ -2,21 +2,47 @@
 const router = express.Router();
 const User = require('./models/User');
 const jwt = require('jsonwebtoken');
+const { body, validationResult } = require('express-validator');
+const { authLimiter } = require('../middleware/security');
 
-// Regular signup route
-router.post('/signup', async (req, res) => {
+// Apply rate limiting to all auth routes
+router.use(authLimiter);
+
+// Regular signup route with validation
+router.post('/signup', [
+    body('username').trim().isLength({ min: 3, max: 30 }).escape(),
+    body('email').isEmail().normalizeEmail(),
+    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+    body('phoneNumber').matches(/^\+?[\d\s-]{10,}$/).withMessage('Invalid phone number'),
+    body('upiId').optional().trim().escape()
+], async (req, res) => {
     try {
-        const { username, phoneNumber, upiId } = req.body;
-
-        // Check if username already exists
-        const existingUser = await User.findOne({ username });
-        if (existingUser) {
-            return res.status(400).json({ error: 'Username already exists' });
+        // Check for validation errors
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ error: errors.array()[0].msg });
         }
 
-        // Create new user
+        const { username, email, password, phoneNumber, upiId } = req.body;
+
+        // Check if username or email already exists
+        const existingUser = await User.findOne({
+            $or: [{ username }, { email }]
+        });
+
+        if (existingUser) {
+            return res.status(400).json({
+                error: existingUser.username === username
+                    ? 'Username already exists'
+                    : 'Email already exists'
+            });
+        }
+
+        // Create new user (password will be hashed by pre-save hook)
         const user = await User.create({
             username,
+            email,
+            password,
             phoneNumber,
             upiId,
             accountType: 'email',
@@ -26,7 +52,7 @@ router.post('/signup', async (req, res) => {
         // Generate JWT token
         const token = jwt.sign(
             { userId: user._id },
-            process.env.JWT_SECRET,
+            process.env.JWT_SECRET || 'your-secret-key-change-in-production',
             { expiresIn: '24h' }
         );
 
@@ -35,6 +61,7 @@ router.post('/signup', async (req, res) => {
             user: {
                 id: user._id,
                 username: user.username,
+                email: user.email,
                 phoneNumber: user.phoneNumber,
                 upiId: user.upiId
             },
@@ -46,15 +73,37 @@ router.post('/signup', async (req, res) => {
     }
 });
 
-// Login route
-router.post('/login', async (req, res) => {
+// Login route with validation
+router.post('/login', [
+    body('email').isEmail().normalizeEmail(),
+    body('password').notEmpty().withMessage('Password is required')
+], async (req, res) => {
     try {
-        const { username, phoneNumber } = req.body;
+        // Check for validation errors
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ error: errors.array()[0].msg });
+        }
 
-        // Find user by username and phone number
-        const user = await User.findOne({ username, phoneNumber });
+        const { email, password } = req.body;
+
+        // Find user by email and include password field
+        const user = await User.findOne({ email }).select('+password');
+
         if (!user) {
-            return res.status(401).json({ error: 'Invalid credentials' });
+            return res.status(401).json({ error: 'Invalid email or password' });
+        }
+
+        // Check if user has a password (not OAuth user)
+        if (!user.password) {
+            return res.status(401).json({ error: 'Please login with Google' });
+        }
+
+        // Verify password
+        const isPasswordValid = await user.comparePassword(password);
+
+        if (!isPasswordValid) {
+            return res.status(401).json({ error: 'Invalid email or password' });
         }
 
         // Update last login
@@ -63,7 +112,7 @@ router.post('/login', async (req, res) => {
         // Generate JWT token
         const token = jwt.sign(
             { userId: user._id },
-            process.env.JWT_SECRET,
+            process.env.JWT_SECRET || 'your-secret-key-change-in-production',
             { expiresIn: '24h' }
         );
 
@@ -72,6 +121,7 @@ router.post('/login', async (req, res) => {
             user: {
                 id: user._id,
                 username: user.username,
+                email: user.email,
                 phoneNumber: user.phoneNumber,
                 upiId: user.upiId
             },
@@ -91,7 +141,10 @@ router.get('/me', async (req, res) => {
             return res.status(401).json({ error: 'No token provided' });
         }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(
+            token,
+            process.env.JWT_SECRET || 'your-secret-key-change-in-production'
+        );
         const user = await User.findById(decoded.userId);
 
         if (!user) {
@@ -103,6 +156,7 @@ router.get('/me', async (req, res) => {
             user: {
                 id: user._id,
                 username: user.username,
+                email: user.email,
                 phoneNumber: user.phoneNumber,
                 upiId: user.upiId
             }
@@ -130,3 +184,4 @@ router.post('/logout', (req, res) => {
 });
 
 module.exports = router;
+

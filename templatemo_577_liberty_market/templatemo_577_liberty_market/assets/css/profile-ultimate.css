@@ -172,6 +172,7 @@ body {
     margin-bottom: 5px;
     background: linear-gradient(to right, #fff, #a5a5a5);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 

@@ -8,26 +8,88 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const passport = require('passport');
 const connectDB = require('./config/db');
+const hpp = require('hpp');
+const mongoSanitize = require('express-mongo-sanitize');
+const { apiLimiter } = require('./middleware/security');
 
 const app = express();
 
-// Enable CORS for all routes
-const corsOptions = {
-    origin: 'http://localhost:8080',
-    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+// Trust proxy - important for rate limiting behind reverse proxies
+app.set('trust proxy', 1);
+
+// HTTPS redirect for production
+if (process.env.NODE_ENV === 'production') {
+    app.use((req, res, next) => {
+        if (req.header('x-forwarded-proto') !== 'https') {
+            res.redirect(`https://${req.header('host')}${req.url}`);
+        } else {
+            next();
+        }
+    });
 }
+
+// Security headers with Helmet
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+            imgSrc: ["'self'", "data:", "https:", "blob:"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdn.jsdelivr.net"],
+            connectSrc: ["'self'", "https://investloom7x.onrender.com"],
+            frameSrc: ["'none'"],
+            objectSrc: ["'none'"],
+            upgradeInsecureRequests: process.env.NODE_ENV === 'production' ? [] : null,
+        },
+    },
+    hsts: {
+        maxAge: 31536000, // 1 year
+        includeSubDomains: true,
+        preload: true
+    },
+    frameguard: {
+        action: 'deny'
+    },
+    noSniff: true,
+    xssFilter: true,
+}));
+
+// CORS configuration
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',')
+    : ['http://localhost:8080', 'http://localhost:4000'];
+
+const corsOptions = {
+    origin: function (origin, callback) {
+        // Allow requests with no origin (mobile apps, Postman, etc.)
+        if (!origin) return callback(null, true);
+
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    optionsSuccessStatus: 200,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+};
+
 app.use(cors(corsOptions));
 
 // Body parser middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
-// Security
-// app.use(helmet({
-//     contentSecurityPolicy: false,
-//     crossOriginEmbedderPolicy: false
-// }));
+// Security middleware
+app.use(mongoSanitize()); // Prevent NoSQL injection
+app.use(hpp()); // Prevent HTTP Parameter Pollution
+
+// Apply rate limiting to all API routes
+app.use('/api/', apiLimiter);
 
 // Views directory
 const VIEWS_DIR = path.join(__dirname, 'templatemo_577_liberty_market', 'templatemo_577_liberty_market');
@@ -38,7 +100,13 @@ app.use('/Host-WEB', express.static(path.join(VIEWS_DIR, 'Host-WEB')));
 // Error handler
 app.use((err, req, res, next) => {
     console.error('Error:', err);
-    res.status(500).json({ error: 'Server error' });
+
+    // Don't leak error details in production
+    if (process.env.NODE_ENV === 'production') {
+        res.status(500).json({ error: 'Server error' });
+    } else {
+        res.status(500).json({ error: err.message, stack: err.stack });
+    }
 });
 
 const startServer = async () => {

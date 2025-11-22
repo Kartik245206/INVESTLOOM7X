@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,14 +16,16 @@
             justify-content: center;
             padding: 20px;
         }
+
         .auth-container {
             background: rgba(255, 255, 255, 0.95);
             padding: 40px;
             border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
             max-width: 500px;
             width: 100%;
         }
+
         .google-btn {
             background: #fff;
             color: #757575;
@@ -38,19 +41,23 @@
             width: 100%;
             margin-bottom: 20px;
         }
+
         .google-btn:hover {
             background: #f1f1f1;
             border-color: #ccc;
         }
+
         .google-btn img {
             width: 24px;
             height: 24px;
         }
+
         .or-divider {
             text-align: center;
             position: relative;
             margin: 20px 0;
         }
+
         .or-divider::before,
         .or-divider::after {
             content: '';
@@ -60,16 +67,23 @@
             height: 1px;
             background: #ddd;
         }
-        .or-divider::before { left: 0; }
-        .or-divider::after { right: 0; }
+
+        .or-divider::before {
+            left: 0;
+        }
+
+        .or-divider::after {
+            right: 0;
+        }
     </style>
 </head>
+
 <body>
     <div class="auth-container">
         <h2 class="text-center mb-4">Create Account</h2>
-        
+
         <div id="alertMessage" class="alert" style="display: none;"></div>
-        
+
         <!-- Google Sign Up Button -->
         <button onclick="window.location.href='/api/auth/google'" class="google-btn">
             <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google Logo">
@@ -87,10 +101,22 @@
                 <input type="text" class="form-control" id="username" required minlength="3" maxlength="30">
             </div>
             <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" required minlength="6">
+                <small class="form-text text-muted">Minimum 6 characters</small>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Confirm Password</label>
+                <input type="password" class="form-control" id="confirmPassword" required minlength="6">
+            </div>
+            <div class="mb-3">
                 <label class="form-label">Phone Number</label>
-                <input type="tel" class="form-control" id="phoneNumber" required 
-                       pattern="^\+?[\d\s-]{10,}$" 
-                       title="Please enter a valid phone number (minimum 10 digits)">
+                <input type="tel" class="form-control" id="phoneNumber" required pattern="^\+?[\d\s-]{10,}$"
+                    title="Please enter a valid phone number (minimum 10 digits)">
             </div>
             <div class="mb-3">
                 <label class="form-label">UPI ID (Optional)</label>
@@ -105,7 +131,7 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Check if user is already logged in
             fetch('/api/auth/status')
                 .then(res => res.json())
@@ -113,17 +139,28 @@
                     if (data.isAuthenticated) {
                         window.location.href = '/profile.html';
                     }
-                });
+                })
+                .catch(err => console.log('Not logged in'));
 
             // Handle signup form
-            document.getElementById('signupForm').addEventListener('submit', async function(e) {
+            document.getElementById('signupForm').addEventListener('submit', async function (e) {
                 e.preventDefault();
-                
+
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+
+                // Check if passwords match
+                if (password !== confirmPassword) {
+                    showAlert('Passwords do not match', 'danger');
+                    return;
+                }
+
                 const formData = {
                     username: document.getElementById('username').value,
+                    email: document.getElementById('email').value,
+                    password: password,
                     phoneNumber: document.getElementById('phoneNumber').value,
-                    upiId: document.getElementById('upiId').value || null,
-                    accountType: 'email'
+                    upiId: document.getElementById('upiId').value || null
                 };
 
                 try {
@@ -159,4 +196,5 @@
         }
     </script>
 </body>
+
 </html>

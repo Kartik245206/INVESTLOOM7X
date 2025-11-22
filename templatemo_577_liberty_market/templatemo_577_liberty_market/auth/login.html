@@ -120,9 +120,6 @@
         }
 
         document.addEventListener('DOMContentLoaded', function () {
-            // Check if user is already logged in
-            // Note: This check should ideally use the full API path too
-
             // Handle regular login form
             document.getElementById('loginForm').addEventListener('submit', async function (e) {
                 e.preventDefault();
@@ -131,7 +128,6 @@
                 const password = document.getElementById('password').value;
 
                 try {
-                    // Use generic fetchWithAuth if available, or construct URL
                     const apiBase = window.API_BASE || 'https://investloom7x.onrender.com';
                     const response = await fetch(`${apiBase}/api/auth/login`, {
                         method: 'POST',
@@ -159,18 +155,6 @@
                     }
                 } catch (error) {
                     console.error('Login error:', error);
-                    // Fallback for demo/offline
-                    if (email && password) {
-                        // Mock login
-                        localStorage.setItem('token', 'demo-token');
-                        localStorage.setItem('currentUser', JSON.stringify({
-                            username: email.split('@')[0],
-                            email: email,
-                            balance: 0
-                        }));
-                        window.location.href = '../profile.html';
-                        return;
-                    }
                     showAlert('An error occurred. Please try again.', 'danger');
                 }
             });
