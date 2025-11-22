@@ -7,44 +7,27 @@ const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const passport = require('passport');
-
-const { connectDB } = require('./config/database');
+const connectDB = require('./config/db');
 
 const app = express();
 
-// Configure CORS
-app.use(cors({
-    origin: [
-        'http://localhost:3000',
-        'http://localhost:8000',
-        'http://127.0.0.1:3000',
-        'http://127.0.0.1:8000',
-        'https://investloom7x.onrender.com'
-    ],
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
-}));
+// Enable CORS for all routes
+const corsOptions = {
+    origin: 'http://localhost:8080',
+    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+}
+app.use(cors(corsOptions));
 
-// Session configuration
-app.use(session({
-    secret: process.env.SESSION_SECRET || 'your_session_secret',
-    resave: false,
-    saveUninitialized: false,
-    cookie: { secure: process.env.NODE_ENV === 'production' }
-}));
-
-app.use(passport.initialize());
-app.use(passport.session());
+// Body parser middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // Security
-app.use(helmet({
-    contentSecurityPolicy: false,
-    crossOriginEmbedderPolicy: false
-}));
+// app.use(helmet({
+//     contentSecurityPolicy: false,
+//     crossOriginEmbedderPolicy: false
+// }));
 
 // Views directory
 const VIEWS_DIR = path.join(__dirname, 'templatemo_577_liberty_market', 'templatemo_577_liberty_market');
@@ -61,15 +44,8 @@ app.use((err, req, res, next) => {
 const startServer = async () => {
     try {
         // Connect to DB
-        try {
-            await connectDB();
-            console.log('Database connected successfully');
-        } catch (dbError) {
-            console.warn('Dual database connection failed, falling back to single connection...');
-            const connectSingleDB = require('./config/db');
-            await connectSingleDB();
-            console.log('Single database connection established');
-        }
+        await connectDB();
+        console.log('Single database connection established');
 
         // Load routes
         const authRoutes = require('./api/auth-routes');
@@ -77,7 +53,7 @@ const startServer = async () => {
         const purchaseRoutes = require('./api/purchase');
         const transactionRoutes = require('./api/transactions');
         const withdrawRoutes = require('./api/withdraw');
-        const adminRoutes = require('./api/admin');
+
 
         // Mount routes
         app.use('/api/auth', authRoutes);
@@ -85,7 +61,7 @@ const startServer = async () => {
         app.use('/api/purchase', purchaseRoutes);
         app.use('/api/transactions', transactionRoutes);
         app.use('/api/withdraw', withdrawRoutes);
-        app.use('/api/admin', adminRoutes);
+
 
         // Start server
         const PORT = process.env.PORT || 4000;

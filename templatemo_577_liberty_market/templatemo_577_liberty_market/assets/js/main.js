@@ -1,97 +1,11 @@
-// Product loading functionality
-async function loadHomePageProducts() {
-    const productContainer = document.getElementById('productContainer');
-    if (!productContainer) {
-        console.error('Product container not found!');
-        return;
-    }
+// Product loading functionality (consolidated)
+// Determine API base once
+const API_BASE_DETECTED = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'http://localhost:4000'
+    : 'https://investloom7x.onrender.com';
 
-    // Show loading state
-    productContainer.innerHTML = `
-        <div class="col-12 text-center">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-            <p class="mt-2">Loading investment plans...</p>
-        </div>
-    `;
-
-    try {
-        console.log('Loading products...');
-        const apiUrl = typeof API_BASE !== 'undefined' 
-            ? `${API_BASE}/api/products`
-            : 'https://investloom7x.onrender.com/api/products';
-            
-        console.log('Fetching from:', apiUrl);
-        const response = await fetch(apiUrl);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        console.log('Products data:', data);
-
-        const productContainer = document.getElementById('productContainer');
-        if (!productContainer) {
-            console.error('Product container not found!');
-            return;
-        }
-
-        if (data.success && data.products && data.products.length > 0) {
-            const productHTML = data.products.map(product => `
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="item">
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <span class="author">
-                                    <img src="${product.imageUrl || 'assets/images/default-product.png'}" alt="${product.name}" style="width: 50px; height: 50px; object-fit: cover;">
-                                    <h6>${product.name}</h6>
-                                </span>
-                            </div>
-                            <div class="col-lg-12">
-                                <div class="line-dec"></div>
-                                <div class="row">
-                                    <div class="col-6">
-                                        <span class="price">Price: ₹${product.price}</span>
-                                    </div>
-                                    <div class="col-6">
-                                        <span class="earnings">Daily: ₹${product.dailyEarning}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-lg-12">
-                                <div class="main-button">
-                                    <a href="javascript:void(0)" onclick="purchaseProduct('${product._id}')">Purchase Now</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-            
-            productContainer.innerHTML = productHTML;
-        } else {
-            productContainer.innerHTML = '<div class="col-12"><p class="text-center">No products available at the moment.</p></div>';
-        }
-    } catch (error) {
-        console.error('Error loading products:', error);
-        const productContainer = document.getElementById('productContainer');
-        if (productContainer) {
-            productContainer.innerHTML = `
-                <div class="col-12 text-center">
-                    <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-circle"></i>
-                        Error loading products. Please try again later.
-                    </div>
-                    <button class="btn btn-primary mt-3" onclick="loadHomePageProducts()">
-                        <i class="fas fa-sync-alt"></i> Retry
-                    </button>
-                </div>
-            `;
-        }
-    }
-}
+// Ensure global API base is set BEFORE any DOMContentLoaded listeners fire
+window.API_BASE = window.API_BASE || API_BASE_DETECTED;
 
 // Constants
 const UPI_APPS = {
@@ -100,10 +14,49 @@ const UPI_APPS = {
     'paytm': 'net.one97.paytm'
 };
 
+const SAMPLE_PRODUCTS = [
+    {
+        _id: 'sample-1',
+        name: 'Basic Investment Plan',
+        category: 'Starter',
+        price: 1000,
+        dailyEarning: 50,
+        duration: 100,
+        description: 'Perfect for beginners looking to start their investment journey.',
+        imageUrl: 'assets/images/discover-01.jpg',
+        isActive: true
+    },
+    {
+        _id: 'sample-2',
+        name: 'Premium Investment Plan',
+        category: 'Advanced',
+        price: 5000,
+        dailyEarning: 300,
+        duration: 100,
+        description: 'For experienced investors seeking higher returns.',
+        imageUrl: 'assets/images/discover-02.jpg',
+        isActive: true
+    },
+    {
+        _id: 'sample-3',
+        name: 'Elite Investment Plan',
+        category: 'Professional',
+        price: 10000,
+        dailyEarning: 700,
+        duration: 100,
+        description: 'Maximum returns for professional investors.',
+        imageUrl: 'assets/images/discover-03.jpg',
+        isActive: true
+    }
+];
+
 // Initialize everything when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     console.log('DOM Loaded - Initializing...');
-    
+
+    // API base is already set globally at script load time
+    const API_BASE = window.API_BASE;
+
     // Core initialization
     if (typeof auth !== 'undefined') {
         auth.initSession();
@@ -112,78 +65,24 @@ document.addEventListener('DOMContentLoaded', function() {
         initializeUI();
     }
     if (typeof testAPIConnection === 'function') {
-        testAPIConnection();
+        testAPIConnection(API_BASE);
     }
 
     // Load products
     loadHomePageProducts();
-    async function loadHomePageProducts() {
-        try {
-            const response = await fetch('https://investloom7x.onrender.com/api/products');
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const data = await response.json();
-            const productContainer = document.getElementById('productContainer');
-            if (!productContainer) {
-                console.error('Product container not found');
-                return;
-            }
-            if (data.products && data.products.length > 0) {
-                const productHTML = data.products.map(product => `
-                    <div class="col-lg-4">
-                        <div class="item">
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <span class="author">
-                                        <img src="${product.imageUrl || 'assets/images/default-product.png'}" alt="${product.name}">
-                                        <h6>${product.name}</h6>
-                                    </span>
-                                </div>
-                                <div class="col-lg-12">
-                                    <div class="line-dec"></div>
-                                    <div class="row">
-                                        <div class="col-6">
-                                            <span>Price: ₹${product.price}</span>
-                                        </div>
-                                        <div class="col-6">
-                                            <span>Daily Earning: ₹${product.dailyEarning}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-12">
-                                    <div class="main-button">
-                                        <a href="javascript:void(0)" onclick="purchaseProduct('${product._id}')">Purchase Now</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-                productContainer.innerHTML = productHTML;
-            } else {
-                productContainer.innerHTML = '<p class="text-center">No products available</p>';
-            }
-        } catch (error) {
-            console.error('Error loading products:', error);
-            const productContainer = document.getElementById('productContainer');
-            if (productContainer) {
-                productContainer.innerHTML = '<p class="text-center text-danger">Error loading products. Please try again later.</p>';
-            }
-        }
-    }
-    
-    // Initial load and set up refresh
-    loadHomePageProducts();
-    setInterval(loadHomePageProducts, 30000);
-    
+
+    // Set up refresh every 30 seconds
+    setInterval(() => loadHomePageProducts(), 30000);
+
     // Setup UI and user info
     handleResponsiveLayout();
     updateUserAccountInfo();
-    setActiveNavItem();
-    
+
     // Event listeners
     window.addEventListener('resize', handleResponsiveLayout);
+
+    // Set active nav item after a short delay to ensure DOM is ready
+    setTimeout(setActiveNavItem, 100);
 });
 
 // UI Initialization Functions
@@ -191,12 +90,12 @@ function initializeCategoryItems() {
     const filterButtons = document.querySelectorAll('.filter-btn');
     if (filterButtons) {
         filterButtons.forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function () {
                 // Remove active class from all buttons
                 filterButtons.forEach(btn => btn.classList.remove('active'));
                 // Add active class to clicked button
                 this.classList.add('active');
-                
+
                 const filter = this.getAttribute('data-filter');
                 filterProducts(filter);
             });
@@ -218,7 +117,6 @@ function filterProducts(filter) {
 
 function initializeUI() {
     initializeCategoryItems();
-    loadHomePageProducts();
 }
 
 function setActiveNavItem() {
@@ -231,7 +129,7 @@ function setActiveNavItem() {
 function handleResponsiveLayout() {
     const isMobile = window.innerWidth <= 768;
     const productContainer = document.querySelector('.currently-market-items');
-    
+
     if (productContainer) {
         productContainer.style.gridTemplateColumns = isMobile ? '1fr' : 'repeat(auto-fit, minmax(300px, 1fr))';
         productContainer.style.gap = isMobile ? '10px' : '15px';
@@ -243,23 +141,23 @@ function handleResponsiveLayout() {
 function updateUserAccountInfo() {
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
     const userAccountInfo = document.querySelector('.user-account-info');
-    
+
     if (!userAccountInfo) return;
-    
+
     if (currentUser) {
         userAccountInfo.style.display = 'flex';
         userAccountInfo.style.cursor = 'pointer';
-        
+
         const userProfilePic = document.getElementById('userProfilePic');
         if (userProfilePic && currentUser.profilePic) {
             userProfilePic.src = currentUser.profilePic;
         }
-        
+
         const userBalanceAmount = document.getElementById('userBalanceAmount');
         if (userBalanceAmount) {
             userBalanceAmount.textContent = '₹' + (currentUser.balance || 0);
         }
-        
+
         userAccountInfo.addEventListener('click', () => window.location.href = 'profile.html');
     } else {
         userAccountInfo.style.display = 'none';
@@ -267,30 +165,74 @@ function updateUserAccountInfo() {
 }
 
 // Product Loading Functions
-async function loadHomePageProducts() {
+async function loadHomePageProducts(API_BASE = window.API_BASE) {
     const productContainer = document.querySelector('#productContainer');
     if (!productContainer) {
         console.error('Product container not found');
         return;
     }
 
-    try {
+    // Show loading state only if empty
+    if (!productContainer.innerHTML.trim()) {
         showLoadingState(productContainer);
-        
-        // Use the common API_BASE URL
-        const response = await fetch(`${API_BASE}/api/products`);
-        const data = await response.json();
-        
-        console.log('Products API Response:', data);
+    }
 
-        if (!data.success || !data.products) {
-            throw new Error('Invalid product data received');
+    try {
+        const primaryBase = API_BASE || window.API_BASE || API_BASE_DETECTED;
+        console.log('Attempting to load products from:', primaryBase);
+
+        // Helper with timeout
+        const fetchWithTimeout = async (url, timeout = 5000) => {
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), timeout);
+            try {
+                const res = await fetch(url, {
+                    headers: { 'Accept': 'application/json' },
+                    signal: controller.signal
+                });
+                clearTimeout(id);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return res.json();
+            } catch (err) {
+                clearTimeout(id);
+                throw err;
+            }
+        };
+
+        let data;
+        try {
+            data = await fetchWithTimeout(`${primaryBase}/api/products`);
+        } catch (err1) {
+            console.warn('Primary API failed:', err1);
+            const fallbackBase = 'https://investloom7x.onrender.com';
+            if (primaryBase !== fallbackBase) {
+                try {
+                    console.log('Trying fallback API...');
+                    data = await fetchWithTimeout(`${fallbackBase}/api/products`);
+                    window.API_BASE = fallbackBase;
+                } catch (err2) {
+                    console.warn('Fallback API failed:', err2);
+                    throw err2; // Trigger outer catch
+                }
+            } else {
+                throw err1;
+            }
         }
 
-        renderProducts(data.products, productContainer);
+        if (data && data.success && Array.isArray(data.products)) {
+            console.log('Products loaded from API');
+            localStorage.setItem('products', JSON.stringify(data.products));
+            renderProducts(data.products, productContainer);
+            return;
+        }
+
+        throw new Error('Invalid API response');
+
     } catch (error) {
-        console.error('Failed to load products:', error);
-        showErrorState(error, productContainer);
+        console.error('Failed to load products (using fallback):', error);
+        // Fallback to sample products immediately
+        localStorage.setItem('products', JSON.stringify(SAMPLE_PRODUCTS));
+        renderProducts(SAMPLE_PRODUCTS, productContainer);
     }
 }
 
@@ -307,7 +249,7 @@ function renderProducts(products, container) {
         <div class="col-lg-4 col-md-6">
             <div class="item">
                 <div class="left-image">
-                    <img src="${product.imageUrl}" alt="${product.name}" />
+                    <img src="${product.imageUrl || 'assets/images/discover-01.jpg'}" alt="${product.name}" onerror="this.src='assets/images/discover-01.jpg'; this.onerror=null;" />
                 </div>
                 <div class="right-content">
                     <h4>${product.name}</h4>
@@ -331,15 +273,34 @@ function renderProducts(products, container) {
 }
 
 // API Functions
-async function testAPIConnection() {
+async function testAPIConnection(API_BASE = window.API_BASE) {
     try {
-        const response = await fetch(`${API_BASE}/api/products`);
-        const data = await response.json();
-        console.log('API Connection Test:', {
+        const primaryBase = API_BASE || window.API_BASE || API_BASE_DETECTED;
+        let baseUsed = primaryBase;
+        let response;
+        try {
+            response = await fetch(`${primaryBase}/api/products`, { headers: { 'Accept': 'application/json' } });
+        } catch (e1) {
+            const fallbackBase = 'https://investloom7x.onrender.com';
+            if (primaryBase !== fallbackBase) {
+                baseUsed = fallbackBase;
+                response = await fetch(`${fallbackBase}/api/products`, { headers: { 'Accept': 'application/json' } });
+                window.API_BASE = fallbackBase;
+            } else {
+                throw e1;
+            }
+        }
+        const info = {
+            base: baseUsed,
             status: response.status,
             ok: response.ok,
-            dataReceived: !!data
-        });
+            contentType: response.headers.get('content-type') || 'unknown'
+        };
+        let data = null;
+        if (info.ok && (info.contentType || '').includes('application/json')) {
+            data = await response.json();
+        }
+        console.log('API Connection Test:', { ...info, dataReceived: !!data });
     } catch (error) {
         console.error('API Connection Test Failed:', error);
     }
@@ -357,14 +318,14 @@ function showLoadingState(container) {
     `;
 }
 
-function showErrorState(error, container) {
+function showErrorState(error, container, API_BASE) {
     container.innerHTML = `
         <div class="col-12 text-center">
             <div class="alert alert-danger">
                 <i class="fas fa-exclamation-circle fa-2x mb-3"></i>
                 <h4>Unable to load products</h4>
                 <p>${error.message}</p>
-                <button onclick="loadHomePageProducts()" class="btn btn-primary mt-3">
+                <button onclick="loadHomePageProducts('${API_BASE}')" class="btn btn-primary mt-3">
                     <i class="fas fa-sync-alt"></i> Try Again
                 </button>
             </div>

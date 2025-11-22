@@ -99,7 +99,7 @@ async function saveProduct() {
             price: Number(formData.get('price')),
             dailyEarning: Number(formData.get('dailyEarning')),
             description: formData.get('description'),
-            imageUrl: formData.get('imageUrl') || 'assets/images/placeholder.jpg',
+            imageUrl: formData.get('imageUrl') || '../assets/images/discover-01.jpg',
             status: 'active'
         };
 
@@ -187,10 +187,10 @@ function updateProductListUI(products) {
 
     productList.innerHTML = products.map(product => `
         <div class="product-card">
-            <img src="${product.imageUrl || '../assets/images/placeholder.jpg'}" 
+            <img src="${product.imageUrl || '../assets/images/discover-01.jpg'}" 
                  alt="${product.name}" 
                  class="product-image"
-                 onerror="this.src='../assets/images/placeholder.jpg'">
+                 onerror="this.src='../assets/images/discover-01.jpg'; this.onerror=null;">
             <h4>${product.name}</h4>
             <p class="text-muted">${product.category || 'Uncategorized'}</p>
             <p><strong>Price:</strong> ₹${product.price}</p>

@@ -1,11 +1,17 @@
 // Navigation Functions
 async function checkAuthStatus() {
     try {
-        const response = await fetch('/api/auth/status');
+        const response = await fetch('/api/auth/status', { credentials: 'include' });
+        if (!response.ok) {
+            return false;
+        }
+        const ct = response.headers.get('content-type') || '';
+        if (!ct.includes('application/json')) {
+            return false;
+        }
         const data = await response.json();
-        return data.isAuthenticated;
+        return !!data.isAuthenticated;
     } catch (error) {
-        console.error('Auth check failed:', error);
         return false;
     }
 }
@@ -94,13 +100,20 @@ document.addEventListener('DOMContentLoaded', function() {
         'trading-activity.html': true
     };
 
-    // Add click handlers for navigation links
+    // Add click handlers for protected navigation links (skip bottom nav)
     document.querySelectorAll('a').forEach(link => {
         const href = link.getAttribute('href');
-        if (href && protectedRoutes[href.split('/').pop()]) {
+        const isBottomNav = link.closest('.bottom-nav') !== null;
+        const isProtected = href && protectedRoutes[href.split('/').pop()];
+        const markedProtected = link.getAttribute('data-protected') === 'true';
+        if (!isBottomNav && (isProtected || markedProtected)) {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
-                handleProtectedNavigation(href);
+                try {
+                    handleProtectedNavigation(href);
+                } catch (err) {
+                    window.location.href = href;
+                }
             });
         }
     });
@@ -119,8 +132,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Initialize side navigation
-    initializeSideNav();
+    // Initialize side navigation if available
+    try {
+        if (typeof window.initializeSideNav === 'function') {
+            window.initializeSideNav();
+        }
+    } catch (e) {}
 
     // Force show main navigation
     const mainNav = document.getElementById('mainNavMenu');
@@ -333,11 +350,12 @@ function handleLogout() {
 document.addEventListener('click', function(event) {
     const sideNav = document.querySelector('.side-nav');
     const menuTrigger = document.querySelector('.menu-trigger');
-    
-    if (sideNav.classList.contains('active') && 
-        !sideNav.contains(event.target) && 
+    if (!sideNav || !menuTrigger) return;
+    if (sideNav.classList.contains('active') &&
+        !sideNav.contains(event.target) &&
         !menuTrigger.contains(event.target)) {
-        toggleMobileMenu();
+        sideNav.classList.remove('active');
+        menuTrigger.classList.remove('active');
     }
 });
 
@@ -350,41 +368,41 @@ document.addEventListener('DOMContentLoaded', () => {
     const userBalance = document.getElementById('userBalance');
     const logoutBtn = document.getElementById('logoutBtn');
 
-    // Check if user is logged in
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     const userToken = localStorage.getItem('userToken');
 
     if (isLoggedIn && userToken) {
-        userSection.style.display = 'block';
-        authButtons.style.display = 'none';
-        
-        // Fetch user data
+        if (userSection) userSection.style.display = 'block';
+        if (authButtons) authButtons.style.display = 'none';
         fetchUserData();
-        // Start balance update interval
-        setInterval(fetchUserBalance, 30000); // Update every 30 seconds
+        setInterval(fetchUserBalance, 30000);
     } else {
-        userSection.style.display = 'none';
-        authButtons.style.display = 'block';
+        if (userSection) userSection.style.display = 'none';
+        if (authButtons) authButtons.style.display = 'block';
     }
 
     // Toggle dropdown
-    avatarBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        userDropdown.classList.toggle('show');
-    });
+    if (avatarBtn && userDropdown) {
+        avatarBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            userDropdown.classList.toggle('show');
+        });
+    }
 
     // Close dropdown when clicking outside
     document.addEventListener('click', (e) => {
-        if (!avatarBtn.contains(e.target)) {
+        if (avatarBtn && userDropdown && !avatarBtn.contains(e.target)) {
             userDropdown.classList.remove('show');
         }
     });
 
     // Handle logout
-    logoutBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        logout();
-    });
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            logout();
+        });
+    }
 
     // Fetch user data from API
     async function fetchUserData() {
@@ -396,9 +414,10 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             const data = await response.json();
             
-            userName.textContent = data.name;
+            if (userName) userName.textContent = data.name;
             if (data.avatar) {
-                document.getElementById('userAvatar').src = data.avatar;
+                const avatar = document.getElementById('userAvatar');
+                if (avatar) avatar.src = data.avatar;
             }
         } catch (error) {
             console.error('Error fetching user data:', error);
@@ -414,7 +433,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
             const data = await response.json();
-            userBalance.textContent = `₹${data.balance.toFixed(2)}`;
+            if (userBalance) userBalance.textContent = `₹${data.balance.toFixed(2)}`;
         } catch (error) {
             console.error('Error fetching balance:', error);
         }
@@ -472,6 +491,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const sideNav = document.querySelector('.side-nav');
     const navHandle = document.getElementById('navHandle');
     const sideNavOverlay = document.getElementById('sideNavOverlay');
+    if (!sideNav || !navHandle || !sideNavOverlay) {
+        return;
+    }
     const navIcon = navHandle.querySelector('i');
 
     // Function to toggle side nav
@@ -488,8 +510,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const isActive = sideNav.classList.contains('active');
 
         sideNavOverlay.style.display = isActive ? 'block' : 'none';
-        navIcon.classList.toggle('{{', !isActive);
-        navIcon.classList.toggle('}}', isActive);
+        if (navIcon) {
+            navIcon.classList.toggle('{{', !isActive);
+            navIcon.classList.toggle('}}', isActive);
+        }
     }
 
     // Click on arrow button

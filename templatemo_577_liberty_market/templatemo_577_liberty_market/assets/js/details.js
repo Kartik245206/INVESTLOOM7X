@@ -1,7 +1,7 @@
 // Constants
 const API_CONFIG = {
     BASE_URL: window.location.hostname.includes('localhost') ? 
-        'http://localhost:3000' : 'https://liberty-market.onrender.com',
+        'http://localhost:4000' : 'https://investloom7x.onrender.com',
     RAZORPAY_KEY: 'rzp_test_PCS9GocYLB1wd'
 };
 

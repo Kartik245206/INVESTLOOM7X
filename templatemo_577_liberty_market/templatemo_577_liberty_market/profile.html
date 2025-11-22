@@ -1,427 +1,567 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>User Profile - Liberty Market</title>
+
+    <!-- Core CSS -->
     <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/fontawesome.css">
-    <link rel="stylesheet" href="assets/css/templatemo-liberty-market.css">
-    <link rel="stylesheet" href="assets/css/desktop-only.css">
+    <link href="assets/css/fontawesome.css" rel="stylesheet">
+    <link href="assets/css/templatemo-liberty-market.css" rel="stylesheet">
     <link href="assets/css/utils/variables.css" rel="stylesheet">
     <link href="assets/css/navigation.css" rel="stylesheet">
     <link href="assets/css/components/modals.css" rel="stylesheet">
-    <link href="assets/css/components/cards.css" rel="stylesheet">
-    <link href="assets/css/components/forms.css" rel="stylesheet">
-    <script src="common/footer-nav.html" defer></script>
 
-    <!-- Font Awesome Icons -->
+    <!-- Ultimate Profile CSS -->
+    <link href="assets/css/profile-ultimate.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="assets/js/common.js"></script>
-    <style>
-        /* Additional styles to fix layout issues */
-        .profile-container {
-            padding: 20px 15px;
-        }
-        .profile-card {
-            margin-bottom: 20px;
-            overflow: hidden;
-        }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        @media (max-width: 768px) {
-            .stats-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-        @media (max-width: 576px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-    </head>
-<body>
-    <header class="main-nav">
-        <a href="index.html" class="logo">
-            <img src="assets/images/logo.png" alt="INVESTLOOM7X">
-        </a>
+</head>
 
-        </header>
+<body>
+    <div class="bg-animation"></div>
+
+    <div class="main-content">
+        <!-- Header Section -->
+        <div class="profile-header-section">
+            <div class="vip-ring-container">
+                <svg class="vip-svg" viewBox="0 0 150 150">
+                    <circle class="vip-circle-bg" cx="75" cy="75" r="70"></circle>
+                    <circle class="vip-circle-progress" cx="75" cy="75" r="70"></circle>
+                </svg>
+                <img id="userProfilePic" src="assets/images/default-avatar.png" alt="Profile" class="profile-pic">
+                <div class="vip-badge">VIP 1</div>
+            </div>
+
+            <h2 class="user-name" id="username">Loading...</h2>
+            <div class="user-email" id="userEmail">user@example.com</div>
+
+            <div class="balance-container">
+                <div class="balance-label">Total Balance</div>
+                <div class="balance-amount" id="totalBalanceDisplay">₹0.00</div>
+                <div class="balance-trend"><i class="fas fa-arrow-up"></i> +12.5% this week</div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <div class="action-circle" onclick="openDepositModal()">
+                    <div class="circle-btn"><i class="fas fa-plus"></i></div>
+                    <span class="action-label">Deposit</span>
+                </div>
+                <div class="action-circle" onclick="handleWithdrawal()">
+                    <div class="circle-btn"><i class="fas fa-arrow-down"></i></div>
+                    <span class="action-label">Withdraw</span>
+                </div>
+                <div class="action-circle" id="dailyCheckinBtn">
+                    <div class="circle-btn"><i class="fas fa-calendar-check"></i></div>
+                    <span class="action-label">Check-in</span>
+                </div>
+                <div class="action-circle" onclick="shareProfile()">
+                    <div class="circle-btn"><i class="fas fa-share-alt"></i></div>
+                    <span class="action-label">Share</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Carousel -->
+        <div class="stats-carousel">
+            <div class="stat-card accent-1">
+                <div class="stat-icon"><i class="fas fa-coins"></i></div>
+                <h4 id="dailyEarnings">₹0</h4>
+                <span>Daily Earnings</span>
+            </div>
+            <div class="stat-card accent-2">
+                <div class="stat-icon"><i class="fas fa-wallet"></i></div>
+                <h4 id="totalWithdrawn">₹0</h4>
+                <span>Total Withdrawn</span>
+            </div>
+            <div class="stat-card accent-3">
+                <div class="stat-icon"><i class="fas fa-chart-pie"></i></div>
+                <h4 id="activeInvestments">0</h4>
+                <span>Active Plans</span>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                <h4>0</h4>
+                <span>Referrals</span>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="glass-card">
+            <div class="custom-tabs">
+                <div class="tab-btn active" onclick="switchTab('investments')">Investments</div>
+                <div class="tab-btn" onclick="switchTab('transactions')">Transactions</div>
+                <div class="tab-btn" onclick="switchTab('analytics')">Analytics</div>
+            </div>
+
+            <!-- Investments Tab -->
+            <div id="investments-tab" class="tab-content-area">
+                <div id="investmentList">
+                    <!-- Loaded via JS -->
+                </div>
+            </div>
+
+            <!-- Transactions Tab -->
+            <div id="transactions-tab" class="tab-content-area" style="display: none;">
+                <div id="transactionList">
+                    <!-- Loaded via JS -->
+                </div>
+            </div>
+
+            <!-- Analytics Tab -->
+            <div id="analytics-tab" class="tab-content-area" style="display: none;">
+                <div class="chart-container">
+                    <canvas id="earningsChart"></canvas>
+                </div>
+                <div class="mt-4">
+                    <h5 class="mb-3">Portfolio Allocation</h5>
+                    <div class="chart-container" style="height: 200px;">
+                        <canvas id="allocationChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Link -->
+        <div class="text-center mb-4">
+            <button class="btn btn-outline-secondary btn-sm rounded-pill px-4" onclick="logout()">
+                <i class="fas fa-sign-out-alt me-2"></i>Logout
+            </button>
+        </div>
+    </div>
 
     <!-- Bottom Navigation -->
     <nav class="bottom-nav">
         <a href="index.html" class="nav-item">
-            <i class="fas fa-home"></i><br>
-            <span>Home</span>
+            <i class="fas fa-home"></i><br><span>Home</span>
         </a>
-        <a href="profile.html" class="nav-item">
-            <i class="fas fa-wallet"></i><br>
-            <span>Wallet</span>
+        <a href="#" class="nav-item active">
+            <i class="fas fa-user"></i><br><span>Profile</span>
         </a>
         <a href="trading-activity.html" class="nav-item">
-            <i class="fas fa-chart-line"></i><br>
-            <span>Activity</span>
-        </a>
-        <a href="profile.html" class="nav-item active">
-            <i class="fas fa-user"></i><br>
-            <span>Profile</span>
+            <i class="fas fa-chart-line"></i><br><span>Activity</span>
         </a>
     </nav>
 
-    <!-- Add this after the header section and before the profile-container -->
-<div class="settings-wrapper">
-    <button class="settings-toggle" onclick="toggleSettings()">
-        <i class="fas fa-cog"></i>
-    </button>
-    
-    <div class="settings-menu" id="settingsMenu">
-        <div class="settings-header">
-            <h4>Settings</h4>
-            <button onclick="toggleSettings()" class="close-settings">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        
-        <div class="settings-options">
-            <a href="#" onclick="openProfileEdit()">
-                <i class="fas fa-user-edit"></i>
-                Edit Profile
-            </a>
-            <a href="#" onclick="openThemeSettings()">
-                <i class="fas fa-palette"></i>
-                Change Theme
-            </a>
-            <a href="#" onclick="openUPISettings()">
-                <i class="fas fa-money-bill-wave"></i>
-                Update UPI
-            </a>
-            <a href="#" onclick="shareProfile()">
-                <i class="fas fa-share-alt"></i>
-                Share Profile
-            </a>
-            <a href="#" onclick="checkUpdates()">
-                <i class="fas fa-sync"></i>
-                Check Updates
-            </a>
-            <a href="Host-WEB/admin_dashboard.html" class="admin-option">
-                <i class="fas fa-user-shield"></i>
-                Admin Dashboard
-            </a>
-        </div>
-    </div>
-</div>
-
-    <div class="profile-container">
-        <div class="container">
-            <div class="row g-3">
-
-                <!-- Profile Header -->
-                <div class="col-12 col-lg-12">
-                    <div class="profile-card">
-                        <div class="profile-header" >
-                            <div class="profile-pic">
-                                <img id="userProfilePic" src="assets/images/default-avatar.png" alt="Profile Picture" class="img-fluid rounded-circle">
-                                <div class="edit-pic" onclick="document.getElementById('profilePicInput').click()">
-                                    <i class="fa fa-camera"></i>
-                                </div>
-                                <input type="file" id="profilePicInput" hidden accept="image/*" onchange="updateProfilePic(this)">
-                            </div>
-                            <div class="profile-info">
-                                <h2 class="mb-2" id="username"></h2>
-                                
-                                <div class="profile-balance p-3 rounded">
-                                    <div class="balance-title h5 mb-2">Total Balance</div>
-                                    <div class="balance-amount h3 mb-2" id="totalBalanceDisplay">₹0</div>
-                                </div>
-                            </div>
-                        </div>
+    <!-- Deposit Modal -->
+    <div class="modal fade" id="depositModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white border-secondary">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">Add Funds</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Amount (₹)</label>
+                        <input type="number" id="depositAmount" class="form-control bg-secondary text-white border-0"
+                            min="100" placeholder="Enter amount">
+                    </div>
+                    <div class="alert alert-info bg-opacity-10 border-info text-info">
+                        <small><i class="fas fa-info-circle"></i> Minimum deposit amount is ₹100.</small>
                     </div>
                 </div>
-
-                <!-- Stats Cards -->
-                <div class="col-6 col-md-3">
-                    <div class="stats-card">
-                        <h4 class="h6 mb-2">Current Balance</h4>
-                        <h2 class="h4 mb-0" id="currentBalance">₹{userBalance}</h2>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="stats-card">
-                        <h4 class="h6 mb-2">Daily Earnings</h4>
-                        <h2 class="h4 mb-0" id="dailyEarnings">₹0/day</h2>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="stats-card">
-                        <h4 class="h6 mb-2">Total Withdrawn</h4>
-                        <h2 class="h4 mb-0" id="totalWithdrawn">₹0</h2>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="stats-card">
-                        <h4 class="h6 mb-2">Available for Withdrawal</h4>
-                        <h2 class="h4 mb-0" id="availableForWithdrawal"></h2>
-                        <small class="text-muted d-block mt-2">Min. withdrawal: ₹500</small>
-                    </div>
-                </div>
-
-                <!-- Main Content -->
-                <div class="col-6 col-md-3">
-
-                    <div class="profile-card">
-                        <ul class="nav nav-pills mb-4" role="tablist">
-                            <li class="nav-item">
-                                <a class="nav-link active" data-bs-toggle="pill" href="#transactions">Transactions</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" data-bs-toggle="pill" href="#banking">Banking Details</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" data-bs-toggle="pill" href="#purchased"><i class="fas fa-shopping-bag"></i> My Products</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" data-bs-toggle="pill" href="#settings"><i class="fas fa-cog"></i> Settings</a>
-                            </li>
-                        </ul>
-
-                        <div class="tab-content">
-                            <div id="transactions" class="tab-pane fade show active">
-                                <div id="transactionList">
-                                    <!-- Transactions will be loaded here -->
-                                </div>
-                                <button class="btn btn-primary mt-3" id="withdrawBtn" onclick="handleWithdrawal()">
-                                    Withdraw Balance
-                                </button>
-                            </div>
-
-                            <div id="banking" class="tab-pane fade">
-                                <form id="bankDetailsForm" onsubmit="updateBankInfo(event)">
-                                    <div class="mb-3">
-                                        <label class="form-label">Account Number</label>
-                                        <input type="text" class="form-control" id="accountNumber" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">IFSC Code</label>
-                                        <input type="text" class="form-control" id="ifscCode" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Bank Name</label>
-                                        <input type="text" class="form-control" id="bankName" required>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary">Update Bank Details</button>
-                                </form>
-                            </div>
-
-                            <div id="purchased" class="tab-pane fade">
-                                <h4 class="mb-4"><i class="fa fa-shopping-bag"></i> My Purchased Products</h4>
-                                <div class="row" id="purchasedProductsList">
-                                    <!-- Purchased products will be loaded here -->
-                                    <div class="col-12 text-center" id="noPurchasesMessage">
-                                        <p>You haven't purchased any products yet.</p>
-                                        <a href="index.html" class="btn btn-primary">Browse Products</a>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div id="settings" class="tab-pane fade">
-                                <h4 class="mb-4"><i class="fa fa-cog"></i> Account Settings</h4>
-                                <form id="settingsForm" onsubmit="updateProfile(event)">
-                                    <div class="mb-3">
-                                        <label class="form-label">Full Name</label>
-                                        <input type="text" class="form-control" id="fullName" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Phone Number</label>
-                                        <input type="tel" class="form-control" id="phone" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">UPI ID</label>
-                                        <input type="text" class="form-control" id="upiId" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Notification Preferences</label>
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
-                                            <label class="form-check-label" for="emailNotifications">Email Notifications</label>
-                                        </div>
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="smsNotifications">
-                                            <label class="form-check-label" for="smsNotifications">SMS Notifications</label>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Theme Preference</label>
-                                        <select class="form-select" id="themePreference">
-                                            <option value="light">Light</option>
-                                            <option value="dark">Dark</option>
-                                            <option value="system">System Default</option>
-                                        </select>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary">Update Profile</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Add this in your profile page where you show balance -->
-                <div class="balance-section">
-                    <h3>Your Balance</h3>
-                    <h2 id="currentBalance">₹0.00</h2>
-                    <button class="btn btn-primary" onclick="initiateWithdrawal()">Withdraw Funds</button>
-                </div>
-
-                <!-- Add this in your profile actions section -->
-                <div class="profile-action-buttons">
-                    <button class="btn btn-primary" onclick="showWithdrawModal()">
-                        <i class="fas fa-money-bill-transfer"></i> Withdraw
-                    </button>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="processDeposit()">Proceed</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="vendor/jquery/jquery.min.js"></script>
-    <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
-    <script src="assets/js/common.js"></script>
-    <script src="auth/auth.js"></script>
-    <!-- Add this script at the end of the file -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            auth.initSession();
-        });
-    </script>
-
     <!-- Withdrawal Modal -->
-    <div class="modal fade" id="withdrawalModal" tabindex="-1" aria-labelledby="withdrawalModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="withdrawalModalLabel">Withdraw Funds</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <form id="withdrawalForm">
-              <div class="mb-3">
-                <label for="withdrawalAmount" class="form-label">Withdrawal Amount (₹)</label>
-                <input type="number" class="form-control" id="withdrawalAmount" min="500" required>
-                <small class="text-muted">Available Balance: <span id="withdrawalBalance">₹0</span></small>
-              </div>
-              
-              <div class="mb-3">
-                <label class="form-label">Withdrawal Method</label>
-                <div class="form-check">
-                  <input class="form-check-input" type="radio" name="withdrawalMethod" id="methodBank" value="bank" checked>
-                  <label class="form-check-label" for="methodBank">
-                    Bank Transfer
-                  </label>
+    <div class="modal fade" id="withdrawalModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white border-secondary">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">Withdraw Funds</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="form-check">
-                  <input class="form-check-input" type="radio" name="withdrawalMethod" id="methodUPI" value="upi">
-                  <label class="form-check-label" for="methodUPI">
-                    UPI Transfer
-                  </label>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Amount (₹)</label>
+                        <input type="number" class="form-control bg-secondary text-white border-0" id="withdrawalAmount"
+                            min="500">
+                        <div class="form-text text-muted">Available: <span id="withdrawalBalance">₹0</span></div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Method</label>
+                        <select class="form-select bg-secondary text-white border-0" id="withdrawalMethod">
+                            <option value="bank">Bank Transfer</option>
+                            <option value="upi">UPI</option>
+                        </select>
+                    </div>
                 </div>
-              </div>
-              
-              <div id="bankDetails">
-                <div class="mb-3">
-                  <label for="accountName" class="form-label">Account Holder Name</label>
-                  <input type="text" class="form-control" id="accountName">
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="processWithdrawal()">Withdraw</button>
                 </div>
-                <div class="mb-3">
-                  <label for="accountNumber" class="form-label">Account Number</label>
-                  <input type="text" class="form-control" id="accountNumber">
-                </div>
-                <div class="mb-3">
-                  <label for="ifscCode" class="form-label">IFSC Code</label>
-                  <input type="text" class="form-control" id="ifscCode">
-                </div>
-              </div>
-              
-              <div id="upiDetails" style="display: none;">
-                <div class="mb-3">
-                  <label for="upiId" class="form-label">UPI ID</label>
-                  <input type="text" class="form-control" id="upiId" placeholder="example@upi">
-                </div>
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="button" class="btn btn-primary" onclick="processWithdrawal()">Withdraw</button>
-          </div>
+            </div>
         </div>
-      </div>
     </div>
 
-    <script>
-      // Toggle withdrawal method details
-      document.querySelectorAll('input[name="withdrawalMethod"]').forEach(radio => {
-        radio.addEventListener('change', function() {
-          if (this.value === 'bank') {
-            document.getElementById('bankDetails').style.display = 'block';
-            document.getElementById('upiDetails').style.display = 'none';
-          } else {
-            document.getElementById('bankDetails').style.display = 'none';
-            document.getElementById('upiDetails').style.display = 'block';
-          }
-        });
-      });
-    </script>
+    <!-- Scripts -->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/authRedirect.js"></script>
     <script src="assets/js/navigation.js"></script>
+
     <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    
-    if (currentUser) {
-        // Show logged in user's data
-        document.getElementById('username').textContent = currentUser.username;
-        document.getElementById('userBalance').textContent = '₹' + (currentUser.balance || 0);
-        if (currentUser.profilePic) {
-            document.getElementById('profilePic').src = currentUser.profilePic;
+        document.addEventListener('DOMContentLoaded', async function () {
+            await loadProfileData();
+            setupEventListeners();
+            initCharts();
+        });
+
+        // UPI Configuration
+        const UPI_CONFIG = {
+            merchantId: 'kum444kartik@oksbi',
+            merchantName: 'InvestLoom7x'
+        };
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content-area').forEach(el => el.style.display = 'none');
+            document.getElementById(tabName + '-tab').style.display = 'block';
+
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
         }
-    } else {
-        // Show guest view
-        document.getElementById('username').textContent = 'Guest User';
-        document.getElementById('userBalance').textContent = '₹0';
-        document.getElementById('profilePic').src = 'assets/images/author.jpg';
-        
-        // Show login/signup buttons
-        document.querySelector('.profile-actions').innerHTML = `
-            <a href="auth/login.html" class="btn btn-primary">Login</a>
-            <a href="auth/signup.html" class="btn btn-secondary">Sign Up</a>
-        `;
-        
-        // Hide sensitive features
-        document.querySelectorAll('.requires-auth').forEach(el => el.style.display = 'none');
-    }
-});
 
+        async function loadProfileData() {
+            const user = JSON.parse(localStorage.getItem('currentUser')) || {};
+            if (!user.username) {
+                window.location.href = 'auth/login.html';
+                return;
+            }
 
-function updateUserData() {
-  fetch('/api/users/profile', {
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('token')}`
-    }
-  })
-  .then(res => res.json())
-  .then(data => {
-    document.getElementById('userBalance').textContent = `₹${data.balance}`;
-    document.getElementById('dailyEarnings').textContent = `₹${data.dailyEarnings}/day`;
-    document.getElementById('totalWithdrawn').textContent = `₹${data.totalWithdrawn}`;
-    document.getElementById('availableForWithdrawal').textContent = `₹${data.availableForWithdrawal}`;
-  });
-}
+            // Header Data
+            document.getElementById('username').textContent = user.username;
+            document.getElementById('userEmail').textContent = user.email || 'user@example.com';
+            document.getElementById('totalBalanceDisplay').textContent = `₹${user.balance || 0}`;
+            document.getElementById('withdrawalBalance').textContent = `₹${user.balance || 0}`;
+            document.getElementById('dailyEarnings').textContent = `₹${user.dailyEarnings || 0}`;
+            document.getElementById('totalWithdrawn').textContent = `₹${user.totalWithdrawn || 0}`;
 
-// Update every minute
-setInterval(updateUserData, 60000);
-</script>
+            if (user.profilePic) document.getElementById('userProfilePic').src = user.profilePic;
 
+            // Count Active Investments
+            const investments = JSON.parse(localStorage.getItem('investments') || '[]');
+            const activeCount = investments.filter(i => i.status === 'active').length;
+            document.getElementById('activeInvestments').textContent = activeCount;
+
+            renderInvestments(investments);
+            renderTransactions();
+        }
+
+        function renderInvestments(investments) {
+            const list = document.getElementById('investmentList');
+            if (investments.length === 0) {
+                list.innerHTML = '<div class="text-center text-muted py-4">No active investments</div>';
+                return;
+            }
+
+            list.innerHTML = investments.map(inv => {
+                const progress = Math.floor(Math.random() * 100); // Simulated progress
+                return `
+                <div class="investment-card">
+                    <div class="inv-header">
+                        <span class="inv-title">${inv.name}</span>
+                        <span class="inv-badge">${inv.status}</span>
+                    </div>
+                    <div class="inv-stats">
+                        <div>
+                            <span>Invested</span>
+                            <strong>₹${inv.price}</strong>
+                        </div>
+                        <div class="text-end">
+                            <span>Daily</span>
+                            <strong class="text-success">+₹${inv.dailyEarning}</strong>
+                        </div>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: ${progress}%"></div>
+                    </div>
+                    <div class="d-flex justify-content-between text-muted small">
+                        <span>${progress}% Completed</span>
+                        <span>${inv.duration} Days Left</span>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function renderTransactions() {
+            const txns = JSON.parse(localStorage.getItem('transactions') || '[]');
+            const list = document.getElementById('transactionList');
+
+            if (txns.length === 0) {
+                list.innerHTML = '<div class="text-center text-muted py-4">No transactions yet</div>';
+                return;
+            }
+
+            list.innerHTML = '<div class="txn-group-label">Recent Activity</div>' + txns.map((t, index) => {
+                const isDeposit = t.type === 'deposit';
+                const icon = isDeposit ? 'fa-arrow-down' : 'fa-arrow-up';
+                const color = isDeposit ? 'text-success' : 'text-danger';
+                const bg = isDeposit ? 'rgba(0,255,157,0.1)' : 'rgba(255,56,96,0.1)';
+                const statusColor = t.status === 'completed' ? 'text-success' : (t.status === 'pending' ? 'text-warning' : 'text-danger');
+
+                // Admin Approve Button (Simulation Only)
+                let actionBtn = '';
+                if (t.status === 'pending' && isDeposit) {
+                    actionBtn = `<button class="btn btn-xs btn-outline-warning ms-2" onclick="simulateAdminApproval(${index})">Simulate Approval</button>`;
+                }
+
+                return `
+                <div class="txn-item">
+                    <div class="txn-icon-box" style="color: ${isDeposit ? '#00ff9d' : '#ff3860'}; background: ${bg}">
+                        <i class="fas ${icon}"></i>
+                    </div>
+                    <div class="txn-info">
+                        <div class="txn-name">
+                            ${t.type === 'deposit' ? 'Deposit' : 'Withdrawal'} 
+                            <span class="small ${statusColor}">(${t.status})</span>
+                            ${actionBtn}
+                        </div>
+                        <div class="txn-time">${new Date(t.date).toLocaleDateString()}</div>
+                    </div>
+                    <div class="txn-amount ${color} fw-bold">
+                        ${isDeposit ? '+' : '-'}₹${t.amount}
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function initCharts() {
+            // Earnings Chart
+            const ctx = document.getElementById('earningsChart').getContext('2d');
+            const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+            gradient.addColorStop(0, 'rgba(112, 0, 255, 0.5)');
+            gradient.addColorStop(1, 'rgba(112, 0, 255, 0)');
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Earnings',
+                        data: [150, 230, 180, 320, 290, 450, 500],
+                        borderColor: '#7000ff',
+                        backgroundColor: gradient,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { display: false },
+                        x: { grid: { display: false }, ticks: { color: '#8b9bb4' } }
+                    }
+                }
+            });
+
+            // Allocation Chart
+            const ctx2 = document.getElementById('allocationChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Crypto', 'Stocks', 'Forex'],
+                    datasets: [{
+                        data: [55, 30, 15],
+                        backgroundColor: ['#7000ff', '#00f3ff', '#ff0055'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { color: '#fff' } }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        function setupEventListeners() {
+            const checkinBtn = document.getElementById('dailyCheckinBtn');
+            if (checkinBtn) {
+                checkinBtn.addEventListener('click', function () {
+                    const user = JSON.parse(localStorage.getItem('currentUser'));
+                    const meta = JSON.parse(localStorage.getItem('profileMeta') || '{}');
+                    const today = new Date().toDateString();
+
+                    if (meta.lastCheckin === today) {
+                        alert('Already checked in today!');
+                        return;
+                    }
+
+                    user.balance = (user.balance || 0) + 10;
+                    localStorage.setItem('currentUser', JSON.stringify(user));
+                    localStorage.setItem('profileMeta', JSON.stringify({ lastCheckin: today }));
+
+                    loadProfileData();
+                    alert('Check-in successful! +₹10');
+                });
+            }
+        }
+
+        function openDepositModal() {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            if (!user.upiId) {
+                const upiId = prompt("Please enter your UPI ID to link with your account (Required for transactions):");
+                if (upiId) {
+                    user.upiId = upiId;
+                    localStorage.setItem('currentUser', JSON.stringify(user));
+                    alert("UPI ID linked successfully!");
+                } else {
+                    alert("You must link a UPI ID to deposit funds.");
+                    return;
+                }
+            }
+            new bootstrap.Modal(document.getElementById('depositModal')).show();
+        }
+
+        async function processDeposit() {
+            const amt = parseFloat(document.getElementById('depositAmount').value);
+            if (!amt || amt < 100) { alert('Invalid amount (Min ₹100)'); return; }
+
+            const btn = document.querySelector('#depositModal .btn-primary');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+            try {
+                // 1. Launch UPI Intent
+                if (isMobileDevice()) {
+                    launchUPIIntent(amt, 'txn_' + Date.now());
+                } else {
+                    alert(`Please pay ₹${amt} to UPI ID: ${UPI_CONFIG.merchantId}\n\n(On mobile, this would open your UPI app automatically)`);
+                }
+
+                // 2. Record Transaction as PENDING (Waiting for Owner Confirmation)
+                recordPendingDeposit(amt);
+
+            } catch (error) {
+                console.error('Deposit Error:', error);
+                alert('Error processing deposit');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+
+        function isMobileDevice() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
+
+        function launchUPIIntent(amount, txnId) {
+            const upiUrl = `upi://pay?pa=${UPI_CONFIG.merchantId}&pn=${UPI_CONFIG.merchantName}&am=${amount}&tr=${txnId}&cu=INR`;
+            window.location.href = upiUrl;
+        }
+
+        function recordPendingDeposit(amt) {
+            const txns = JSON.parse(localStorage.getItem('transactions') || '[]');
+            txns.unshift({
+                type: 'deposit',
+                amount: amt,
+                date: new Date().toISOString(),
+                status: 'pending' // Key change: Status is pending
+            });
+            localStorage.setItem('transactions', JSON.stringify(txns));
+
+            bootstrap.Modal.getInstance(document.getElementById('depositModal')).hide();
+            loadProfileData();
+            alert('Payment Initiated! Balance will be updated after owner confirmation.');
+        }
+
+        // Simulation Function: Admin approves the deposit
+        function simulateAdminApproval(txnIndex) {
+            if (!confirm("Simulate Owner Approval? (This adds funds to user wallet)")) return;
+
+            const txns = JSON.parse(localStorage.getItem('transactions') || '[]');
+            const txn = txns[txnIndex];
+
+            if (txn && txn.status === 'pending') {
+                txn.status = 'completed';
+
+                // Add funds to user
+                const user = JSON.parse(localStorage.getItem('currentUser'));
+                user.balance = (user.balance || 0) + txn.amount;
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                localStorage.setItem('transactions', JSON.stringify(txns));
+
+                loadProfileData();
+                alert("Deposit Approved & Funds Added!");
+            }
+        }
+
+        function handleWithdrawal() {
+            new bootstrap.Modal(document.getElementById('withdrawalModal')).show();
+        }
+
+        async function processWithdrawal() {
+            const amt = parseFloat(document.getElementById('withdrawalAmount').value);
+            const method = document.getElementById('withdrawalMethod').value;
+
+            if (!amt || amt < 500) { alert('Min withdrawal ₹500'); return; }
+
+            const btn = document.querySelector('#withdrawalModal .btn-primary');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+            try {
+                // Simulate API call
+                await new Promise(r => setTimeout(r, 1000));
+
+                const user = JSON.parse(localStorage.getItem('currentUser'));
+                if (amt > user.balance) { throw new Error('Insufficient balance'); }
+
+                user.balance -= amt;
+                user.totalWithdrawn = (user.totalWithdrawn || 0) + amt;
+                localStorage.setItem('currentUser', JSON.stringify(user));
+
+                const txns = JSON.parse(localStorage.getItem('transactions') || '[]');
+                txns.unshift({ type: 'withdrawal', amount: amt, date: new Date().toISOString(), status: 'pending' });
+                localStorage.setItem('transactions', JSON.stringify(txns));
+
+                bootstrap.Modal.getInstance(document.getElementById('withdrawalModal')).hide();
+                loadProfileData();
+                alert('Withdrawal request submitted! Waiting for approval.');
+
+            } catch (error) {
+                console.error('Withdrawal Error:', error);
+                alert(error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Withdraw';
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('currentUser');
+            window.location.href = 'auth/login.html';
+        }
+
+        function shareProfile() {
+            if (navigator.share) {
+                navigator.share({ title: 'InvestLoom', url: window.location.href });
+            } else {
+                navigator.clipboard.writeText(window.location.href);
+                alert('Link copied!');
+            }
+        }
+    </script>
 </body>
+
 </html>

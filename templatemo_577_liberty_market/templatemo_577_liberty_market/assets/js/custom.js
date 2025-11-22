@@ -2,6 +2,10 @@
 	
 	"use strict";
 
+    if (!$) {
+        return;
+    }
+
 	// Page loading animation
 	$(window).on('load', function() {
 
@@ -99,7 +103,8 @@
     });
 	// Responsive settings handled by CSS
 
-	$('.owl-collection').owlCarousel({
+    if ($.fn && $.fn.owlCarousel) {
+		$('.owl-collection').owlCarousel({
 		items:3,
 		loop:true,
 		dots: false,
@@ -117,9 +122,9 @@
 				  items:3
 			}
 		}
-	})
+		})
 
-	$('.owl-banner').owlCarousel({
+		$('.owl-banner').owlCarousel({
 		items:1,
 		loop:true,
 		dots: false,
@@ -137,7 +142,8 @@
 				  items:1
 			}
 		}
-	})
+		})
+	}
 
 	
 	
@@ -576,6 +582,7 @@ function logout() {
 // Preloader
 window.addEventListener('load', function() {
     const preloader = document.getElementById('js-preloader');
+    if (!preloader) return;
     setTimeout(() => {
         preloader.classList.add('loaded');
         setTimeout(() => {

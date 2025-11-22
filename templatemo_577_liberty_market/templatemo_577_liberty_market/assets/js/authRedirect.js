@@ -1,9 +1,9 @@
 // Centralized auth redirect configuration
 const AUTH_PATHS = {
-    LOGIN: '/templatemo_577_liberty_market/auth/login.html',
-    SIGNUP: '/templatemo_577_liberty_market/auth/signup.html',
-    PROFILE: '/templatemo_577_liberty_market/profile.html',
-    WALLET: '/templatemo_577_liberty_market/trading-activity.html'
+    LOGIN: 'auth/login.html',
+    SIGNUP: 'auth/signup.html',
+    PROFILE: 'profile.html',
+    WALLET: 'trading-activity.html'
 };
 
 // Function to handle auth redirects

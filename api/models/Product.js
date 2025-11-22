@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { connections } = require('../../config/database');
+
 
 const ProductSchema = new mongoose.Schema({
     name: {
@@ -16,8 +16,19 @@ const ProductSchema = new mongoose.Schema({
         required: true,
         min: 0
     },
+    dailyEarning: {
+        type: Number,
+        required: true,
+        min: 0
+    },
+    duration: {
+        type: Number,
+        required: true,
+        min: 1
+    },
     imageUrl: {
-        type: String
+        type: String,
+        default: 'assets/images/discover-01.jpg'
     },
     category: {
         type: String,
@@ -27,12 +38,14 @@ const ProductSchema = new mongoose.Schema({
         type: Boolean,
         default: true
     },
+    isActive: {
+        type: Boolean,
+        default: true
+    },
     createdAt: {
         type: Date,
         default: Date.now
     }
 });
 
-// Create the model using the products connection
-// Fallback to default mongoose connection if connections.products is not available
-module.exports = connections.products ? connections.products.model('Product', ProductSchema) : mongoose.model('Product', ProductSchema);
+module.exports = mongoose.model('Product', ProductSchema);
