@@ -37,22 +37,23 @@ app.use(helmet({
             defaultSrc: ["'self'"],
             scriptSrc: [
                 "'self'",
-                "'unsafe-inline'",
                 "https://cdn.jsdelivr.net",
                 "https://cdnjs.cloudflare.com"
             ],
             styleSrc: [
                 "'self'",
-                "'unsafe-inline'",  // Required for inline styles
                 "https://cdn.jsdelivr.net",
-                "https://cdnjs.cloudflare.com"
+                "https://cdnjs.cloudflare.com",
+                "https://fonts.googleapis.com"
             ],
             imgSrc: ["'self'", "data:", "https:"],
-            fontSrc: ["'self'", "https://cdnjs.cloudflare.com"],
+            fontSrc: ["'self'", "https://cdnjs.cloudflare.com", "https://fonts.gstatic.com"],
             connectSrc: ["'self'"],
             frameSrc: ["'none'"],
             objectSrc: ["'none'"],
-            upgradeInsecureRequests: []
+            upgradeInsecureRequests: [],
+            baseUri: ["'self'"],
+            formAction: ["'self'"]
         }
     },
 
